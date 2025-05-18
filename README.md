@@ -117,10 +117,6 @@ This implementation comes from the Claimify methodology, which evaluates claim e
 
 The research by Metropolitansky & Larson shows that this approach outperforms existing methods - especially because it can handle ambiguity and only extracts claims when theres high confidence in the correct interpretation.
 
-## 📄 License
-
-[MIT License](LICENSE) - do whatever you want with it!
-
 ## 🙏 Thanks to
 
 - Dasha Metropolitansky & Jonathan Larson from Microsoft Research - for creating Claimify

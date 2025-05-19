@@ -4,6 +4,8 @@ Hey there! This is a LangGraph implementation of the awesome Claimify methodolog
 
 ## 📋 What's this all about?
 
+![Claim Extractor Pipeline](https://cloud.imbharath.com/claim-extractor.svg)
+
 So basically, we're implementing the approach from ["Towards Effective Extraction and Evaluation of Factual Claims"](https://arxiv.org/abs/2502.10855) by Metropolitansky & Larson (2025). Their Claimify method breaks things down into stages that make a ton of sense:
 
 1. **Sentence Splitting**: Chop up text into sentences (with their context)
@@ -25,11 +27,12 @@ But here's the thing - the whole system falls apart if your extracted claims are
 git clone https://github.com/bharathxd/fact-checker.git
 cd fact-checker
 
-# Install dependencies 
+# Install dependencies
 poetry install
 ```
 
 Don't forget your environment variables:
+
 ```
 # Add to .env file (you'll need this!)
 OPENAI_API_KEY=your_api_key_here
@@ -138,4 +141,4 @@ This project is an implementation of the Claimify methodology developed by Metro
 }
 ```
 
-Check out the full paper at: https://www.microsoft.com/en-us/research/publication/towards-effective-extraction-and-evaluation-of-factual-claims/
+Check out the full paper at: https://www.microsoft.com/en-us/research/publication/towards-effective-extraction-and-evaluation-of-factual-claims

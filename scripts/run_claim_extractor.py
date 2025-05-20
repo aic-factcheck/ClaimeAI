@@ -4,16 +4,13 @@ import uuid
 from langgraph_sdk import get_client
 
 payload = {
-    "question": "What are the key achievements of the Apollo 11 mission?",
-    "answer_text": (
+    "text": (
         "The Apollo 11 mission was a major success for NASA. It was the first mission to land humans on the Moon. "
         "Neil Armstrong and Buzz Aldrin walked on the lunar surface on July 20, 1969. This was truly amazing. "
         "They collected samples of lunar material and returned safely to Earth. Some say it changed humanity. "
         "The mission also deployed several scientific instruments on the Moon. Its impact is undeniable."
     ),
     "metadata": "NASA Historical Archives - Apollo 11 Mission Report Summary",
-    "p_sentences": 1,
-    "f_sentences": 1,
 }
 
 

@@ -28,27 +28,27 @@ poetry install
 And then in your code:
 
 ```python
-from fact_checker import graph as fact_checker_graph
 import asyncio
+from fact_checker import graph as fact_checker_graph
 
 async def check_those_facts():
     # This is where you put the text you want to check
     input_data = {
         "question": "What are the primary causes of global warming and what does the IPCC state about human contribution?",
-        "answer": "The main drivers of recent global warming are greenhouse gas emissions from burning fossil fuels, deforestation, and industrial activities. The IPCC has stated that human activities have warmed the planet by about 1.0°C since pre-industrial times."
+        "answer": "The main drivers of recent global warming are greenhouse gas emissions from burning fossil fuels, deforestation, and industrial activities. The IPCC has stated that human activities have warmed the planet by about 1.0°C since pre-industrial times.",
     }
-    
+
     # This will store our final report when it's ready
     final_report = None
-    
+
     # The graph.astream gives you a play-by-play of what's happening
     # You could use graph.ainvoke() instead if you just want the final result
     async for event in fact_checker_graph.astream(input_data):
         for key, value in event.items():
             # I usually print this to see progress in real-time
             print(f"Node: {key} completed!")
-            if key == "generate_report_node": # Last step
-                 final_report = value.get("final_report")
+            if key == "generate_report_node":  # Last step
+                final_report = value.get("final_report")
 
     # Let's see what we found!
     if final_report:
@@ -69,7 +69,8 @@ async def check_those_facts():
         print("Hmm, something went sideways. No report was generated.")
 
 # Let's run it!
-asyncio.run(check_those_facts())
+if __name__ == "__main__":
+    asyncio.run(check_those_facts())
 ```
 
 Pro tip: The first run will be pretty slow - you're making a bunch of LLM calls and search API requests. For testing during development, I'd recommend starting with short texts that will generate just 1-2 claims.

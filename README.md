@@ -84,6 +84,7 @@ async def run_full_fact_check():
     else:
         print("Hmm, something went wrong - couldn't get a final report.")
 
+# Let's run it!
 if __name__ == "__main__":
     asyncio.run(run_full_fact_check())
 ```
@@ -154,6 +155,14 @@ The `claim_extractor` is built on the **Claimify** methodology from Metropolitan
 
 For the `claim_verifier`, the evidence retrieval approach draws some inspiration from the Search-Augmented Factuality Evaluator (SAFE) methodology in ["Long-form factuality in large language models"](https://arxiv.org/abs/2403.18802) by Wei et al. (2024). Just the basic idea of using search results to verify individual claims.
 
+## ⚠️ A Quick Note on the Implementation
+
+Look, I've tried my best to faithfully implement everything described in the research papers, especially Claimify. But let's be real - there's always room for improvement and I might have missed some minor details along the way. I also took some creative liberties to enhance what was in the papers, adding features like the voting mechanism for disambiguation and the multi-retry approach for verification.
+
+What you're seeing here is my interpretation of these research methods, with some practical additions that I found helpful when implementing in the real world. If you spot something that doesn't align perfectly with the papers, that's probably intentional - I was aiming for a working system that captured the spirit of the research while being practically useful.
+
+The beauty of building on research is that we get to stand on the shoulders of giants AND add our own twist. I believe this implementation represents the core ideas faithfully while adding practical enhancements that make it even more effective.
+
 ## 🙏 Thanks to the Giants
 
 This project wouldn't have been possible without:
@@ -164,4 +173,4 @@ This project wouldn't have been possible without:
 * OpenAI - for the LLMs that power the text understanding
 * Tavily AI - their search API is perfect for this use case
 
-I've learned a ton working on this project. If you use it or have ideas for improvements, I'd love to hear about it!
+I've learned a ton working on this project. If you use it or have ideas for improvements, I'd love to hear about it! Contributions are always welcome - whether it's code, suggestions, or even just sharing how you're using it. Let's make this thing even better together.

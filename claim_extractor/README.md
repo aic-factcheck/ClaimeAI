@@ -19,23 +19,32 @@ I've implemented the approach from Metropolitansky & Larson's 2025 paper ["Towar
 While this is typically used as the first step in the full fact-checker pipeline, you can also use it standalone like this:
 
 ```python
+import asyncio
 from claim_extractor import graph
 
-# Try it on a Q&A pair
-result = graph.invoke({
-    "question": "What are the key factors driving climate change?",
-    "answer_text": "The primary drivers of climate change include greenhouse gas emissions from burning fossil fuels, deforestation, and industrial processes. The IPCC report indicates that human activities have caused approximately 1.0°C of global warming above pre-industrial levels."
-})
+async def check_those_facts():
+    # Try it on a Q&A pair
+    result = await graph.ainvoke(
+        {
+            "question": "What are the key factors driving climate change?",
+            "answer_text": "The primary drivers of climate change include greenhouse gas emissions from burning fossil fuels, deforestation, and industrial processes. The IPCC report indicates that human activities have caused approximately 1.0°C of global warming above pre-industrial levels.",
+        }
+    )
 
-# Check out what we extracted!
-for claim in result["validated_claims"]:
-    print(f"✓ {claim.claim_text}")
+    # Check out what we extracted!
+    for claim in result["validated_claims"]:
+        print(f"✓ {claim.claim_text}")
+
 
 # You'll get output like:
-# ✓ Greenhouse gas emissions from burning fossil fuels are a primary driver of climate change.
-# ✓ Deforestation is a primary driver of climate change.
-# ✓ Industrial processes are a primary driver of climate change.
-# ✓ The IPCC report indicates that human activities have caused approximately 1.0°C of global warming above pre-industrial levels.
+# ✓ Greenhouse gas emissions from burning fossil fuels are a primary driver of climate change
+# ✓ Deforestation is a primary driver of climate change
+# ✓ Industrial processes are a primary driver of climate change
+# ✓ The Intergovernmental Panel on Climate Change report indicates that human activities have caused approximately 1.0°C of global warming above pre-industrial levels
+
+# Let's run it!
+if __name__ == "__main__":
+    asyncio.run(check_those_facts())
 ```
 
 Pretty neat, right? It takes those complex sentences and breaks them down into specific testable claims. I've noticed the quality of these extracted claims makes a huge difference in the final fact-checking accuracy.

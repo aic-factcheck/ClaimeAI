@@ -20,20 +20,20 @@ Once we've got our nicely extracted claims from the Claim Extractor, this module
 While this module is usually called from the main `fact-checker` orchestrator, you can absolutely use it standalone:
 
 ```python
+import asyncio
 from claim_verifier import graph as claim_verifier_graph
 from claim_extractor.schemas import ValidatedClaim
 
 # Here's a claim we want to verify
 claim_to_verify = ValidatedClaim(
-    claim_text="The IPCC report indicates that human activities have caused approximately 1.0°C of global warming.",
+    claim_text="The Intergovernmental Panel on Climate Change report indicates that human activities have caused approximately 1.0°C of global warming above pre-industrial levels",
     is_complete_declarative=True,
-    source_sentence="The IPCC report indicates that human activities have caused approximately 1.0°C of global warming above pre-industrial levels."
+    source_sentence="The IPCC report indicates that human activities have caused approximately 1.0°C of global warming above pre-industrial levels.",
 )
 
+
 async def verify_claim():
-    result = await claim_verifier_graph.ainvoke({
-        "claim": claim_to_verify
-    })
+    result = await claim_verifier_graph.ainvoke({"claim": claim_to_verify})
 
     if result and result.get("verdict"):
         verdict = result["verdict"]
@@ -45,7 +45,9 @@ async def verify_claim():
     else:
         print("Verification failed - something went wrong")
 
-# Run it with asyncio.run(verify_claim())
+# Let's run it!
+if __name__ == "__main__":
+    asyncio.run(verify_claim())
 ```
 
 **Hot tip**: You definitely need valid `OPENAI_API_KEY` and `TAVILY_API_KEY` environment variables for this to work. Tavily's free tier should be fine for testing, but watch your usage if you're processing lots of claims.

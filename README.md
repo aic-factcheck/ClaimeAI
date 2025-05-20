@@ -36,7 +36,10 @@ Don't forget your environment variables:
 ```
 # Add to .env file (you'll need this!)
 OPENAI_API_KEY=your_api_key_here
+TAVILY_API_KEY=your_tavily_api_key_here
 ```
+
+You'll need to get a Tavily API key from [Tavily AI](https://tavily.com/) to use the web search functionality for claim verification.
 
 ## 📝 How to use it
 

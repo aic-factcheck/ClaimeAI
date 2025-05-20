@@ -3,6 +3,7 @@ from typing import Any
 
 from dotenv import load_dotenv
 from langgraph.graph import StateGraph
+from langgraph.graph.state import CompiledStateGraph
 
 from claim_extractor.nodes import (
     decomposition_node,
@@ -21,7 +22,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def create_graph() -> Any:
+def create_graph() -> CompiledStateGraph:
     """Set up the claim extraction workflow graph.
 
     The pipeline follows these steps:

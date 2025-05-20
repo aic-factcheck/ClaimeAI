@@ -8,12 +8,10 @@ import logging
 from typing import Dict, Sequence
 
 from pydantic import BaseModel, Field
-
-from claim_extractor.config import VALIDATION_CONFIG
 from claim_extractor.llm import get_llm
 from claim_extractor.prompts import VALIDATION_HUMAN_PROMPT, VALIDATION_SYSTEM_PROMPT
 from claim_extractor.schemas import PotentialClaim, State, ValidatedClaim
-from claim_extractor.utils import call_llm_with_structured_output
+from utils.llm import call_llm_with_structured_output
 
 logger = logging.getLogger(__name__)
 
@@ -43,14 +41,14 @@ async def _validate_claim(potential_claim: PotentialClaim) -> ValidatedClaim:
     ]
 
     # Use zero-temp LLM for consistent results
-    llm = get_llm(1)  # 1 completion, uses DEFAULT_TEMPERATURE 
+    llm = get_llm(1)  # 1 completion, uses DEFAULT_TEMPERATURE
 
     # Call the LLM
     response = await call_llm_with_structured_output(
         llm=llm,
         output_class=ValidationOutput,
         messages=messages,
-        context_desc=f"validation of claim '{potential_claim.claim_text}'"
+        context_desc=f"validation of claim '{potential_claim.claim_text}'",
     )
 
     # Check if valid

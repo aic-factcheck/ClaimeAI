@@ -8,6 +8,7 @@ import logging
 from typing import Any, Callable, List, Optional, Tuple, Type, TypeVar
 
 from pydantic import BaseModel
+from langchain_core.language_models.chat_models import BaseChatModel
 
 T = TypeVar("T")
 R = TypeVar("R")
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 async def call_llm_with_structured_output(
-    llm: Any,
+    llm: BaseChatModel,
     output_class: Type[M],
     messages: List[Tuple[str, str]],
     context_desc: str = "",

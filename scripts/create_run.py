@@ -32,7 +32,7 @@ async def main():
     await client.threads.create(thread_id=thread_id)
     await client.runs.create(
         thread_id=thread_id,
-        assistant_id="main",
+        assistant_id="claim_extractor",
         input=payload,
     )
 

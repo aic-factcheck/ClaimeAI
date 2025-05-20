@@ -14,10 +14,7 @@ from claim_extractor.config import DECOMPOSITION_CONFIG
 from claim_extractor.llm import get_llm
 from claim_extractor.prompts import DECOMPOSITION_SYSTEM_PROMPT, HUMAN_PROMPT
 from claim_extractor.schemas import DisambiguatedContent, PotentialClaim, State
-from claim_extractor.utils import (
-    call_llm_with_structured_output,
-    remove_following_sentences,
-)
+from utils import call_llm_with_structured_output, remove_following_sentences
 
 logger = logging.getLogger(__name__)
 

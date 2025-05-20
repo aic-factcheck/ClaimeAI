@@ -13,7 +13,7 @@ from claim_extractor.config import DISAMBIGUATION_CONFIG
 from claim_extractor.llm import get_llm
 from claim_extractor.prompts import DISAMBIGUATION_SYSTEM_PROMPT, HUMAN_PROMPT
 from claim_extractor.schemas import DisambiguatedContent, SelectedContent, State
-from claim_extractor.utils import (
+from utils import (
     call_llm_with_structured_output,
     process_with_voting,
     remove_following_sentences,

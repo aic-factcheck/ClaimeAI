@@ -13,7 +13,7 @@ from claim_extractor.config import SELECTION_CONFIG
 from claim_extractor.llm import get_llm
 from claim_extractor.prompts import HUMAN_PROMPT, SELECTION_SYSTEM_PROMPT
 from claim_extractor.schemas import ContextualSentence, SelectedContent, State
-from claim_extractor.utils import call_llm_with_structured_output, process_with_voting
+from utils.llm import call_llm_with_structured_output, process_with_voting
 
 # Configure module logger
 logger = logging.getLogger(__name__)

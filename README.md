@@ -1,147 +1,167 @@
-# Claim Extractor 🔎
+# Fact Checker System 🚦🔎🛡️
 
-Hey there! This is a LangGraph implementation of the awesome Claimify methodology that helps extract factual claims from text. I've been working on this for a while, and I think it's pretty cool - it gives you a nice pipeline for identifying, fixing ambiguities, and pulling out verifiable claims from Q&A pairs.
+Hey there! I've been working on this fact-checking system for a while, and I'm pretty excited to share it. What we've got here is a comprehensive LangGraph implementation that helps you verify the factual accuracy of text. It'll break down a text into individual claims, check each one against real-world evidence, and then give you a detailed report on what's accurate and what's not.
 
-## 📋 What's this all about?
+The system is split into three main parts (I found this modular approach works way better than a single monolithic system):
 
-![Claim Extractor Pipeline](https://cloud.imbharath.com/claim-extractor.svg)
+1.  **[Claim Extractor (`claim_extractor/`)](./claim_extractor/README.md)**: Pulls out factual claims from text using the Claimify methodology.
+2.  **[Claim Verifier (`claim_verifier/`)](./claim_verifier/README.md)**: Checks each claim against online evidence through Tavily Search.
+3.  **[Fact Checker (`fact_checker/`)](./fact_checker/README.md)**: Ties everything together and generates the final report.
 
-So basically, we're implementing the approach from ["Towards Effective Extraction and Evaluation of Factual Claims"](https://arxiv.org/abs/2502.10855) by Metropolitansky & Larson (2025). Their Claimify method breaks things down into stages that make a ton of sense:
+## 📋 So what's the point of all this?
 
-1. **Sentence Splitting**: Chop up text into sentences (with their context)
-2. **Selection**: Find which sentences actually have verifiable stuff in them
-3. **Disambiguation**: Fix up any confusing references or unclear meanings
-4. **Decomposition**: Pull out individual, stand-alone factual claims
-5. **Validation**: Double-check that claims are proper sentences
+Let's face it - content from LLMs (or humans!) can sometimes include statements that aren't quite right. I wanted to build a system that could help identify what's factually solid and what might need a second look.
 
-## 🔍 Why this matters
+Here's how it works in practice:
 
-Let's be real - LLMs can sometimes generate content that's... well, not exactly grounded in facts. For lengthy outputs with lots of info, a good way to fact-check is to break it down into simple "claims" that can each be verified separately.
-
-But here's the thing - the whole system falls apart if your extracted claims are garbage! That's why we need a solid method for getting high-quality claims. And that's exactly what this project delivers!
+1.  You feed in a question and its answer (or any text you want to fact-check).
+2.  The Claim Extractor breaks it down into specific, testable claims. This part was tricky to get right - we needed to handle pronouns, context, and ambiguity. Check out `claim_extractor/README.md` if you're curious about the details.
+3.  The Claim Verifier then takes each claim and tries to verify it. It'll search the web, gather evidence, and decide if the claim is supported, refuted, or if there's just not enough information. There's a lot of nuance here - sometimes the evidence is conflicting!
+4.  Finally, you get a comprehensive report showing which claims held up and which didn't. I've found this breakdown approach much more useful than a simple "true/false" on the entire text.
 
 ## 🚀 Getting Started
 
+Want to try it out? Here's how:
+
 ```bash
-# Clone the repo
-git clone https://github.com/bharathxd/fact-checker.git
-cd fact-checker
+# Clone the repo (if you haven't already)
+# git clone https://github.com/bharathxd/fact-checker.git
+# cd fact-checker
 
 # Install dependencies
 poetry install
 ```
 
-Don't forget your environment variables:
+You'll need to set up a couple API keys:
 
 ```
-# Add to .env file (you'll need this!)
+# Add these to a .env file in the root directory
 OPENAI_API_KEY=your_api_key_here
 TAVILY_API_KEY=your_tavily_api_key_here
 ```
 
-You'll need to get a Tavily API key from [Tavily AI](https://tavily.com/) to use the web search functionality for claim verification.
+You can grab these from:
+* OpenAI: [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+* Tavily: [tavily.com](https://tavily.com/) (for web search - their free tier should be enough for testing)
 
-## 📝 How to use it
+## 📝 Let's see some code!
 
-Here's a quick example that shows how easy it is to use:
+Here's how you'd use the system to fact-check something:
 
 ```python
-from claim_extractor import graph
+from fact_checker import graph as fact_checker_graph
+import asyncio
 
-# Let's process a Q&A to extract claims
-result = graph.invoke({
-    "question": "What are the key factors driving climate change?",
-    "answer_text": "The primary drivers of climate change include greenhouse gas emissions from burning fossil fuels, deforestation, and industrial processes. The IPCC report indicates that human activities have caused approximately 1.0°C of global warming above pre-industrial levels."
-})
+async def run_full_fact_check():
+    input_data = {
+        "question": "What are the main components of the Solar System and their characteristics?",
+        "answer": "The Solar System is centered around the Sun, a G-type main-sequence star. It includes eight planets: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune. Jupiter is the largest planet. Earth is the only known planet to harbor life. Mars is often called the Red Planet due to iron oxide on its surface."
+    }
 
-# Check out the claims we extracted!
-for claim in result["validated_claims"]:
-    print(f"✓ {claim.claim_text}")
+    final_report = None
+    # You can use astream_events if you want to see the blow-by-blow progress
+    async for event in fact_checker_graph.astream(input_data):
+        # I usually just track basic progress as it runs
+        for key, value in event.items():
+            print(f"Progress - Node: {key} completed.")
+            if key == "generate_report_node":
+                final_report = value.get("final_report")
+
+    if final_report:
+        print("\n--- FINAL FACT-CHECK REPORT ---")
+        print(f"Question: {final_report.question}")
+        print(f"Answer: {final_report.answer}")
+        print(f"Summary: {final_report.summary}")
+        print(f"Timestamp: {final_report.timestamp}")
+        print("\nVerified Claims Details:")
+        for verdict in final_report.verified_claims:
+            print(f"  Claim: {verdict.claim_text}")
+            print(f"    Verdict: {verdict.result.value}")
+            print(f"    Reasoning: {verdict.reasoning}")
+            if verdict.sources:
+                print(f"    Sources: {verdict.sources}")
+            print("  -----")
+    else:
+        print("Hmm, something went wrong - couldn't get a final report.")
+
+if __name__ == "__main__":
+    asyncio.run(run_full_fact_check())
 ```
 
-## 📊 How the pipeline works
+Fair warning: the first run will be a bit slow since you're hitting multiple LLM calls and web searches!
 
-We're using LangGraph to create a workflow that goes like this:
+## 📊 How It All Fits Together
+
+The system runs on LangGraph for orchestrating the workflows. Here's how the pieces connect:
 
 ```mermaid
-graph LR
-    A[sentence_splitter] --> B[selection]
-    B --> C[disambiguation]
-    C --> D[decomposition]
-    D --> E[validation]
+graph TD
+    subgraph Fact Checker Orchestrator (`fact_checker`)
+        direction LR
+        FC_Start((Start: Input Question & Answer)) --> FC_Extract[extract_claims_node]
+        FC_Extract --> FC_Dispatch{dispatch_claims_for_verification}
+        FC_Dispatch -- Some Claims --> FC_Verify[claim_verifier_node (Fan-out)]
+        FC_Dispatch -- No Claims --> FC_Report[generate_report_node]
+        FC_Verify --> FC_Report
+        FC_Report --> FC_End((End: Final Report))
+    end
+
+    subgraph Claim Extractor Module (`claim_extractor`)
+        direction LR
+        CE_Start((Start)) --> CE_Split[sentence_splitter_node]
+        CE_Split --> CE_Select[selection_node]
+        CE_Select --> CE_Disamb[disambiguation_node]
+        CE_Disamb --> CE_Decomp[decomposition_node]
+        CE_Decomp --> CE_Validate[validation_node]
+        CE_Validate --> CE_End((End: Validated Claims))
+    end
+
+    subgraph Claim Verifier Module (`claim_verifier`)
+        direction LR
+        CV_Start((Start: Single Claim)) --> CV_QueryGen[generate_search_queries_node]
+        CV_QueryGen --> CV_Distribute{query_distributor}
+        CV_Distribute -- Queries --> CV_Retrieve[retrieve_evidence_node]
+        CV_Distribute -- No Queries --> CV_EndEval((End: Verdict))
+        CV_Retrieve --> CV_Evaluate[evaluate_evidence_node]
+        CV_Evaluate -- Sufficient / Max Retries --> CV_EndEval
+        CV_Evaluate -- Insufficient & Retries Left --> CV_QueryGen
+    end
+
+    FC_Extract -- Invokes --> CE_Start
+    FC_Verify -- Invokes for each claim --> CV_Start
 ```
 
-Each step in the pipeline does it's own thing:
+It's a bit complex, I know! I spent way too much time getting these interactions right. If you want to understand a specific part better, check out the detailed READMEs:
 
-- **sentence_splitter_node**: Breaks text into chunks and adds context
-- **selection_node**: Figures out which sentences have facts we can check
-- **disambiguation_node**: Clears up any confusing references
-- **decomposition_node**: Extracts the individual claims
-- **validation_node**: Makes sure claims are properly formed
+* **[Claim Extractor README](./claim_extractor/README.md)** - The nitty-gritty on how we extract claims
+* **[Claim Verifier README](./claim_verifier/README.md)** - How we verify claims against real-world evidence
+* **[Fact Checker README](./fact_checker/README.md)** - How we orchestrate everything
 
-## ⚙️ Tweaking the settings
+## ⚙️ Tweaking Things
 
-If you wanna customize things, check out the settings in `claim_extractor/config/`:
+Each component has its own configuration options in their `config/` folders. I've spent a lot of time fine-tuning these settings, but you might want to adjust them for your specific needs:
 
-- `nodes.py`: Has all the settings for each processing stage
-- `llm/config.py`: Change LLM model and temperature settings here
+* Temperature settings for LLM calls (how creative vs. deterministic you want things)
+* Number of web search results to collect
+* Retry attempts for ambiguous claims
+* and much more...
 
-## 🔬 What makes this cool
+The module READMEs have detailed info on what you can customize.
 
-- **Multi-stage Processing**: Breaking down a complex problem into manageable steps
-- **Robust Disambiguation**: Handles both referential and structural ambiguity (which is super tricky!)
-- **Voting Mechanism**: Uses multiple completions with voting for better reliability
-- **Modular Design**: Easy to extend or tweak individual parts
+## 📚 A Bit About the Research
 
-## 👨‍💻 Project Structure
+The `claim_extractor` is built on the **Claimify** methodology from Metropolitansky & Larson's 2025 paper. It's pretty fascinating stuff - they figured out how to handle ambiguity and extract verifiable claims. I spent a good week just implementing their pipeline, and it was worth it. The full citation and details are in the [`claim_extractor/README.md`](./claim_extractor/README.md).
 
-If you're digging into the code, here's how things are organized:
+For the `claim_verifier`, the evidence retrieval approach draws some inspiration from the Search-Augmented Factuality Evaluator (SAFE) methodology in ["Long-form factuality in large language models"](https://arxiv.org/abs/2403.18802) by Wei et al. (2024). Just the basic idea of using search results to verify individual claims.
 
-```
-claim_extractor/
-├── __init__.py
-├── agent.py               # The main LangGraph workflow
-├── config/                # Where all the settings live
-├── llm/                   # LLM stuff
-├── nodes/                 # The pipeline components
-│   ├── sentence_splitter.py
-│   ├── selection.py
-│   ├── disambiguation.py
-│   ├── decomposition.py
-│   └── validation.py
-├── schemas.py             # Data models
-└── utils/                 # Helper functions
-```
+## 🙏 Thanks to the Giants
 
-## 📚 The science behind it
+This project wouldn't have been possible without:
 
-This implementation comes from the Claimify methodology, which evaluates claim extraction on three main criteria:
+* Dasha Metropolitansky & Jonathan Larson from Microsoft Research - their Claimify methodology is brilliant
+* Jerry Wei and team at Google DeepMind - their SAFE paper had some useful ideas for evidence retrieval
+* The LangChain team - LangGraph made the complex workflows so much easier
+* OpenAI - for the LLMs that power the text understanding
+* Tavily AI - their search API is perfect for this use case
 
-1. **Entailment**: Claims must logically follow from the source text
-2. **Coverage**: Need to capture all the verifiable info (but skip the fluff)
-3. **Decontextualization**: Claims should make sense on their own
-
-The research by Metropolitansky & Larson shows that this approach outperforms existing methods - especially because it can handle ambiguity and only extracts claims when theres high confidence in the correct interpretation.
-
-## 🙏 Thanks to
-
-- Dasha Metropolitansky & Jonathan Larson from Microsoft Research - for creating Claimify
-- LangChain team - for the LangGraph framework that made this possible
-- OpenAI - for providing the underlying LLM
-
-## 💬 Citation
-
-This project is an implementation of the Claimify methodology developed by Metropolitansky and Larson. I'm not affiliated with the original research, but if you use this implementation in your work, please cite the original paper:
-
-```bibtex
-@misc{metropolitansky2025towards,
-  author = {Metropolitansky, Dasha and Larson, Jonathan},
-  title = {Towards Effective Extraction and Evaluation of Factual Claims},
-  year = {2025},
-  month = {February},
-  abstract = {A common strategy for fact-checking long-form content generated by Large Language Models (LLMs) is extracting simple claims that can be verified independently. Since inaccurate or incomplete claims compromise fact-checking results, ensuring claim quality is critical. However, the lack of a standardized evaluation framework impedes assessment and comparison of claim extraction methods. To address this gap, we propose a framework for evaluating claim extraction in the context of fact-checking along with automated, scalable, and replicable methods for applying this framework, including novel approaches for measuring coverage and decontextualization. We also introduce Claimify, an LLM-based claim extraction method, and demonstrate that it outperforms existing methods under our evaluation framework. A key feature of Claimify is its ability to handle ambiguity and extract claims only when there is high confidence in the correct interpretation of the source text.},
-  url = {https://www.microsoft.com/en-us/research/publication/towards-effective-extraction-and-evaluation-of-factual-claims/},
-}
-```
-
-Check out the full paper at: https://www.microsoft.com/en-us/research/publication/towards-effective-extraction-and-evaluation-of-factual-claims
+I've learned a ton working on this project. If you use it or have ideas for improvements, I'd love to hear about it!

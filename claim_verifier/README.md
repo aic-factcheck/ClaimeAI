@@ -87,7 +87,7 @@ If you're using this module, you might want to tweak these settings in `claim_ve
     -   `EVIDENCE_RETRIEVAL_CONFIG`: Controls how many search results per query (default 10) and max snippets overall (default 15). More isn't always better - too much noise can confuse the evaluation.
     -   `RETRY_CONFIG`: Sets max retry attempts (default 3). I've found 3 attempts is the sweet spot - beyond that, you rarely find new information.
 
--   `llm/config.py`: I've set it to use `gpt-4o` which has a good balance of cost and accuracy for this task. You could try other models, but smaller models sometimes struggle with the nuanced evaluation needed.
+-   `llm/config.py`: I've set it to use `gpt-4o-mini` which has a good balance of cost and accuracy for this task. You could try other models, but smaller models sometimes struggle with the nuanced evaluation needed.
 
 ## 📂 The code organization
 

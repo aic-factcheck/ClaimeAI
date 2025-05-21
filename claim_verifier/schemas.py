@@ -12,7 +12,7 @@ from operator import add
 
 class VerificationResult(str, Enum):
     """Possible outcomes of a fact-checking verification."""
-    
+
     SUPPORTED = "Supported"
     REFUTED = "Refuted"
     INSUFFICIENT_INFORMATION = "Insufficient Information"
@@ -33,15 +33,21 @@ class Verdict(BaseModel):
     """The result of fact-checking a single claim."""
 
     claim_text: str = Field(description="The text of the claim that was checked")
-    source_text: str = Field(
+    disambiguated_sentence: str = Field(
+        description="The disambiguated sentence from which the claim was derived"
+    )
+    original_sentence: str = Field(
         description="The original sentence from which the claim was derived"
+    )
+    original_index: int = Field(
+        description="The index of the original sentence in the source text"
     )
     result: VerificationResult = Field(
         description="The fact-checking verdict (Supported, Refuted, etc.)"
     )
     reasoning: str = Field(description="Brief explanation of the verdict")
-    sources: List[str] = Field(
-        default_factory=list, description="URLs of supporting evidence"
+    sources: List[Evidence] = Field(
+        default_factory=list, description="List of evidence sources"
     )
 
 
@@ -58,7 +64,7 @@ class ClaimVerifierState(BaseModel):
     queries: List[str] = Field(
         default_factory=list, description="Generated search queries"
     )
-    evidence: List[Evidence] = Annotated[List[Evidence], add]
+    evidence: Annotated[List[Evidence], add] = Field(default_factory=list)
     verdict: Optional[Verdict] = Field(
         default=None, description="Final verification result"
     )

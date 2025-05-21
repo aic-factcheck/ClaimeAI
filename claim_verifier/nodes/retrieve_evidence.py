@@ -41,7 +41,7 @@ async def _search_query(query: str) -> List[Evidence]:
         search_result = await tavily_search.ainvoke(query)
 
         # Extract evidence from the results
-        evidence_list = []
+        evidence_list: List[Evidence] = []
 
         # Parse Tavily search results
         if isinstance(search_result, dict) and "results" in search_result:
@@ -84,7 +84,7 @@ async def retrieve_evidence_node(
 
     # Flatten and deduplicate evidence
     seen_urls = set()
-    unique_evidence = []
+    unique_evidence: List[Evidence] = []
 
     for evidence in all_evidence:
         if evidence.url not in seen_urls:
@@ -99,4 +99,4 @@ async def retrieve_evidence_node(
         unique_evidence = unique_evidence[:MAX_SNIPPETS]
 
     logger.info(f"Retrieved a total of {len(unique_evidence)} unique evidence snippets")
-    return {"evidence": unique_evidence}
+    return {"evidence": [evidence.model_dump() for evidence in unique_evidence]}

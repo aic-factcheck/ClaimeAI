@@ -66,7 +66,9 @@ async def _validate_claim(potential_claim: PotentialClaim) -> ValidatedClaim:
     return ValidatedClaim(
         claim_text=potential_claim.claim_text,
         is_complete_declarative=is_valid,
-        source_sentence=potential_claim.source_sentence,
+        disambiguated_sentence=potential_claim.disambiguated_sentence,
+        original_sentence=potential_claim.original_sentence,
+        original_index=potential_claim.original_index,
     )
 
 

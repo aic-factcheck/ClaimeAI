@@ -88,8 +88,17 @@ async def _decomposition_stage(
     # Clean up claims and convert to objects
     claims_texts = [claim.strip() for claim in response.claims if claim.strip()]
 
+    # Get original sentence and index
+    original_sentence = disambiguated_item.original_selected_item.original_context_item.original_sentence
+    original_index = disambiguated_item.original_selected_item.original_context_item.original_index
+
     potential_claims = [
-        PotentialClaim(claim_text=claim_text, source_sentence=sentence)
+        PotentialClaim(
+            claim_text=claim_text, 
+            disambiguated_sentence=sentence,
+            original_sentence=original_sentence,
+            original_index=original_index
+        )
         for claim_text in claims_texts
     ]
 

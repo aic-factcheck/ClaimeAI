@@ -51,8 +51,14 @@ class PotentialClaim(BaseModel):
     """A factual claim extracted from disambiguated content."""
 
     claim_text: str = Field(description="Text of the potential claim")
-    source_sentence: str = Field(
+    disambiguated_sentence: str = Field(
         description="The disambiguated sentence the claim was extracted from"
+    )
+    original_sentence: str = Field(
+        description="The original sentence from the answer text"
+    )
+    original_index: int = Field(
+        description="Index of the original sentence in the answer text"
     )
 
 
@@ -63,8 +69,14 @@ class ValidatedClaim(BaseModel):
     is_complete_declarative: bool = Field(
         description="Whether the claim is a complete declarative sentence"
     )
-    source_sentence: str = Field(
+    disambiguated_sentence: str = Field(
         description="The disambiguated sentence the claim was extracted from"
+    )
+    original_sentence: str = Field(
+        description="The original sentence from the answer text"
+    )
+    original_index: int = Field(
+        description="Index of the original sentence in the answer text"
     )
 
 

@@ -101,7 +101,7 @@ graph TD
         direction LR
         FC_Start((Start: Input Question & Answer)) --> FC_Extract[extract_claims_node]
         FC_Extract --> FC_Dispatch{dispatch_claims_for_verification}
-        FC_Dispatch -- Some Claims --> FC_Verify[claim_verifier_node (Fan-out)]
+        FC_Dispatch -- Some Claims --> FC_Verify["claim_verifier_node (Fan-out)"]
         FC_Dispatch -- No Claims --> FC_Report[generate_report_node]
         FC_Verify --> FC_Report
         FC_Report --> FC_End((End: Final Report))

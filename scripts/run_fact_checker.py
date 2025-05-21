@@ -4,13 +4,13 @@ import uuid
 from langgraph_sdk import get_client
 
 payload = {
-    "input_text": (
+    "answer": (
         "The Apollo 11 mission was a major success for NASA. It was the first mission to land humans on the Moon. "
         "Neil Armstrong and Buzz Aldrin walked on the lunar surface on July 20, 1969. "
         "They collected samples of lunar material and returned safely to Earth. "
         "The mission also deployed several scientific instruments on the Moon."
     ),
-    "source": "User submission about Apollo 11",
+    "question": "User submission about Apollo 11",
 }
 
 
@@ -18,7 +18,7 @@ async def main():
     client = get_client(url="http://127.0.0.1:2024")
 
     thread_id = str(
-        uuid.UUID(hex=hashlib.md5(payload["source"].encode("UTF-8")).hexdigest())
+        uuid.UUID(hex=hashlib.md5(payload["question"].encode("UTF-8")).hexdigest())
     )
 
     try:

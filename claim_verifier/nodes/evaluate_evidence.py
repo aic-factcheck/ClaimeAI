@@ -108,7 +108,7 @@ async def evaluate_evidence_node(
         logger.warning(f"Failed to evaluate evidence for claim: '{claim.claim_text}'")
         verdict = Verdict(
             claim_text=claim.claim_text,
-            source_text=claim.source_sentence,
+            disambiguated_sentence=claim.disambiguated_sentence,
             result=VerificationResult.INSUFFICIENT_INFORMATION,
             reasoning="Failed to evaluate the evidence due to technical issues.",
             sources=[],
@@ -117,11 +117,13 @@ async def evaluate_evidence_node(
         sources = []
         for idx in response.influential_source_indices:
             if 1 <= idx <= len(evidence_snippets):
-                sources.append(evidence_snippets[idx - 1].url)
+                sources.append(evidence_snippets[idx - 1])
 
         verdict = Verdict(
             claim_text=claim.claim_text,
-            source_text=claim.source_sentence,
+            disambiguated_sentence=claim.disambiguated_sentence,
+            original_sentence=claim.original_sentence,
+            original_index=claim.original_index,
             result=VerificationResult(response.verdict),
             reasoning=response.reasoning,
             sources=sources,

@@ -48,11 +48,11 @@ export const ProcessedAnswer = ({
 }: ProcessedAnswerProps) => {
   if (sentenceEntries.length === 0)
     return (
-      <p className="text-gray-500 py-4">No processed answer available yet.</p>
+      <p className="text-neutral-500 py-4">No processed answer available yet.</p>
     );
 
   return (
-    <div className="text-gray-900 leading-relaxed text-sm flex flex-wrap items-baseline gap-x-1.5 gap-y-1">
+    <div className="text-neutral-900 leading-relaxed text-sm flex flex-wrap items-baseline gap-x-1.5 gap-y-1">
       {sentenceEntries.map(([id, data], idx) => {
         const hasDerivatives =
           data.selected.length > 0 ||
@@ -69,7 +69,7 @@ export const ProcessedAnswer = ({
         const isActive = isLoading && id === activeSentenceId;
 
         return (
-          <motion.span
+          <motion.button
             key={id}
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
@@ -79,22 +79,13 @@ export const ProcessedAnswer = ({
               isActive
                 ? "bg-blue-100/50 border-l-[3px] border-l-blue-500 rounded-md px-2 py-1.5 inline-block"
                 : hasDerivatives
-                ? `bg-gray-100/60 ${verdictColor} rounded-md px-2 py-1.5 inline-block hover:bg-gray-200/60`
-                : "text-gray-700 border border-dashed border-gray-300 rounded-md px-2 py-1.5 inline-block",
-              isActive ? "relative" : ""
+                ? `bg-neutral-100/60 ${verdictColor} rounded-md px-2 py-1.5 inline-block hover:bg-neutral-200/60`
+                : "text-neutral-700 border border-dashed border-neutral-300 rounded-md px-2 py-1.5 inline-block",
             )}
+            onClick={() =>
+              setExpandedCitation(expandedCitation === idx ? null : idx)
+            }
           >
-            {isActive && (
-              <motion.div
-                className="absolute right-1.5 top-1.5 w-1.5 h-1.5 bg-blue-500 rounded-full"
-                animate={{ opacity: [0.5, 1, 0.5] }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              />
-            )}
             {data.original.text}
             {hasDerivatives && (
               <Citation
@@ -107,7 +98,7 @@ export const ProcessedAnswer = ({
               />
             )}
             {idx < sentenceEntries.length - 1 && " "}
-          </motion.span>
+          </motion.button>
         );
       })}
     </div>

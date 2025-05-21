@@ -26,6 +26,7 @@
     "framer-motion": "^12.12.1",
     "hono": "^4.7.10",
     "lucide-react": "^0.511.0",
+    "motion": "^12.12.1",
     "next": "15.3.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

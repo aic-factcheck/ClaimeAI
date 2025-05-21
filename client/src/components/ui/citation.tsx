@@ -1,5 +1,6 @@
 import { Verdict } from "@/lib/event-schema";
 import { AnimatePresence, motion } from "framer-motion";
+import React from "react";
 import {
   Popover,
   PopoverContent,
@@ -7,6 +8,14 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { VerdictBadge } from "./verdict-badge";
+import {
+  FileText,
+  Search,
+  FileQuestion,
+  ClipboardCheck,
+  Scale,
+  LucideIcon,
+} from "lucide-react";
 
 interface CitationProps {
   id: number;
@@ -19,6 +28,7 @@ interface CitationSectionProps {
   title: string;
   items: any[];
   delay: number;
+  icon: LucideIcon;
   renderItem: (item: any, idx: number) => React.ReactNode;
 }
 
@@ -26,6 +36,7 @@ const CitationSection = ({
   title,
   items,
   delay,
+  icon: Icon,
   renderItem,
 }: CitationSectionProps) =>
   items.length > 0 && (
@@ -34,10 +45,13 @@ const CitationSection = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, delay }}
     >
-      <h5 className="text-xs font-medium text-gray-600 mb-1.5">{title}</h5>
+      <div className="flex items-center gap-1.5 mb-1.5">
+        <Icon className="w-3.5 h-3.5 text-neutral-500" />
+        <h5 className="text-xs font-medium text-neutral-600">{title}</h5>
+      </div>
       <div
         className={cn(
-          "text-xs bg-gray-50 p-2.5 rounded-md border border-gray-200 leading-relaxed px-0",
+          "text-xs bg-neutral-50 p-2.5 rounded-md border border-neutral-200 leading-relaxed px-0",
           title === "Verdicts" && "p-0 bg-transparent border-0 space-y-2"
         )}
       >
@@ -54,19 +68,19 @@ export const Citation = ({
 }: CitationProps) => (
   <Popover open={isExpanded} onOpenChange={(open) => onClick()}>
     <PopoverTrigger asChild>
-      <motion.sup
+      <motion.span
         onClick={(e) => {
           e.stopPropagation();
           onClick();
         }}
         className={cn(
-          "cursor-pointer mx-0.5 text-blue-500 font-medium hover:text-blue-700 transition-colors"
+          "cursor-pointer ml-1 mb-1 text-neutral-800 text-mono text-xs hover:text-neutral-700 transition-colors"
         )}
         whileHover={{ scale: 1.15 }}
         whileTap={{ scale: 0.95 }}
       >
         [{id + 1}]
-      </motion.sup>
+      </motion.span>
     </PopoverTrigger>
     <PopoverContent
       side="top"
@@ -84,7 +98,7 @@ export const Citation = ({
             className="w-full"
           >
             <div className="max-h-[350px] overflow-y-auto">
-              <h4 className="text-xs font-semibold text-gray-900 p-2 border-b border-gray-100">
+              <h4 className="text-xs font-semibold text-neutral-900 p-2 border-b border-neutral-100">
                 Citation [{id + 1}]
               </h4>
 
@@ -93,8 +107,12 @@ export const Citation = ({
                   title="Selected"
                   items={sentenceData.selected}
                   delay={0.05}
+                  icon={FileText}
                   renderItem={(item, idx) => (
-                    <div key={idx} className="p-2 pt-2 first:pt-0 last:pb-0 text-gray-900 border-b last:border-b-0">
+                    <div
+                      key={idx}
+                      className="p-2 pt-2 first:pt-0 last:pb-0 text-neutral-900 border-b last:border-b-0"
+                    >
                       {item.processedText || item.claimText}
                     </div>
                   )}
@@ -104,8 +122,12 @@ export const Citation = ({
                   title="Disambiguated"
                   items={sentenceData.disambiguated}
                   delay={0.1}
+                  icon={Search}
                   renderItem={(item, idx) => (
-                    <div key={idx} className="p-2 pt-2 first:pt-0 last:pb-0 text-gray-900 border-b last:border-b-0">
+                    <div
+                      key={idx}
+                      className="p-2 pt-2 first:pt-0 last:pb-0 text-neutral-900 border-b last:border-b-0"
+                    >
                       {item.disambiguatedText}
                     </div>
                   )}
@@ -115,8 +137,12 @@ export const Citation = ({
                   title="Potential Claims"
                   items={sentenceData.potentialClaims}
                   delay={0.15}
+                  icon={FileQuestion}
                   renderItem={(item, idx) => (
-                    <div key={idx} className="p-2 pt-2 first:pt-0 last:pb-0 text-gray-900 border-b last:border-b-0">
+                    <div
+                      key={idx}
+                      className="p-2 pt-2 first:pt-0 last:pb-0 text-neutral-900 border-b last:border-b-0"
+                    >
                       {item.claim.claimText}
                     </div>
                   )}
@@ -126,8 +152,12 @@ export const Citation = ({
                   title="Validated Claims"
                   items={sentenceData.validatedClaims}
                   delay={0.2}
+                  icon={ClipboardCheck}
                   renderItem={(item, idx) => (
-                    <div key={idx} className="p-2 pt-2 first:pt-0 last:pb-0 text-gray-900 border-b last:border-b-0">
+                    <div
+                      key={idx}
+                      className="p-2 pt-2 first:pt-0 last:pb-0 text-neutral-900 border-b last:border-b-0"
+                    >
                       {item.claim_text || item.claimText}
                     </div>
                   )}
@@ -137,24 +167,25 @@ export const Citation = ({
                   title="Verdicts"
                   items={sentenceData.verdicts}
                   delay={0.25}
+                  icon={Scale}
                   renderItem={(verdict: Verdict, idx) => (
                     <div
                       key={idx}
-                      className="text-xs bg-gray-50 rounded-md border border-gray-200 overflow-hidden"
+                      className="text-xs bg-neutral-50 rounded-md border border-neutral-200 overflow-hidden"
                     >
                       <div className="p-2.5">
                         <div className="mb-2">
                           <VerdictBadge verdict={verdict} />
                         </div>
-                        <p className="text-xs text-gray-900 font-medium mb-2">
+                        <p className="text-xs text-neutral-900 font-medium mb-2">
                           {verdict.claim_text}
                         </p>
-                        <p className="text-xs text-gray-500 leading-relaxed">
+                        <p className="text-xs text-neutral-500 leading-relaxed">
                           {verdict.reasoning}
                         </p>
                         {verdict.sources.length > 0 && (
-                          <div className="mt-2 pt-2 border-t border-gray-100">
-                            <div className="text-xs font-medium text-gray-500 mb-1">
+                          <div className="mt-2 pt-2 border-t border-neutral-100">
+                            <div className="text-xs font-medium text-neutral-500 mb-1">
                               Sources:
                             </div>
                             <div className="space-y-1">

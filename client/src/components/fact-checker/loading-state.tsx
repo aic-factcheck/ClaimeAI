@@ -15,7 +15,7 @@ export const LoadingState = ({ message }: LoadingStateProps) => (
       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
     />
     <motion.p
-      className="text-xs text-gray-500"
+      className="text-xs text-neutral-500"
       initial={{ opacity: 0, y: 5 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.2 }}

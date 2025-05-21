@@ -49,11 +49,11 @@ export const SourcePills = ({ verdicts, maxSources = 7 }: SourcePillsProps) => {
   return (
     <div>
       <div className="flex justify-between items-center">
-        <h3 className="text-sm font-medium my-2.5">Sources</h3>
+        <h3 className="text-sm font-medium my-2.5 mt-6">Sources</h3>
         {hasMoreSources && (
           <button
             onClick={() => setExpanded(!expanded)}
-            className="text-xs text-gray-500 hover:text-gray-900 flex items-center gap-1 transition-colors"
+            className="text-xs text-neutral-500 hover:text-neutral-900 flex items-center gap-1 transition-colors"
           >
             {expanded ? (
               <>
@@ -85,10 +85,10 @@ export const SourcePills = ({ verdicts, maxSources = 7 }: SourcePillsProps) => {
               title={title}
               className={cn(
                 "flex items-center gap-1.5 px-2 py-0.5 text-xs",
-                "bg-gray-50 text-gray-700 border border-gray-200 rounded-md",
+                "bg-neutral-50 text-neutral-700 border border-neutral-200 rounded-md",
                 "transition-all duration-150 ease-in-out",
-                "hover:bg-gray-100 hover:border-gray-300 hover:shadow-sm",
-                "focus:outline-none focus:ring-1 focus:ring-gray-300"
+                "hover:bg-neutral-100 hover:border-neutral-300 hover:shadow-sm",
+                "focus:outline-none focus:ring-1 focus:ring-neutral-300"
               )}
             >
               <div className="w-3.5 h-3.5 relative flex-shrink-0 overflow-hidden rounded-[2px]">
@@ -99,7 +99,7 @@ export const SourcePills = ({ verdicts, maxSources = 7 }: SourcePillsProps) => {
                   onError={(e) => {
                     // Use first letter of domain as fallback
                     (e.currentTarget.parentNode as HTMLElement).innerHTML = `
-                      <div class="w-full h-full flex items-center justify-center bg-gray-200 text-[8px] font-medium text-gray-700">
+                      <div class="w-full h-full flex items-center justify-center bg-neutral-200 text-[8px] font-medium text-neutral-700">
                         ${domain.charAt(0).toUpperCase()}
                       </div>
                     `;
@@ -109,7 +109,7 @@ export const SourcePills = ({ verdicts, maxSources = 7 }: SourcePillsProps) => {
               <span className="truncate font-medium">
                 {title}
               </span>
-              <ExternalLink className="w-2.5 h-2.5 text-gray-400 flex-shrink-0" />
+              <ExternalLink className="w-2.5 h-2.5 text-neutral-400 flex-shrink-0" />
             </a>
           );
         })}
@@ -119,10 +119,10 @@ export const SourcePills = ({ verdicts, maxSources = 7 }: SourcePillsProps) => {
             onClick={() => setExpanded(true)}
             className={cn(
               "flex items-center gap-1 px-2 py-0.5 text-xs",
-              "bg-gray-50 text-gray-500 border border-gray-200 rounded-md",
-              "hover:bg-gray-100 hover:border-gray-300 hover:text-gray-700",
+              "bg-neutral-50 text-neutral-500 border border-neutral-200 rounded-md",
+              "hover:bg-neutral-100 hover:border-neutral-300 hover:text-neutral-700",
               "transition-all duration-150 ease-in-out",
-              "focus:outline-none focus:ring-1 focus:ring-gray-300"
+              "focus:outline-none focus:ring-1 focus:ring-neutral-300"
             )}
           >
             +{hiddenSourcesCount} more

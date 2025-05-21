@@ -18,61 +18,61 @@ export const VerdictSummary = ({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-4"
+      transition={{ duration: 0.2 }}
+      className="space-y-3  "
     >
-      <h3 className="flex items-center text-sm font-medium text-gray-800 my-2.5">
+      <h3 className="flex items-center text-sm font-medium text-neutral-900 my-2.5 mt-6">
         Fact Check Summary
         {isLoading && (
           <motion.span
             initial={{ opacity: 0, x: -5 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-xs text-gray-500 ml-2 font-normal"
+            className="text-xs text-neutral-500 ml-2 font-normal"
           >
             Processing...
           </motion.span>
         )}
       </h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {verdicts.map((verdict, idx) => (
           <motion.div
             key={idx}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: idx * 0.07 }}
+            transition={{ duration: 0.2, delay: idx * 0.05 }}
             className={cn(
-              "bg-white border border-gray-200 rounded-md p-4 transition-colors"
+              "bg-neutral-50 dark:bg-neutral-900/90 border border-dashed border-neutral-200 dark:border-neutral-800 rounded-lg p-3 transition-all"
             )}
           >
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               <VerdictBadge verdict={verdict} />
 
-              <div className="space-y-2">
-                <p className="text-sm text-gray-800 font-medium leading-snug">
+              <div className="space-y-1.5">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 leading-snug">
                   {verdict.claim_text}
                 </p>
-                <p className="text-sm text-gray-600 leading-relaxed">
+                <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
                   {verdict.reasoning}
                 </p>
               </div>
 
               {verdict.sources.length > 0 && (
-                <div className="pt-3 mt-1 border-t border-gray-100">
-                  <p className="text-xs font-medium text-gray-500 mb-2">
-                    Sources:
+                <div className="pt-2 mt-1 border-t border-neutral-100 dark:border-neutral-800">
+                  <p className="text-xs tracking-wider font-medium text-neutral-500 dark:text-neutral-400 mb-1.5">
+                    Sources
                   </p>
-                  <div className="space-y-1.5">
+                  <div className="space-y-1">
                     {verdict.sources.map((source, idx) => (
                       <a
                         key={idx}
                         href={source.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center text-xs text-blue-600 hover:text-blue-800 transition-colors"
+                        className="flex items-center text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          className="h-3.5 w-3.5 mr-1.5 flex-shrink-0 text-gray-400"
+                          className="h-3 w-3 mr-1 flex-shrink-0 text-neutral-400"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"

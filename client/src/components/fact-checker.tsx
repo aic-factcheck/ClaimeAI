@@ -7,25 +7,22 @@ import {
   PotentialClaimData,
   SelectedContentData,
 } from "@/lib/store";
+import { cn } from "@/lib/utils";
 import { UIValidatedClaim } from "@/types";
 import { motion } from "framer-motion";
-import React, { useMemo, useState } from "react";
-import { cn } from "@/lib/utils";
+import { useMemo, useState } from "react";
 
 // Import separated components
-import { ProgressBar } from "./fact-checker/progress-bar";
-import { VerdictSummary } from "./fact-checker/verdict-summary";
+import { LoadingState } from "./fact-checker/loading-state";
 import { ProcessedAnswer } from "./fact-checker/processed-answer";
-import {
-  LoadingState,
-  ProcessingIndicator,
-} from "./fact-checker/loading-state";
+import { ProgressBar } from "./fact-checker/progress-bar";
+import { SourcePills } from "./fact-checker/source-pills";
 import {
   createDerivativesMap,
   findActiveSentenceId,
-  getCurrentStageMessage,
 } from "./fact-checker/utils";
-import { SourcePills } from "./fact-checker/source-pills";
+import { VerdictProgress } from "./fact-checker/verdict-progress";
+import { VerdictSummary } from "./fact-checker/verdict-summary";
 
 interface FactCheckerProps {
   question: string;
@@ -131,20 +128,24 @@ const FactChecker = ({
     >
       {/* Main content */}
       {contextualSentences.length === 0 ? (
-        <div className="space-y-5">
+        <>
           <ProgressBar stages={progressStages} isLoading={isLoading} />
           <LoadingState message="Initializing verification..." />
-        </div>
+        </>
       ) : (
-        <div>
+        <>
           <ProgressBar stages={progressStages} isLoading={isLoading} />
 
           {/* Display source pills if we have any verdicts with sources */}
           {claimVerdicts.length > 0 && <SourcePills verdicts={claimVerdicts} />}
 
-          {/* Show all processed data as it comes in */}
           <div>
-            <h3 className="text-sm font-medium text-gray-900 my-2.5">
+            {/* Show verdict progress when verdicts start coming in */}
+            {claimVerdicts.length > 0 && (
+              <VerdictProgress verdicts={claimVerdicts} isLoading={isLoading} />
+            )}
+            {/* Show all processed data as it comes in */}
+            <h3 className="text-sm font-medium text-neutral-900 my-2.5 mt-6">
               Processed Answer
             </h3>
             <ProcessedAnswer
@@ -155,10 +156,10 @@ const FactChecker = ({
               setExpandedCitation={setExpandedCitation}
             />
           </div>
-
-          {/* Show verdicts when available */}
-        </div>
+        </>
       )}
+
+      {/* Show verdict summary as a separate section */}
       <VerdictSummary verdicts={claimVerdicts} isLoading={isLoading} />
     </motion.div>
   );

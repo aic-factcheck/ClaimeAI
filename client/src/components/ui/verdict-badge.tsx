@@ -11,13 +11,13 @@ interface VerdictBadgeProps {
 const getBadgeVariant = (result: string): BadgeProps["variant"] => {
   switch (result) {
     case "Supported":
-      return "success";
+      return "success-subtle";
     case "Refuted":
-      return "destructive";
+      return "destructive-subtle";
     case "Insufficient Information":
-      return "warning";
+      return "warning-subtle";
     case "Conflicting Evidence":
-      return "outline";
+      return "outline-subtle";
     default:
       return "secondary";
   }
@@ -26,13 +26,13 @@ const getBadgeVariant = (result: string): BadgeProps["variant"] => {
 const getIcon = (result: string) => {
   switch (result) {
     case "Supported":
-      return <Check className="w-3 h-3 mr-1" />;
+      return <Check className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />;
     case "Refuted":
-      return <X className="w-3 h-3 mr-1" />;
+      return <X className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />;
     case "Insufficient Information":
-      return <Info className="w-3 h-3 mr-1" />;
+      return <Info className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />;
     case "Conflicting Evidence":
-      return <AlertCircle className="w-3 h-3 mr-1" />;
+      return <AlertCircle className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />;
     default:
       return null;
   }
@@ -42,7 +42,7 @@ export const VerdictBadge = ({ verdict }: VerdictBadgeProps) => (
   <Badge
     variant={getBadgeVariant(verdict.result)}
     className={cn(
-      "flex items-center text-xs w-fit font-medium py-0.5 px-2 rounded-sm"
+      "flex items-center text-[11px] w-fit py-0.5 px-2 rounded-sm"
     )}
   >
     {getIcon(verdict.result)}
@@ -50,6 +50,7 @@ export const VerdictBadge = ({ verdict }: VerdictBadgeProps) => (
       initial={{ opacity: 0, x: -2 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.2 }}
+      className="truncate"
     >
       {verdict.result}
     </motion.span>

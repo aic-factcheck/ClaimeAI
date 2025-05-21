@@ -97,7 +97,7 @@ The system runs on LangGraph for orchestrating the workflows. Here's how the pie
 
 ```mermaid
 graph TD
-    subgraph Fact Checker Orchestrator (`fact_checker`)
+    subgraph Fact Checker Orchestrator (fact_checker)
         direction LR
         FC_Start((Start: Input Question & Answer)) --> FC_Extract[extract_claims_node]
         FC_Extract --> FC_Dispatch{dispatch_claims_for_verification}
@@ -107,7 +107,7 @@ graph TD
         FC_Report --> FC_End((End: Final Report))
     end
 
-    subgraph Claim Extractor Module (`claim_extractor`)
+    subgraph Claim Extractor Module (claim_extractor)
         direction LR
         CE_Start((Start)) --> CE_Split[sentence_splitter_node]
         CE_Split --> CE_Select[selection_node]
@@ -117,7 +117,7 @@ graph TD
         CE_Validate --> CE_End((End: Validated Claims))
     end
 
-    subgraph Claim Verifier Module (`claim_verifier`)
+    subgraph Claim Verifier Module (claim_verifier)
         direction LR
         CV_Start((Start: Single Claim)) --> CV_QueryGen[generate_search_queries_node]
         CV_QueryGen --> CV_Distribute{query_distributor}

@@ -1,8 +1,8 @@
 import logging
-from typing import Any
 
 from dotenv import load_dotenv
 from langgraph.graph import END, StateGraph
+from langgraph.graph.state import CompiledStateGraph
 
 from fact_checker.nodes import (
     claim_verifier_node,
@@ -20,7 +20,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def create_graph() -> Any:
+def create_graph() -> CompiledStateGraph:
     """Set up the main fact checker workflow graph.
 
     The pipeline follows these steps:

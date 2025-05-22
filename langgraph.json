@@ -1,9 +1,9 @@
 {
   "python_version": "3.11",
-  "dependencies": ["."],
+  "dependencies": ["./apps/fact-checker"],
   "graphs": {
-    "claim_extractor": "./claim_extractor/agent.py:graph",
-    "claim_verifier": "./claim_verifier/agent.py:graph",
-    "fact_checker": "./fact_checker/agent.py:graph"
+    "claim_extractor": "apps/fact-checker/claim_extractor/agent.py:graph",
+    "claim_verifier": "apps/fact-checker/claim_verifier/agent.py:graph",
+    "fact_checker": "apps/fact-checker/fact_checker/agent.py:graph"
   }
 }

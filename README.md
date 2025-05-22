@@ -25,42 +25,7 @@ Here's how it works in practice:
 
 The system runs on LangGraph for orchestrating the workflows. Here's how the pieces connect:
 
-```mermaid
-graph TD
-    subgraph fact_checker ["Fact Checker Orchestrator"]
-        direction LR
-        FC_Start((Start: Input Question & Answer)) --> FC_Extract[extract_claims_node]
-        FC_Extract --> FC_Dispatch{dispatch_claims_for_verification}
-        FC_Dispatch -- Some Claims --> FC_Verify["claim_verifier_node (Fan-out)"]
-        FC_Dispatch -- No Claims --> FC_Report[generate_report_node]
-        FC_Verify --> FC_Report
-        FC_Report --> FC_End((End: Final Report))
-    end
-
-    subgraph claim_extractor ["Claim Extractor Module"]
-        direction LR
-        CE_Start((Start)) --> CE_Split[sentence_splitter_node]
-        CE_Split --> CE_Select[selection_node]
-        CE_Select --> CE_Disamb[disambiguation_node]
-        CE_Disamb --> CE_Decomp[decomposition_node]
-        CE_Decomp --> CE_Validate[validation_node]
-        CE_Validate --> CE_End((End: Validated Claims))
-    end
-
-    subgraph claim_verifier ["Claim Verifier Module"]
-        direction LR
-        CV_Start((Start: Single Claim)) --> CV_QueryGen[generate_search_queries_node]
-        CV_QueryGen --> CV_Distribute{query_distributor}
-        CV_Distribute -- Queries --> CV_Retrieve[retrieve_evidence_node]
-        CV_Distribute -- No Queries --> CV_EndEval((End: Verdict))
-        CV_Retrieve --> CV_Evaluate[evaluate_evidence_node]
-        CV_Evaluate -- Sufficient / Max Retries --> CV_EndEval
-        CV_Evaluate -- Insufficient & Retries Left --> CV_QueryGen
-    end
-
-    FC_Extract -- Invokes --> CE_Start
-    FC_Verify -- Invokes for each claim --> CV_Start
-```
+![Fact Checker MAS](https://cloud.imbharath.com/fact-checker-mas.png)
 
 It's a bit complex, I know! I spent way too much time getting these interactions right. If you want to understand a specific part better, check out the detailed READMEs:
 

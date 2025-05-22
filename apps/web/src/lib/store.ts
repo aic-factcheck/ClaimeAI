@@ -259,7 +259,6 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
         const { question, answer, resetState, processEventData } = get();
 
         if (!question || !answer) {
-          alert("Please enter both question and answer.");
           return;
         }
 
@@ -412,6 +411,11 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
 export const useFactCheckerInput = () => {
   const store = useFactCheckerStore();
 
+  const clearInputs = () => {
+    store.setQuestion("");
+    store.setAnswer("");
+  };
+
   return {
     question: store.question,
     setQuestion: store.setQuestion,
@@ -420,6 +424,7 @@ export const useFactCheckerInput = () => {
     isLoading: store.isLoading,
     startVerification: store.startVerification,
     resetState: store.resetState,
+    clearInputs,
   };
 };
 

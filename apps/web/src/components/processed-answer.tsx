@@ -1,6 +1,12 @@
 import { Citation } from "@/components/ui/citation";
 import type { Verdict } from "@/lib/event-schema";
-import type { ContextualSentence } from "@/lib/store";
+import type {
+  ContextualSentence,
+  DisambiguatedContentData,
+  PotentialClaimData,
+  SelectedContentData,
+} from "@/lib/store";
+import type { UIValidatedClaim } from "@/types";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -9,24 +15,20 @@ interface ProcessedAnswerProps {
     number,
     {
       original: ContextualSentence;
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-      selected: any[];
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-      disambiguated: any[];
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-      potentialClaims: any[];
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-      validatedClaims: any[];
+      selected: SelectedContentData[];
+      disambiguated: DisambiguatedContentData[];
+      potentialClaims: PotentialClaimData[];
+      validatedClaims: UIValidatedClaim[];
       verdicts: Verdict[];
-    },
+    }
   ][];
-  isLoading: boolean;
-  activeSentenceId: number;
   expandedCitation: number | null;
   setExpandedCitation: (id: number | null) => void;
 }
 
-const getVerdictAccentColor = (result: string): string => {
+const getVerdictAccentColor = (result?: string): string => {
+  if (!result) return "";
+
   switch (result) {
     case "Supported":
       return "border-l-2 border-l-green-500";
@@ -43,8 +45,6 @@ const getVerdictAccentColor = (result: string): string => {
 
 export const ProcessedAnswer = ({
   sentenceEntries,
-  isLoading,
-  activeSentenceId,
   expandedCitation,
   setExpandedCitation,
 }: ProcessedAnswerProps) => {
@@ -65,12 +65,8 @@ export const ProcessedAnswer = ({
           data.validatedClaims.length > 0 ||
           data.verdicts.length > 0;
 
-        const verdict = data.verdicts[0];
-        const verdictColor = verdict
-          ? getVerdictAccentColor(verdict.result)
-          : "";
-
-        const isActive = isLoading && id === activeSentenceId;
+        const verdict = data.verdicts.at(0);
+        const verdictColor = getVerdictAccentColor(verdict?.result);
 
         return (
           <motion.button
@@ -80,11 +76,9 @@ export const ProcessedAnswer = ({
             transition={{ duration: 0.2, delay: idx * 0.02 }}
             className={cn(
               "transition-colors duration-200",
-              isActive
-                ? "inline-block rounded-md border-l-[3px] border-l-blue-500 bg-blue-100/50 px-2 py-1.5"
-                : hasDerivatives
-                  ? `bg-neutral-100/60 ${verdictColor} inline-block rounded-md px-2 py-1.5 hover:bg-neutral-200/60`
-                  : "inline-block rounded-md border border-neutral-300 border-dashed px-2 py-1.5 text-neutral-700"
+              hasDerivatives
+                ? `bg-neutral-100/60 ${verdictColor} inline-block rounded-md px-2 py-1.5 hover:bg-neutral-200/60`
+                : "inline-block rounded-md border border-neutral-300 border-dashed px-2 py-1.5 text-neutral-700"
             )}
             onClick={() =>
               setExpandedCitation(expandedCitation === idx ? null : idx)

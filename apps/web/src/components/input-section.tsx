@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,6 +32,11 @@ export const InputSection = () => {
         onChange={(e) => setQuestion(e.target.value)}
         className="rounded-b-none border-neutral-200 bg-white text-sm transition-all duration-200 placeholder:text-neutral-400"
         disabled={isLoading}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !isLoading) {
+            startVerification();
+          }
+        }}
       />
 
       <Textarea
@@ -38,11 +45,16 @@ export const InputSection = () => {
         onChange={(e) => setAnswer(e.target.value)}
         className="peer max-h-32 min-h-32 w-full max-w-5xl resize-none whitespace-pre-wrap rounded-t-none border-neutral-200 border-t-0 bg-white pr-20 text-sm transition-all duration-200 placeholder:text-neutral-400"
         disabled={isLoading}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !isLoading) {
+            startVerification();
+          }
+        }}
       />
 
       <Button
         onClick={startVerification}
-        disabled={isLoading}
+        disabled={isLoading || !question || !answer}
         size="sm"
         variant="secondary"
         className={cn(

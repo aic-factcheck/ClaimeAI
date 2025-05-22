@@ -1,5 +1,3 @@
-"use client";
-
 import { useMemo } from "react";
 
 const phrases = [
@@ -72,9 +70,9 @@ const AestheticBackground = () => {
         />
         <div className="relative h-full w-full p-3 md:p-5 lg:p-6">
           <div className="grid grid-cols-6 gap-x-0.5 gap-y-0.5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-14">
-            {extendedPhrases.map((item) => (
+            {extendedPhrases.map((item, index) => (
               <span
-                key={item.text}
+                key={`${item.text}-${index}`}
                 className={`select-none px-0.5 text-[9px] leading-tight md:text-[10px] ${
                   item.highlight
                     ? "font-medium text-neutral-600"

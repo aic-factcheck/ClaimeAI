@@ -6,7 +6,7 @@ interface LoadingStateProps {
 }
 
 export const LoadingState = ({ message }: LoadingStateProps) => (
-  <div className="flex flex-col items-center justify-center py-8">
+  <div className="flex flex-col items-center justify-center py-24">
     <motion.div
       className={cn(
         "mb-3 h-6 w-6 rounded-full border-2 border-blue-100 border-t-blue-600"

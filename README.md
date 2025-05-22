@@ -106,6 +106,14 @@ This project wouldn't have been possible without:
 
 I've learned a ton working on this project. If you use it or have ideas for improvements, I'd love to hear about it! Contributions are always welcome - whether it's code, suggestions, or even just sharing how you're using it. Let's make this thing even better together.
 
+## 🛣️ Roadmap
+
+Here's what's coming next for the Fact Checker system:
+
+- **Add an evaluation agent** - Create a dedicated component to assess the overall performance of the fact-checking process and provide metrics on accuracy and reliability.
+  
+- **Create a public facing API (as a service)** - Develop and deploy a robust API service that allows external applications to leverage the fact-checking capabilities without needing to run the full system locally.
+
 ## 📝 Contributing
 
 Contributions are welcome! Here's how you can help:

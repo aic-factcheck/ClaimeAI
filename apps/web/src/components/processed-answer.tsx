@@ -75,7 +75,7 @@ export const ProcessedAnswer = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2, delay: idx * 0.02 }}
             className={cn(
-              "transition-colors duration-200",
+              "transition-colors duration-200 text-start",
               hasDerivatives
                 ? `bg-neutral-100/60 ${verdictColor} inline-block rounded-md px-2 py-1.5 hover:bg-neutral-200/60`
                 : "inline-block rounded-md border border-neutral-300 border-dashed px-2 py-1.5 text-neutral-700"

@@ -6,12 +6,12 @@ Contains settings for the claim verification pipeline nodes.
 # Node settings
 QUERY_GENERATION_CONFIG = {
     "temperature": 0.0,  # Zero temp for consistent results
-    "max_queries": 1,  # Maximum number of queries to generate
+    "max_queries": 3,  # Maximum number of queries to generate
 }
 
 EVIDENCE_RETRIEVAL_CONFIG = {
-    "results_per_query": 10,  # Number of search results to fetch per query
-    "max_snippets": 15,  # Maximum total snippets to process
+    "results_per_query": 5,  # Number of search results to fetch per query
+    "max_snippets": 5,  # Maximum total snippets to process
 }
 
 EVIDENCE_EVALUATION_CONFIG = {

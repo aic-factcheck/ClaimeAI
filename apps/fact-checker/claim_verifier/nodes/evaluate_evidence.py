@@ -29,10 +29,15 @@ logger = logging.getLogger(__name__)
 class EvidenceEvaluationOutput(BaseModel):
     """Response schema for evidence evaluation LLM calls."""
 
-    verdict: str = Field(description="The fact-checking verdict for the claim")
-    reasoning: str = Field(description="Brief reasoning for the verdict")
+    verdict: VerificationResult = Field(
+        description="The fact-checking verdict for the claim (Supported, Refuted, Insufficient Information, or Conflicting Evidence)"
+    )
+    reasoning: str = Field(
+        description="Brief reasoning for the verdict (1-2 sentences)"
+    )
     influential_source_indices: List[int] = Field(
-        description="1-based indices of the most influential sources"
+        description="1-based indices of the most influential sources",
+        default_factory=list
     )
 
 
@@ -53,10 +58,10 @@ def _format_evidence_snippets(snippets: List[Evidence]) -> str:
         snippet_text = f"Source {idx + 1}: {snippet.url}\n"
         if snippet.title:
             snippet_text += f"Title: {snippet.title}\n"
-        snippet_text += f"Snippet: {snippet.text}\n---"
+        snippet_text += f"Snippet: {snippet.text.strip()}\n---"
         formatted_snippets.append(snippet_text)
 
-    return "\n---\n".join(formatted_snippets)
+    return "\n\n".join(formatted_snippets)
 
 
 async def evaluate_evidence_node(
@@ -96,7 +101,7 @@ async def evaluate_evidence_node(
         ),
     ]
 
-    # Call the LLM
+    # Call the LLM with structured output schema
     response = await call_llm_with_structured_output(
         llm=llm,
         output_class=EvidenceEvaluationOutput,
@@ -109,28 +114,44 @@ async def evaluate_evidence_node(
         verdict = Verdict(
             claim_text=claim.claim_text,
             disambiguated_sentence=claim.disambiguated_sentence,
+            original_sentence=claim.original_sentence,
+            original_index=claim.original_index,
             result=VerificationResult.INSUFFICIENT_INFORMATION,
             reasoning="Failed to evaluate the evidence due to technical issues.",
             sources=[],
         )
     else:
+        # Validate the verdict against allowed values and normalize
+        try:
+            result = VerificationResult(response.verdict)
+        except ValueError:
+            logger.warning(
+                f"Invalid verdict '{response.verdict}' from LLM. Defaulting to Insufficient Information."
+            )
+            result = VerificationResult.INSUFFICIENT_INFORMATION
+
+        # Extract referenced evidence sources
         sources = []
         for idx in response.influential_source_indices:
             if 1 <= idx <= len(evidence_snippets):
                 sources.append(evidence_snippets[idx - 1])
+            else:
+                logger.warning(f"Invalid source index {idx} referenced in verdict")
 
         verdict = Verdict(
             claim_text=claim.claim_text,
             disambiguated_sentence=claim.disambiguated_sentence,
             original_sentence=claim.original_sentence,
             original_index=claim.original_index,
-            result=VerificationResult(response.verdict),
+            result=result,
             reasoning=response.reasoning,
             sources=sources,
         )
 
+    # Log the complete verdict details including reasoning
     logger.info(
         f"Verdict for claim '{claim.claim_text}': {verdict.result}. "
+        f"Reasoning: {verdict.reasoning} "
         f"Based on {len(verdict.sources)} influential sources."
     )
 
@@ -140,10 +161,15 @@ async def evaluate_evidence_node(
         and current_retry < max_retries
     )
 
+    if should_retry:
+        logger.info(f"Insufficient information found. Retrying with new queries (attempt {current_retry + 2}/{max_retries + 1}).")
+    elif verdict.result == VerificationResult.INSUFFICIENT_INFORMATION:
+        logger.info(f"Insufficient information found after {current_retry + 1} attempts. Maximum retries reached.")
+
     return Command(
         goto="generate_search_queries" if should_retry else END,
         update={
-            "retry_count": (current_retry + 1) if should_retry else 0,
+            "retry_count": (current_retry + 1) if should_retry else current_retry,
             "evidence": [] if should_retry else evidence_snippets,
             "verdict": verdict,
         },

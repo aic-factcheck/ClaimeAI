@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, memo } from "react";
 import { motion } from "framer-motion";
 
 const phrases = [
@@ -46,9 +46,44 @@ const phrases = [
   "Maximizing decontextualization.",
 ];
 
-export const AestheticBackground = () => {
+interface PhraseItemProps {
+  text: string;
+  highlight: boolean;
+  opacity: string;
+  rotation: number;
+  delay: number;
+}
+
+const PhraseItem = ({
+  text,
+  highlight,
+  opacity,
+  rotation,
+  delay,
+}: PhraseItemProps) => (
+  <motion.span
+    initial={{ opacity: 0, y: 5 }}
+    animate={{ opacity: Number.parseFloat(opacity), y: 0 }}
+    transition={{
+      duration: 0.6,
+      delay,
+      ease: [0.22, 1, 0.36, 1],
+    }}
+    className={`select-none px-0.5 text-[9px] leading-tight md:text-[10px] ${
+      highlight ? "font-medium text-neutral-600" : "text-neutral-400"
+    }`}
+    style={{
+      transform: rotation ? `rotate(${rotation}deg)` : "none",
+    }}
+  >
+    {text}
+  </motion.span>
+);
+
+export const AestheticBackground = memo(function AestheticBackground() {
   const extendedPhrases = useMemo(() => {
-    const base = new Array(25).fill(null).flatMap(() => phrases);
+    // Reduced from 25 to 15 repetitions for better performance
+    const base = new Array(15).fill(null).flatMap(() => phrases);
     return base.map((phrase, index) => ({
       text: phrase,
       highlight: index % 6 === 0,
@@ -81,32 +116,18 @@ export const AestheticBackground = () => {
         <div className="relative h-full w-full p-3 md:p-5 lg:p-6">
           <div className="grid grid-cols-6 gap-x-0.5 gap-y-0.5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-14">
             {extendedPhrases.map((item, index) => (
-              <motion.span
+              <PhraseItem
                 key={`${item.text}-${index}`}
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: item.opacity, y: 0 }}
-                transition={{
-                  duration: 0.6,
-                  delay: item.delay,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className={`select-none px-0.5 text-[9px] leading-tight md:text-[10px] ${
-                  item.highlight
-                    ? "font-medium text-neutral-600"
-                    : "text-neutral-400"
-                }`}
-                style={{
-                  transform: item.rotation
-                    ? `rotate(${item.rotation}deg)`
-                    : "none",
-                }}
-              >
-                {item.text}
-              </motion.span>
+                text={item.text}
+                highlight={item.highlight}
+                opacity={item.opacity}
+                rotation={item.rotation}
+                delay={item.delay}
+              />
             ))}
           </div>
         </div>
       </div>
     </motion.div>
   );
-};
+});

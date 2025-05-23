@@ -117,7 +117,10 @@ export const VerdictProgress = ({
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="cursor-help">
-                  <InfoIcon className="h-3.5 w-3.5 text-neutral-400 transition-colors hover:text-neutral-500" />
+                  <InfoIcon
+                    className="h-3.5 w-3.5 text-neutral-400 transition-colors hover:text-neutral-500"
+                    aria-hidden="true"
+                  />
                 </div>
               </TooltipTrigger>
               <TooltipContent
@@ -210,6 +213,7 @@ export const VerdictProgress = ({
                         "h-2 w-2 rounded-full",
                         count > 0 ? config.bgClass : "bg-neutral-300"
                       )}
+                      aria-hidden="true"
                     />
                     <div
                       className={cn(

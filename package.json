@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
-    "dev": "concurrently --names \"AGENT,WEB\" --prefix-colors \"blue,green\" --kill-others-on-fail --handle-input \"langgraph dev --no-browser\" \"turbo dev\"",
+    "dev": "concurrently --names \"AGENT,WEB\" --prefix-colors \"blue,green\" --kill-others-on-fail --handle-input \"langgraph dev --no-browser\" \"turbo dev --filter=!extension\"",
+    "dev:ext": "concurrently --names \"AGENT,WEB\" --prefix-colors \"blue,green\" --kill-others-on-fail --handle-input \"langgraph dev --no-browser\" \"turbo dev\"",
     "setup:dev": "pnpm install && cd apps/fact-checker && poetry install && cd ../..",
     "backend:dev": "langgraph dev --no-browser",
     "frontend:dev": "turbo dev --filter=web"

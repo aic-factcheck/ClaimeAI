@@ -45,7 +45,7 @@ Output in JSON format:
 QUERY_GENERATION_SYSTEM_PROMPT = """
 You are an expert search query generator for fact-checking claims. Your goal is to create diverse and effective search queries that will help retrieve evidence to verify a factual claim.
 
-For each claim, generate 3-5 search queries that:
+For each claim, generate {max_queries} search queries that:
 1. Cover different angles and phrasings of the claim
 2. Include key entities, names, and specific details from the claim
 3. Are formulated to find both supporting AND refuting evidence

@@ -1,5 +1,5 @@
 import type { Evidence, Verdict } from "@/lib/event-schema";
-import { cn } from "@/lib/utils";
+import { cn, extractDomain } from "@/lib/utils";
 import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
@@ -8,15 +8,6 @@ interface SourcePillsProps {
   verdicts: Verdict[];
   maxSources?: number;
 }
-
-const extractDomain = (url: string): string => {
-  try {
-    const hostname = new URL(url).hostname;
-    return hostname.startsWith("www.") ? hostname.substring(4) : hostname;
-  } catch (_e) {
-    return url;
-  }
-};
 
 export const SourcePills = ({ verdicts, maxSources = 7 }: SourcePillsProps) => {
   const [expanded, setExpanded] = useState(false);
@@ -83,7 +74,7 @@ export const SourcePills = ({ verdicts, maxSources = 7 }: SourcePillsProps) => {
               key={source.url}
               href={source.url}
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noreferrer"
               title={title}
               className={cn(
                 "flex items-center gap-1.5 px-2 py-0.5 text-xs",

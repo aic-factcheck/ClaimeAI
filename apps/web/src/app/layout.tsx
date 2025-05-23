@@ -1,14 +1,12 @@
+import { PageFooter } from "@/components/page-footer";
+import { PageHeader } from "@/components/page-header";
 import { AestheticBackground } from "@/components/ui/aesthetic-background";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -31,6 +29,15 @@ export const metadata: Metadata = {
     icon: "/favicon.ico",
     apple: "/apple-icon.png",
   },
+  keywords: [
+    "fact checking",
+    "AI verification",
+    "claim extraction",
+    "evidence analysis",
+  ],
+  authors: [{ name: "Fact Checker Team" }],
+  viewport: "width=device-width, initial-scale=1",
+  themeColor: "#ffffff",
 };
 
 const RootLayout = ({ children }: Readonly<React.PropsWithChildren>) => (
@@ -43,8 +50,20 @@ const RootLayout = ({ children }: Readonly<React.PropsWithChildren>) => (
         geistMono.variable
       )}
     >
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-6 focus:top-6 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        Skip to main content
+      </a>
       <AestheticBackground />
-      {children}
+      <TooltipProvider>
+        <div className="mx-auto flex min-h-screen max-w-5xl flex-col text-black">
+          <PageHeader />
+          {children}
+          <PageFooter />
+        </div>
+      </TooltipProvider>
     </body>
   </html>
 );

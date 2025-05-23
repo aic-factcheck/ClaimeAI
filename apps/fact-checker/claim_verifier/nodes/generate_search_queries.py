@@ -42,6 +42,7 @@ async def generate_search_queries_node(
     """
     claim = state.claim
     retry_count = state.retry_count
+    max_queries = QUERY_GENERATION_CONFIG["max_queries"]
 
     logger.info(
         f"Generating search queries for claim: '{claim.claim_text}' (Attempt: {retry_count + 1})"
@@ -50,7 +51,8 @@ async def generate_search_queries_node(
     # Get LLM with the right temperature
     llm = get_llm()
 
-    system_prompt = QUERY_GENERATION_SYSTEM_PROMPT
+    system_prompt = QUERY_GENERATION_SYSTEM_PROMPT.format(max_queries=max_queries)
+    
     if retry_count > 0:
         # Get previous queries and verdict for context
         previous_queries = state.queries
@@ -74,7 +76,9 @@ async def generate_search_queries_node(
 
         # Use the template with the previous context
         system_prompt = RETRY_QUERY_GENERATION_SYSTEM_PROMPT.format(
-            previous_queries=formatted_queries, verdict_reasoning=verdict_reasoning
+            previous_queries=formatted_queries, 
+            verdict_reasoning=verdict_reasoning,
+            max_queries=max_queries
         )
 
     messages = [
@@ -83,12 +87,12 @@ async def generate_search_queries_node(
             "human",
             QUERY_GENERATION_HUMAN_PROMPT.format(
                 claim_text=claim.claim_text,
-                max_queries=QUERY_GENERATION_CONFIG["max_queries"],
+                max_queries=max_queries,
             ),
         ),
     ]
 
-    # Call the LLM
+    # Call the LLM with structured output schema
     response = await call_llm_with_structured_output(
         llm=llm,
         output_class=QueryGenerationOutput,
@@ -101,7 +105,6 @@ async def generate_search_queries_node(
         return {"queries": [claim.claim_text]}
 
     # Limit to max_queries
-    max_queries = QUERY_GENERATION_CONFIG["max_queries"]
     queries = response.queries[:max_queries]
 
     logger.info(

@@ -1,4 +1,4 @@
-# Fact Checker System 🚦🔎🛡️
+# LLM-Augmented Multi-Agent System (MAS) for Automated Claim Extraction, Evidential Verification, and Fact Resolution
 
 Hey there! I've been working on this fact-checking system for a while, and I'm pretty excited to share it. What we've got here is a comprehensive LangGraph implementation that helps you verify the factual accuracy of text. It'll break down a text into individual claims, check each one against real-world evidence, and then give you a detailed report on what's accurate and what's not.
 

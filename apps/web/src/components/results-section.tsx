@@ -6,13 +6,17 @@ import { MessageCircle } from "lucide-react";
 import { FactChecker } from "./fact-checker";
 
 const EmptyState = () => (
-  <div className="px-6 py-12 text-center">
+  <div className="px-6 py-12 text-center" aria-live="polite">
     <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100 border">
-      <MessageCircle className="text-neutral-400" size={24} />
+      <MessageCircle
+        className="text-neutral-400"
+        size={24}
+        aria-hidden="true"
+      />
     </div>
-    <h3 className="mb-1 font-medium text-neutral-900">
+    <h2 className="mb-1 font-medium text-neutral-900">
       No answer submitted yet
-    </h3>
+    </h2>
     <p className="text-neutral-500 text-sm">
       Enter a question and answer, then click "Verify"
     </p>
@@ -53,12 +57,16 @@ export const ResultsSection = () => {
     claimVerdicts,
     isLoading,
   } = useFactCheckerResults();
+
   return (
-    <motion.div
+    <motion.section
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4, delay: 0.2 }}
+      aria-label="Fact check results"
       className="lg:row-span-2 flex-grow flex flex-col"
+      aria-live="polite"
+      aria-busy={isLoading}
     >
       <AnimatePresence mode="wait">
         {submittedAnswer ? (
@@ -66,15 +74,18 @@ export const ResultsSection = () => {
             keyName="results"
             className="flex flex-col w-full flex-grow"
           >
-            <FactChecker
-              contextualSentences={contextualSentences}
-              selectedContents={selectedContents}
-              disambiguatedContents={disambiguatedContents}
-              potentialClaims={potentialClaims}
-              validatedClaims={validatedClaims}
-              claimVerdicts={claimVerdicts}
-              isLoading={isLoading}
-            />
+            <article className="w-full flex-grow">
+              <h2 className="sr-only">Fact Check Results</h2>
+              <FactChecker
+                contextualSentences={contextualSentences}
+                selectedContents={selectedContents}
+                disambiguatedContents={disambiguatedContents}
+                potentialClaims={potentialClaims}
+                validatedClaims={validatedClaims}
+                claimVerdicts={claimVerdicts}
+                isLoading={isLoading}
+              />
+            </article>
           </AnimatedPanel>
         ) : (
           <AnimatedPanel
@@ -85,6 +96,6 @@ export const ResultsSection = () => {
           </AnimatedPanel>
         )}
       </AnimatePresence>
-    </motion.div>
+    </motion.section>
   );
 };

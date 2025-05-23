@@ -43,6 +43,19 @@ const getVerdictAccentColor = (result?: string): string => {
   }
 };
 
+const getVerdictColorForSentence = (verdicts: Verdict[]): string => {
+  if (verdicts.length === 0) return "";
+  if (verdicts.length === 1) return getVerdictAccentColor(verdicts[0]?.result);
+
+  const uniqueResults = [
+    ...new Set(verdicts.map((v) => v.result).filter(Boolean)),
+  ];
+
+  return uniqueResults.length === 1
+    ? getVerdictAccentColor(uniqueResults[0])
+    : getVerdictAccentColor("Conflicting Evidence");
+};
+
 export const ProcessedAnswer = ({
   sentenceEntries,
   expandedCitation,
@@ -58,22 +71,22 @@ export const ProcessedAnswer = ({
   return (
     <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-1 text-neutral-900 text-sm leading-relaxed">
       {sentenceEntries.map(([id, data], idx) => {
-        const hasDerivatives =
-          data.selected.length > 0 ||
-          data.disambiguated.length > 0 ||
-          data.potentialClaims.length > 0 ||
-          data.validatedClaims.length > 0 ||
-          data.verdicts.length > 0;
+        const hasDerivatives = [
+          data.selected,
+          data.disambiguated,
+          data.potentialClaims,
+          data.validatedClaims,
+          data.verdicts,
+        ].some((arr) => arr.length > 0);
 
-        const verdict = data.verdicts.at(0);
-        const verdictColor = getVerdictAccentColor(verdict?.result);
+        const verdictColor = getVerdictColorForSentence(data.verdicts);
 
         return (
           <motion.button
             key={id}
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2, delay: idx * 0.02 }}
+            transition={{ duration: 0.2, delay: Math.min(idx * 0.02, 1) }}
             className={cn(
               "transition-colors duration-200 text-start",
               hasDerivatives

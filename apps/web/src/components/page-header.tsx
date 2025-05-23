@@ -8,9 +8,13 @@ export const PageHeader = () => (
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.3 }}
     className="z-20 py-6 pl-6"
+    role="banner"
   >
     <div className="mb-2.5 flex items-center gap-2 pt-4">
-      <div className="size-6 rounded-full border-5 border-black border-dashed" />
+      <div
+        className="size-6 rounded-full border-5 border-black border-dashed"
+        aria-hidden="true"
+      />
       <h1 className="font-semibold text-3xl text-neutral-900 tracking-tight">
         Fact Checker
       </h1>

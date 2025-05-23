@@ -11,7 +11,7 @@ QUERY_GENERATION_CONFIG = {
 
 EVIDENCE_RETRIEVAL_CONFIG = {
     "results_per_query": 5,  # Number of search results to fetch per query
-    "max_snippets": 5,  # Maximum total snippets to process
+    "max_snippets": 20,  # Maximum total snippets to process
 }
 
 EVIDENCE_EVALUATION_CONFIG = {

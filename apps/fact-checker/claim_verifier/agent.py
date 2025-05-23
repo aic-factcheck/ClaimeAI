@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Literal
+from typing import Literal
 
 from dotenv import load_dotenv
 from langgraph.graph import END, StateGraph

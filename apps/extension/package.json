@@ -21,7 +21,8 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "extension dev",
+    "dev": "extension dev --open=false",
+    "dev:arc": "extension dev --chromium-binary=/Applications/Arc.app/Contents/MacOS/Arc",
     "start": "extension start",
     "build": "extension build"
   }

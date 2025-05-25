@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const satoshi = localFont({
+const satoshi = localFont({
   src: "../styles/Satoshi-Variable.woff2",
   variable: "--font-satoshi",
   weight: "100 200 300 400 500 600 700 800 900",
@@ -21,7 +21,7 @@ export const satoshi = localFont({
   style: "normal",
 });
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: "Fact Checker | AI-powered factual verification",
   description:
     "Verify factual accuracy using our modular LangGraph system that extracts claims, cross-references them with real-world evidence, and provides a detailed verification report.",

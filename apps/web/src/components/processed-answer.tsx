@@ -45,15 +45,28 @@ const getVerdictAccentColor = (result?: string): string => {
 
 const getVerdictColorForSentence = (verdicts: Verdict[]): string => {
   if (verdicts.length === 0) return "";
-  if (verdicts.length === 1) return getVerdictAccentColor(verdicts[0]?.result);
 
-  const uniqueResults = [
-    ...new Set(verdicts.map((v) => v.result).filter(Boolean)),
+  const results = verdicts.map((v) => v.result).filter(Boolean) as string[];
+  if (results.length === 0) return "";
+
+  const priorityOrder: string[] = [
+    "Refuted",
+    "Insufficient Information",
+    "Supported",
   ];
 
-  return uniqueResults.length === 1
-    ? getVerdictAccentColor(uniqueResults[0])
-    : getVerdictAccentColor("Conflicting Evidence");
+  for (const priority of priorityOrder) {
+    if (results.includes(priority)) {
+      return getVerdictAccentColor(priority);
+    }
+  }
+
+  const uniqueResults = [...new Set(results)];
+  if (uniqueResults.length === 1) {
+    return getVerdictAccentColor(uniqueResults[0]);
+  }
+
+  return getVerdictAccentColor("Conflicting Evidence");
 };
 
 export const ProcessedAnswer = ({

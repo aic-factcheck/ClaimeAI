@@ -82,7 +82,7 @@ This is how the orchestrator ties everything together using LangGraph:
 ```mermaid
 graph LR
     A[extract_claims_node] --> B{dispatch_claims_for_verification}
-    B -->|Claims to verify| C[claim_verifier_node - parallel for each claim]
+    B -->|Claims to verify| C[claim_verifier_node]
     B -->|No claims| Z[END]
     C --> D[generate_report_node]
     D --> Z

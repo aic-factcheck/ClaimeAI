@@ -4,6 +4,7 @@ services:
     command: "-d 1"
     volumes:
       - fact_checker_db:/var/lib/postgresql/data
+      - ./db/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     ports:
       - "5432:5432"
     environment:

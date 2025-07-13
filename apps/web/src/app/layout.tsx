@@ -22,7 +22,7 @@ const satoshi = localFont({
 });
 
 const metadata: Metadata = {
-  title: "Fact Checker | AI-powered factual verification",
+  title: "ClaimeAI | AI-powered factual verification",
   description:
     "Verify factual accuracy using our modular LangGraph system that extracts claims, cross-references them with real-world evidence, and provides a detailed verification report.",
   icons: {
@@ -35,7 +35,7 @@ const metadata: Metadata = {
     "claim extraction",
     "evidence analysis",
   ],
-  authors: [{ name: "Fact Checker Team" }],
+  authors: [{ name: "ClaimeAI Team" }],
   viewport: "width=device-width, initial-scale=1",
   themeColor: "#ffffff",
 };

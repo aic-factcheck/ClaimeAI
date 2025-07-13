@@ -16,7 +16,7 @@ export const PageHeader = () => (
         aria-hidden="true"
       />
       <h1 className="font-semibold text-3xl text-neutral-900 tracking-tight">
-        Fact Checker
+        ClaimeAI
       </h1>
     </div>
     <p className="text-neutral-500 text-sm">

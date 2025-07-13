@@ -1,5 +1,5 @@
 // content.js
-console.log("Fact-Checker ChatGPT Extension content script loaded.");
+console.log("ClaimeAI ChatGPT Extension content script loaded.");
 
 // Style Constants
 const BUTTON_STYLE = `
@@ -46,12 +46,12 @@ function addFloatingButtonToMessage(assistantMessageDiv) {
   const messageTurnRoot = assistantMessageDiv.closest(
     ".group.conversation-turn"
   );
-  if (messageTurnRoot?.querySelector(".fact-checker-btn")) {
+  if (messageTurnRoot?.querySelector(".claimeAI-btn")) {
     return;
   }
 
   const button = document.createElement("button");
-  button.className = "fact-checker-btn";
+  button.className = "claimeAI-btn";
   button.title = "Check Fact";
 
   // SVG Logo (Checkmark)
@@ -164,7 +164,7 @@ function addFloatingButtonToMessage(assistantMessageDiv) {
   if (actionsToolbarEl) {
     actionsToolbarEl.appendChild(buttonContainer); // Append container instead of button
     console.log(
-      "Fact-checker button with tooltip added to actions toolbar:",
+      "ClaimeAI button with tooltip added to actions toolbar:",
       actionsToolbarEl
     );
   } else {
@@ -175,7 +175,7 @@ function addFloatingButtonToMessage(assistantMessageDiv) {
     assistantMessageDiv.appendChild(buttonContainer); // Append container instead of button
   }
   console.log(
-    "Fact-checker button added to (or attempted for):",
+    "ClaimeAI button added to (or attempted for):",
     assistantMessageDiv
   );
 }
@@ -184,7 +184,7 @@ function processAssistantMessage(assistantMessageDiv) {
   const messageTurnRoot = assistantMessageDiv.closest(
     ".group.conversation-turn"
   );
-  if (messageTurnRoot?.querySelector(".fact-checker-btn")) {
+  if (messageTurnRoot?.querySelector(".claimeAI-btn")) {
     // Button already exists for this message turn
     return;
   }

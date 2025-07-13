@@ -1,7 +1,7 @@
 {
   "name": "@fact-checker/web",
   "version": "0.1.0",
-  "description": "Frontend for the Fact Checker System, a LangGraph implementation to verify factual accuracy of text.",
+  "description": "Frontend for the ClaimeAI, a LangGraph implementation to verify factual accuracy of text.",
   "private": true,
   "scripts": {
     "build": "next build",

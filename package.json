@@ -1,5 +1,5 @@
 {
-  "name": "fact-checker",
+  "name": "claime-ai",
   "private": true,
   "scripts": {
     "build": "turbo build",

@@ -51,12 +51,12 @@ You're all set with the tools. Now let's get this project running.
 
 ### Setting Up the Project
 
-Now for the fun part - let's get the fact-checker up and running:
+Now for the fun part - let's get the claime-ai up and running:
 
 ```bash
 # Clone and change into the project directory
-git clone https://github.com/bharathxd/fact-checker.git
-cd fact-checker
+git clone https://github.com/bharathxd/claime.git
+cd claime-ai
 
 # One magic command to install everything
 pnpm setup:dev
@@ -65,7 +65,7 @@ pnpm setup:dev
 pnpm dev
 ```
 
-That's it! Your fact-checker should now be running at [http://localhost:3000](http://localhost:3000) 🚀
+That's it! Your claime-ai should now be running at [http://localhost:3000](http://localhost:3000) 🚀
 
 ### API Keys
 
@@ -106,7 +106,7 @@ pnpm dev
 
 This will:
 1. Set up all Node.js dependencies with pnpm
-2. Install the Python packages needed for the fact-checker component
+2. Install the Python packages needed for the claime-ai component
 3. Start both the frontend web interface and backend services
 
 You can then access the application in your browser at http://localhost:3000

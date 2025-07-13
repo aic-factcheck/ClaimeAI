@@ -1,4 +1,4 @@
-# Fact Checker 🚦
+# Agent 🚦
 
 This is the orchestrator - the conductor that makes all the separate pieces of our fact-checking system play together nicely. Building this part was actually the final piece of the puzzle for me, bringing together the claim extraction and verification components into a cohesive, end-to-end pipeline.
 
@@ -120,7 +120,7 @@ The code is pretty clean and focused because most of the heavy lifting happens i
 
 ## 📝 Lessons learned
 
-The fact-checker module is the entry point most people will use, but remember it's just the coordinator - the specialized modules are where the real algorithms live. If you want to understand how the extraction or verification works, check out those modules' READMEs.
+The agent module is the entry point most people will use, but remember it's just the coordinator - the specialized modules are where the real algorithms live. If you want to understand how the extraction or verification works, check out those modules' READMEs.
 
 If anything isn't working as expected, let me know! I've tried to make it robust, but there's always room for improvement.
 

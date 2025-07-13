@@ -16,7 +16,7 @@ I've implemented the approach from Metropolitansky & Larson's 2025 paper ["Towar
 
 ## 📝 How to use it
 
-While this is typically used as the first step in the full fact-checker pipeline, you can also use it standalone like this:
+While this is typically used as the first step in the full ClaimeAI pipeline, you can also use it standalone like this:
 
 ```python
 import asyncio

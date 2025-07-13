@@ -22,7 +22,7 @@ dependencies = [
   "langgraph-checkpoint-postgres (>=2.0.22,<3.0.0)",
 ]
 description = "A fact-checking agent that extracts claims from a given text and validates them as complete, declarative sentences."
-name = "fact-checker"
+name = "claime-ai"
 readme = "README.md"
 requires-python = ">=3.11,<4.0"
 version = "0.1.0"

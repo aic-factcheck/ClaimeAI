@@ -17,7 +17,7 @@ Once we've got our nicely extracted claims from the Claim Extractor, this module
 
 ## 📝 Let's see it in action
 
-While this module is usually called from the main `fact-checker` orchestrator, you can absolutely use it standalone:
+While this module is usually called from the main `agent` orchestrator, you can absolutely use it standalone:
 
 ```python
 import asyncio

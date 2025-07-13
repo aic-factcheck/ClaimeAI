@@ -6,9 +6,9 @@ Hey there! I've been working on this fact-checking system for a while, and I'm p
 
 The system is split into three main parts (I found this modular approach works way better than a single monolithic system):
 
-1.  **[Claim Extractor (`claim_extractor/`)](./apps/fact-checker/claim_extractor/README.md)**: Pulls out factual claims from text using the Claimify methodology.
-2.  **[Claim Verifier (`claim_verifier/`)](./apps/fact-checker/claim_verifier/README.md)**: Checks each claim against online evidence through Tavily Search.
-3.  **[Fact Checker (`fact_checker/`)](./apps/fact-checker/fact_checker/README.md)**: Ties everything together and generates the final report.
+1.  **[Claim Extractor (`claim_extractor/`)](./apps/agent/claim_extractor/README.md)**: Pulls out factual claims from text using the Claimify methodology.
+2.  **[Claim Verifier (`claim_verifier/`)](./apps/agent/claim_verifier/README.md)**: Checks each claim against online evidence through Tavily Search.
+3.  **[Fact Checker (`fact_checker/`)](./apps/agent/fact_checker/README.md)**: Ties everything together and generates the final report.
 
 ## 📋 So what's the point of all this?
 
@@ -25,13 +25,13 @@ Here's how it works in practice:
 
 The system runs on LangGraph for orchestrating the workflows. Here's how the pieces connect:
 
-![Fact Checker MAS](https://cloud.imbharath.com/fact-checker-mas.png)
+![Fact Checker MAS](https://cloud.imbharath.com/agent-mas.png)
 
 It's a bit complex, I know! I spent way too much time getting these interactions right. If you want to understand a specific part better, check out the detailed READMEs:
 
-* **[Claim Extractor README](./apps/fact-checker/claim_extractor/README.md)** - The nitty-gritty on how we extract claims
-* **[Claim Verifier README](./apps/fact-checker/claim_verifier/README.md)** - How we verify claims against real-world evidence
-* **[Fact Checker README](./apps/fact-checker/fact_checker/README.md)** - How we orchestrate everything
+* **[Claim Extractor README](./apps/agent/claim_extractor/README.md)** - The nitty-gritty on how we extract claims
+* **[Claim Verifier README](./apps/agent/claim_verifier/README.md)** - How we verify claims against real-world evidence
+* **[Fact Checker README](./apps/agent/fact_checker/README.md)** - How we orchestrate everything
 
 ## ⚙️ Tweaking Things
 
@@ -46,7 +46,7 @@ The module READMEs have detailed info on what you can customize.
 
 ## 📚 A Bit About the Research
 
-The `claim_extractor` is built on the **Claimify** methodology from Metropolitansky & Larson's 2025 paper. It's pretty fascinating stuff - they figured out how to handle ambiguity and extract verifiable claims. I spent a good week just implementing their pipeline, and it was worth it. The full citation and details are in the [`claim_extractor/README.md`](./apps/fact-checker/claim_extractor/README.md).
+The `claim_extractor` is built on the **Claimify** methodology from Metropolitansky & Larson's 2025 paper. It's pretty fascinating stuff - they figured out how to handle ambiguity and extract verifiable claims. I spent a good week just implementing their pipeline, and it was worth it. The full citation and details are in the [`claim_extractor/README.md`](./apps/agent/claim_extractor/README.md).
 
 For the `claim_verifier`, the evidence retrieval approach draws some inspiration from the Search-Augmented Factuality Evaluator (SAFE) methodology in ["Long-form factuality in large language models"](https://arxiv.org/abs/2403.18802) by Wei et al. (2024). Just the basic idea of using search results to verify individual claims.
 
@@ -64,8 +64,8 @@ The beauty of building on research is that we get to stand on the shoulders of g
  
  Quick start:
  ```bash
- git clone https://github.com/bharathxd/fact-checker.git
- cd fact-checker
+ git clone https://github.com/bharathxd/agent.git
+ cd agent
  pnpm setup:dev
  pnpm dev
  ```
@@ -74,10 +74,10 @@ The beauty of building on research is that we get to stand on the shoulders of g
 ## 📂 Repository Structure
 
 ```
-fact-checker/
+claime-ai/
 ├── .langgraph_api/       # LangGraph API configuration
 ├── apps/
-│   ├── fact-checker/     # Core fact-checking modules
+│   ├── agent/     # Core fact-checking modules
 │   │   ├── claim_extractor/  # Extracts claims from text
 │   │   ├── claim_verifier/   # Verifies extracted claims
 │   │   ├── fact_checker/     # Orchestrates the fact-checking process
@@ -90,9 +90,9 @@ fact-checker/
 ```
 
 For detailed documentation on each component, refer to their respective README files:
-* [Claim Extractor](./apps/fact-checker/claim_extractor/README.md)
-* [Claim Verifier](./apps/fact-checker/claim_verifier/README.md)
-* [Fact Checker](./apps/fact-checker/fact_checker/README.md)
+* [Claim Extractor](./apps/agent/claim_extractor/README.md)
+* [Claim Verifier](./apps/agent/claim_verifier/README.md)
+* [Fact Checker](./apps/agent/fact_checker/README.md)
 
 ## 🙏 Thanks to the Giants
 
@@ -136,6 +136,6 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 
 ## 📞 Contact & Support
 
-- **Issues**: Please use the [GitHub Issue Tracker](https://github.com/bharathxd/fact-checker/issues) to report bugs or request features
+- **Issues**: Please use the [GitHub Issue Tracker](https://github.com/bharathxd/agent/issues) to report bugs or request features
 - **Email**: [bharathxxd@gmail.com](mailto:bharathxxd@gmail.com)
 - **Twitter**: [@Bharath_uwu](https://twitter.com/bharath_uwu)

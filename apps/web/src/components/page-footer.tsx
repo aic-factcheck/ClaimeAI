@@ -28,7 +28,7 @@ export const PageFooter = () => {
               id="about-heading"
               className="font-semibold text-neutral-900 text-sm"
             >
-              About Fact Checker
+              About ClaimeAI
             </h3>
             <p className="text-neutral-500 text-xs leading-relaxed">
               Our modular LangGraph system breaks down text into individual
@@ -162,11 +162,11 @@ export const PageFooter = () => {
               Connect
             </h3>
             <a
-              href="https://github.com/BharathXD/fact-checker"
+              href="https://github.com/BharathXD/claime"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-md border border-neutral-200 px-3 py-1.5 text-neutral-700 text-xs transition-colors hover:border-neutral-300 hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              aria-label="View Fact Checker project on GitHub (opens in new tab)"
+              aria-label="View ClaimeAI project on GitHub (opens in new tab)"
             >
               <Github className="h-3.5 w-3.5" aria-hidden="true" />
               <span>View on GitHub</span>
@@ -185,12 +185,10 @@ export const PageFooter = () => {
               className="h-5 w-5 rounded-full border-4 border-black border-dashed"
               aria-hidden="true"
             />
-            <p className="font-semibold text-neutral-600 text-xs">
-              Fact Checker
-            </p>
+            <p className="font-semibold text-neutral-600 text-xs">ClaimeAI</p>
           </div>
           <p className="mt-3 text-neutral-400 text-xs sm:mt-0">
-            © {new Date().getFullYear()} Fact Checker. All rights reserved.
+            © {new Date().getFullYear()} ClaimeAI. All rights reserved.
           </p>
         </motion.div>
       </div>

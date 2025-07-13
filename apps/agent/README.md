@@ -6,10 +6,10 @@ This directory contains the implementation of the fact-checking system's core fu
 
 ## 🏗️ Technical Architecture
 
-The fact-checker is designed as a multi-agent system (MAS) using LangGraph to orchestrate complex workflows. The system is split into three main modules, each with its own specific responsibility:
+The ClaimeAI is designed as a multi-agent system (MAS) using LangGraph to orchestrate complex workflows. The system is split into three main modules, each with its own specific responsibility:
 
 ```
-fact-checker/
+agent/
 ├── claim_extractor/   # Extracts factual claims from text
 ├── claim_verifier/    # Verifies claims against evidence
 └── fact_checker/      # Orchestrates the entire workflow

@@ -404,7 +404,7 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
         }
       },
     }),
-    { name: "fact-checker-store" }
+    { name: "claimeai-store" }
   )
 );
 

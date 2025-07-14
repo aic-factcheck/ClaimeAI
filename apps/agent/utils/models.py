@@ -6,7 +6,7 @@ Provides access to configured language model instances for all modules.
 from langchain.chat_models import init_chat_model
 from langchain_core.language_models.chat_models import BaseChatModel
 
-from utils import settings
+from utils.settings import settings
 
 
 def get_llm(

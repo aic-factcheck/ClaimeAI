@@ -106,6 +106,16 @@ module/
 
 ## 🔬 Development
 
+### Setup
+
+First, initialize the database:
+
+```bash
+poetry run python -m scripts.init_db
+```
+
+### Development and Testing
+
 For development and testing:
 
 1. Start with small test cases that generate 1-2 claims

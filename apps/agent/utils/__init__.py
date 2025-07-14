@@ -3,7 +3,6 @@
 Common tools shared across all components.
 """
 
-from .checkpointer import create_checkpointer, setup_checkpointer
 from .llm import call_llm_with_structured_output, process_with_voting
 from .models import get_llm, get_default_llm
 from .settings import settings
@@ -13,6 +12,7 @@ __all__ = [
     # Checkpointer utilities
     "create_checkpointer",
     "setup_checkpointer",
+    "create_checkpointer_sync",
     # LLM utilities
     "call_llm_with_structured_output",
     "process_with_voting",

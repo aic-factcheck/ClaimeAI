@@ -11,7 +11,6 @@ from fact_checker.nodes import (
     generate_report_node,
 )
 from fact_checker.schemas import FactCheckerState
-from utils import create_checkpointer
 
 load_dotenv()
 
@@ -48,9 +47,7 @@ def create_graph() -> CompiledStateGraph:
     # Set finish point
     workflow.set_finish_point("generate_report_node")
 
-    checkpointer = create_checkpointer()
-
-    return workflow.compile(checkpointer=checkpointer)
+    return workflow.compile()
 
 
 graph = create_graph()

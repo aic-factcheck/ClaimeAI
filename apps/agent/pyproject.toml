@@ -21,10 +21,19 @@ transformers = ">=4.53.1,<5.0.0"
 [tool.poetry]
 authors = ["Bharath Lakshman Kumar <bharathxxd@gmail.com>"]
 description = "Development environment for fact-checking agents"
-name = "fact-checker-agent"
-package-mode = false
+name = "claime-agent"
+packages = [
+  {include = "claim_extractor"},
+  {include = "claim_verifier"},
+  {include = "fact_checker"},
+  {include = "utils"},
+]
 version = "0.1.0"
 
 [tool.poetry.scripts]
 create-run = "scripts.create_run:main"
 dev = "scripts.dev:main"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]

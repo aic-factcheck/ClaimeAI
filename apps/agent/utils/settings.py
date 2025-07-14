@@ -31,7 +31,6 @@ class Settings(BaseSettings):
 
     openai_api_key: OpenAIAPIKey = Field(default=None, alias="OPENAI_API_KEY")
     exa_api_key: ExaAPIKey = Field(default=None, alias="EXA_API_KEY")
-    database_url: PostgresDsn | None = Field(default=None, alias="DATABASE_URL")
 
     model_config = SettingsConfigDict(
         env_file=".env",

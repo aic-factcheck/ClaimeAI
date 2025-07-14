@@ -1,4 +1,4 @@
-# fly.toml app configuration file for claime-agent
+# fly.toml app configuration file generated for claime-agent on 2025-07-15T00:54:22+05:30
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
@@ -7,21 +7,16 @@ app = 'claime-agent'
 primary_region = 'bom'
 
 [build]
-# Build configuration for GitHub Actions deployment
-# Docker context is set in the workflow
 
 [http_service]
-auto_start_machines = true
-auto_stop_machines = 'stop'
-force_https = true
-internal_port = 8000
-min_machines_running = 0
-processes = ['app']
-
-[env]
-# Environment variables are passed via GitHub Actions
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
 
 [[vm]]
-cpu_kind = 'shared'
-cpus = 1
-memory = '1gb'
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1

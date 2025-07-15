@@ -1,21 +1,15 @@
-# fly.toml app configuration file generated for claime-agent on 2025-07-15T00:54:22+05:30
-#
-# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
-#
-
 app = 'claime-agent'
 primary_region = 'bom'
 
 [build]
 
 [http_service]
-  internal_port = 8000
-  force_https = true
-  min_machines_running = 1
-  processes = ['app']
+force_https = true
+internal_port = 8000
+min_machines_running = 1
+processes = ['app']
 
 [[vm]]
-  memory = '1gb'
-  cpu_kind = 'shared'
-  cpus = 1
-  
+cpu_kind = 'shared'
+cpus = 1
+memory = '1gb'

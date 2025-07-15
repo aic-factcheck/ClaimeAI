@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from pydantic import AfterValidator, Field, PostgresDsn
+from pydantic import AfterValidator, Field, RedisDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -31,6 +31,7 @@ class Settings(BaseSettings):
 
     openai_api_key: OpenAIAPIKey = Field(default=None, alias="OPENAI_API_KEY")
     exa_api_key: ExaAPIKey = Field(default=None, alias="EXA_API_KEY")
+    redis_uri: RedisDsn = Field(default="redis://localhost:6379", alias="REDIS_URL")
 
     model_config = SettingsConfigDict(
         env_file=".env",

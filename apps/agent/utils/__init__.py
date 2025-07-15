@@ -5,6 +5,7 @@ Common tools shared across all components.
 
 from .llm import call_llm_with_structured_output, process_with_voting
 from .models import get_llm, get_default_llm
+from .redis import redis_client, test_redis_connection
 from .settings import settings
 from .text import remove_following_sentences
 
@@ -19,6 +20,9 @@ __all__ = [
     # LLM models
     "get_llm",
     "get_default_llm",
+    # Redis utilities
+    "redis_client",
+    "test_redis_connection",
     # Settings
     "settings",
     # Text utilities

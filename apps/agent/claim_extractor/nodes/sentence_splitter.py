@@ -17,12 +17,19 @@ logger = logging.getLogger(__name__)
 
 def ensure_nltk_resources() -> None:
     """Download NLTK stuff if needed."""
-    try:
-        # Check if we have the tokenizer
-        nltk.data.find("tokenizers/punkt")
-    except LookupError:
-        logger.info("Downloading NLTK resources...")
-        nltk.download("punkt", quiet=True)
+    resources = ["tokenizers/punkt_tab", "tokenizers/punkt"]
+
+    for resource in resources:
+        try:
+            nltk.data.find(resource)
+            return
+        except LookupError:
+            continue
+
+    # None found, download both
+    logger.info("Downloading NLTK resources...")
+    nltk.download("punkt_tab", quiet=True)
+    nltk.download("punkt", quiet=True)
 
 
 async def _sentence_splitter_and_context_creator(

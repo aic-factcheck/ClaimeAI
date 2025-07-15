@@ -1,15 +1,24 @@
 name: Deploy to Fly.io
 
-on:
-  push:
-    branches: [main]
-    paths: ["apps/agent/**"]
-  workflow_dispatch:
+# DISABLED: Because apparently LangGraph thinks auth should cost extra 💸
+# Requires LangGraph Enterprise license for native auth
+# Could implement auth proxy but ain't nobody got time for that
+# on:
+#   push:
+#     branches: [main]
+#     paths: ["apps/agent/**"]
+#   workflow_dispatch:
+
+# Disable workflow - uncomment 'on:' section above to re-enable
+# (when you feel like throwing money at LangGraph or have infinite time for auth proxies)
+on: workflow_dispatch
 
 jobs:
   deploy:
     name: Deploy to Fly.io
     runs-on: ubuntu-latest
+    # Skip deployment when manually triggered (since workflow is disabled)
+    if: false
 
     steps:
       - name: 🛑 Cancel Previous Runs

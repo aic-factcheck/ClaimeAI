@@ -9,7 +9,7 @@ export const env = createEnv({
       .optional()
       .default("http://localhost:2024"),
     LANGSMITH_API_KEY: z.string().min(1).optional(),
-    CLERK_SECRET_KEY: z.string().min(1).startsWith("sk_test_"),
+    CLERK_SECRET_KEY: z.string().min(1).startsWith("sk_"),
     NODE_ENV: z
       .enum(["development", "production"])
       .optional()
@@ -23,7 +23,7 @@ export const env = createEnv({
   clientPrefix: "NEXT_PUBLIC_",
 
   client: {
-    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1).startsWith("pk_test_"),
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1).startsWith("pk_"),
     NEXT_PUBLIC_APP_URL: z
       .string()
       .url()

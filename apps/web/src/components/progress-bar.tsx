@@ -61,7 +61,7 @@ export const ProgressBar = memo(({ stages, isLoading }: ProgressBarProps) => {
               <motion.div
                 variants={itemVariants}
                 className={cn(
-                  "group relative flex h-6 items-center gap-1.5 rounded-full px-1 text-xs transition-all duration-300",
+                  "group relative flex h-6 items-center shadow-inner gap-1.5 rounded-full px-1 text-xs transition-all duration-300",
                   isCurrent && isLoading
                     ? "border border-neutral-200 bg-neutral-100 text-neutral-900 shadow-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
                     : isCompleted
@@ -69,6 +69,8 @@ export const ProgressBar = memo(({ stages, isLoading }: ProgressBarProps) => {
                       : "border border-neutral-100 bg-neutral-50 text-neutral-400 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-500"
                 )}
               >
+                <div className="absolute -top-px w-[80%] h-px from-neutral-50/20 via-neutral-400/20 to-neutral-50/20 bg-gradient-to-r left-[50%] translate-x-[-50%] rounded-xl" />
+                <div className="absolute -bottom-px w-[80%] h-px from-neutral-50/20 via-neutral-400/20 to-neutral-50/20 bg-gradient-to-r left-[50%] translate-x-[-50%] rounded-xl" />
                 <span className="flex-shrink-0">
                   {isCompleted ? (
                     <CheckCircle2 className="size-4 text-neutral-900 dark:text-neutral-100" />

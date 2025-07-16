@@ -48,7 +48,6 @@ export interface PotentialClaimData {
 
 // UI version of FactCheckReport with parsed date
 export interface UIFactCheckReport {
-  question: string;
   answer: string;
   claims_verified: number;
   verified_claims: Verdict[];
@@ -58,7 +57,6 @@ export interface UIFactCheckReport {
 
 interface FactCheckerState {
   // User inputs
-  question: string;
   answer: string;
   submittedAnswer: string | null;
 
@@ -80,7 +78,6 @@ interface FactCheckerState {
 
 interface FactCheckerActions {
   // Input actions
-  setQuestion: (question: string) => void;
   setAnswer: (answer: string) => void;
 
   // Process actions
@@ -143,7 +140,6 @@ const processBufferChunk = (
 export const useFactCheckerStore = create<FactCheckerStore>()(
   devtools(
     (set, get) => ({
-      question: "",
       answer: "",
       submittedAnswer: null,
       isLoading: false,
@@ -158,7 +154,6 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
       claimVerdicts: [],
       factCheckReport: null,
 
-      setQuestion: (question) => set({ question }),
       setAnswer: (answer) => set({ answer }),
 
       resetState: () =>
@@ -256,9 +251,9 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
       setFactCheckReport: (report) => set({ factCheckReport: report }),
 
       startVerification: async () => {
-        const { question, answer, resetState, processEventData } = get();
+        const { answer, resetState, processEventData } = get();
 
-        if (!question || !answer) {
+        if (!answer) {
           return;
         }
 
@@ -269,7 +264,7 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
           const response = await fetch("/api/agent/run", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ question, answer }),
+            body: JSON.stringify({ answer }),
           });
 
           if (!response.ok || !response.body) {
@@ -412,13 +407,10 @@ export const useFactCheckerInput = () => {
   const store = useFactCheckerStore();
 
   const clearInputs = () => {
-    store.setQuestion("");
     store.setAnswer("");
   };
 
   return {
-    question: store.question,
-    setQuestion: store.setQuestion,
     answer: store.answer,
     setAnswer: store.setAnswer,
     isLoading: store.isLoading,

@@ -23,10 +23,8 @@ import asyncio
 from claim_extractor import graph
 
 async def check_those_facts():
-    # Try it on a Q&A pair
     result = await graph.ainvoke(
         {
-            "question": "What are the key factors driving climate change?",
             "answer_text": "The primary drivers of climate change include greenhouse gas emissions from burning fossil fuels, deforestation, and industrial processes. The IPCC report indicates that human activities have caused approximately 1.0°C of global warming above pre-industrial levels.",
         }
     )

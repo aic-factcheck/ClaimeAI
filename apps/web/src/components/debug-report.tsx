@@ -12,7 +12,7 @@ export const DebugReport = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3, delay: 0.3 }}
-      className="col-span-full"
+      className="col-span-full w-full"
       aria-label="Debug information"
     >
       <details className="rounded-md border border-neutral-200 bg-white p-3 text-sm">

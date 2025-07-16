@@ -16,8 +16,7 @@ from claim_verifier import Verdict
 class FactCheckReport(BaseModel):
     """The final output of the fact-checking process."""
 
-    question: str = Field(description="The question that was fact-checked")
-    answer: str = Field(description="The answer to the question")
+    answer: str = Field(description="The text to extract claims from")
     claims_verified: int = Field(description="Number of claims that were verified")
     verified_claims: List[Verdict] = Field(
         description="Results for each verified claim"
@@ -28,13 +27,12 @@ class FactCheckReport(BaseModel):
     )
 
 
-class FactCheckerState(BaseModel):
+class State(BaseModel):
     """The state for the main fact checker workflow."""
 
-    question: str = Field(description="The question to fact-check")
-    answer: str = Field(description="The answer to the question")
+    answer: str = Field(description="The text to extract claims from")
     extracted_claims: List[ValidatedClaim] = Field(
-        default_factory=list, description="Claims extracted from the answer"
+        default_factory=list, description="Claims extracted from the text"
     )
     verification_results: Annotated[List[Verdict], add] = Field(
         default_factory=list, description="Verification results for each claim"

@@ -17,5 +17,5 @@ EVIDENCE_EVALUATION_CONFIG = {
 }
 
 ITERATIVE_SEARCH_CONFIG = {
-    "max_iterations": 3,
+    "max_iterations": 5,
 }

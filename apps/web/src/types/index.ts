@@ -70,7 +70,6 @@ export type UIEvidence = Evidence;
 export type UIVerdict = Verdict;
 
 export interface UIFactCheckReport {
-  question: string;
   answer: string;
   claims_verified: number;
   verified_claims: Verdict[];

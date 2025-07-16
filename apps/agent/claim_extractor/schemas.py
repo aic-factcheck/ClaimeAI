@@ -14,9 +14,8 @@ class ContextualSentence(BaseModel):
 
     original_sentence: str = Field(description="The raw sentence from the source text")
     context_for_llm: str = Field(
-        description="Full context for the LLM including question, surrounding sentences and metadata"
+        description="Full context for the LLM including surrounding sentences and metadata"
     )
-    question: str = Field(description="The original question that prompted the answer")
     metadata: Optional[str] = Field(
         default=None, description="Additional metadata about the source"
     )
@@ -83,7 +82,6 @@ class ValidatedClaim(BaseModel):
 class State(BaseModel):
     """The workflow graph state object."""
 
-    question: str = Field(description="The question prompting the analysis")
     answer_text: str = Field(description="The answer text being analyzed")
     contextual_sentences: List[ContextualSentence] = Field(
         default_factory=list, description="Sentences with their surrounding context"

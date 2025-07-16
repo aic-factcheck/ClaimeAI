@@ -17,6 +17,7 @@ import {
 import { AboutDialog } from "./about-dialog";
 import { HowItWorksDialog } from "./how-it-works-dialog";
 import { AppSidebarFooter } from "./sidebar-footer";
+import { usePathname } from "next/navigation";
 
 const mainItems = [
   {
@@ -34,6 +35,8 @@ const mainItems = [
 ];
 
 export const AppSidebar = () => {
+  const pathname = usePathname();
+  const isActive = (url: string) => pathname === url;
   return (
     <Sidebar collapsible="icon" variant="inset">
       <SidebarHeader>
@@ -62,7 +65,7 @@ export const AppSidebar = () => {
             <SidebarMenu>
               {mainItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.description}>
+                  <SidebarMenuButton asChild tooltip={item.description} isActive={isActive(item.url)}>
                     <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>

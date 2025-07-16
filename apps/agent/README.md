@@ -61,7 +61,7 @@ The main orchestrator ties everything together:
 
 ```mermaid
 graph LR
-    A[extract_claims_node] --> B{dispatch_claims_for_verification}
+    A[extract_claims] --> B{dispatch_claims_for_verification}
     B -- Claims to verify --> C[claim_verifier_node]
     B -- No claims --> E[END]
     C --> D[generate_report_node]

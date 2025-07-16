@@ -78,7 +78,7 @@ export const SourcePills = ({ verdicts, maxSources = 7 }: SourcePillsProps) => {
               title={title}
               className={cn(
                 "flex items-center gap-1.5 px-2 py-0.5 text-xs",
-                "rounded-md border border-neutral-200 bg-neutral-50 text-neutral-700",
+                "rounded-md border border-neutral-200 bg-white text-neutral-700",
                 "transition-all duration-150 ease-in-out",
                 "hover:border-neutral-300 hover:bg-neutral-100 hover:shadow-sm",
                 "focus:outline-none focus:ring-1 focus:ring-neutral-300"
@@ -101,7 +101,7 @@ export const SourcePills = ({ verdicts, maxSources = 7 }: SourcePillsProps) => {
                   alt=""
                 />
               </div>
-              <span className="truncate font-medium">{title}</span>
+              <span className="truncate font-medium max-w-40">{title}</span>
               <ExternalLink className="h-2.5 w-2.5 flex-shrink-0 text-neutral-400" />
             </a>
           );

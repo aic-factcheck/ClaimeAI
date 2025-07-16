@@ -2,9 +2,9 @@ import { AppSidebar } from "@/components/nav/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 const DashboardLayout = ({ children }: Readonly<React.PropsWithChildren>) => (
-  <SidebarProvider>
+  <SidebarProvider className="bg-neutral-100!">
     <AppSidebar />
-    <SidebarInset>{children}</SidebarInset>
+    <SidebarInset className="bg-neutral-50">{children}</SidebarInset>
   </SidebarProvider>
 );
 

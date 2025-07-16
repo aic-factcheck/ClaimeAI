@@ -64,7 +64,6 @@ async def _single_disambiguation_attempt(
         (
             "human",
             HUMAN_PROMPT.format(
-                question=selected_item.original_context_item.question,
                 excerpt=modified_context,
                 sentence=sentence,
             ),

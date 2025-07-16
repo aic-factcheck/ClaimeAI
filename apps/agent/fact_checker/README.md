@@ -81,7 +81,7 @@ This is how the orchestrator ties everything together using LangGraph:
 
 ```mermaid
 graph LR
-    A[extract_claims_node] --> B{dispatch_claims_for_verification}
+    A[extract_claims] --> B{dispatch_claims_for_verification}
     B -->|Claims to verify| C[claim_verifier_node]
     B -->|No claims| Z[END]
     C --> D[generate_report_node]
@@ -90,7 +90,7 @@ graph LR
 
 Let me walk through what each part does:
 
--   **`extract_claims_node`**: This calls the `claim_extractor` graph to do its thing. Originally I was recreating the extraction logic here, but that got messy fast. Much cleaner to just call the existing graph!
+-   **`extract_claims`**: This calls the `claim_extractor` graph to do its thing. Originally I was recreating the extraction logic here, but that got messy fast. Much cleaner to just call the existing graph!
 
 -   **`dispatch_claims_for_verification`**: This is a clever bit that fans out the verification process. It looks at all the claims that came back from the extractor and creates a parallel task for each one. 
 

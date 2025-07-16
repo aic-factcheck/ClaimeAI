@@ -8,12 +8,12 @@ from datetime import datetime
 from typing import Dict
 
 from claim_verifier.schemas import VerificationResult
-from fact_checker.schemas import FactCheckReport, FactCheckerState
+from fact_checker.schemas import FactCheckReport, State
 
 logger = logging.getLogger(__name__)
 
 
-async def generate_report_node(state: FactCheckerState) -> Dict[str, FactCheckReport]:
+async def generate_report_node(state: State) -> Dict[str, FactCheckReport]:
     """Generate the final fact-checking report.
 
     Args:
@@ -29,7 +29,6 @@ async def generate_report_node(state: FactCheckerState) -> Dict[str, FactCheckRe
         VerificationResult.SUPPORTED: 0,
         VerificationResult.REFUTED: 0,
         VerificationResult.INSUFFICIENT_INFORMATION: 0,
-        VerificationResult.CONFLICTING_EVIDENCE: 0,
     }
 
     for verdict in state.verification_results:
@@ -42,13 +41,11 @@ async def generate_report_node(state: FactCheckerState) -> Dict[str, FactCheckRe
         f"Fact-check complete. Of {len(state.verification_results)} claims verified: "
         f"{result_counts[VerificationResult.SUPPORTED]} supported, "
         f"{result_counts[VerificationResult.REFUTED]} refuted, "
-        f"{result_counts[VerificationResult.INSUFFICIENT_INFORMATION]} with insufficient information, "
-        f"{result_counts[VerificationResult.CONFLICTING_EVIDENCE]} with conflicting evidence."
+        f"{result_counts[VerificationResult.INSUFFICIENT_INFORMATION]} with insufficient information."
     )
 
     # Create the final report
     report = FactCheckReport(
-        question=state.question,
         answer=state.answer,
         claims_verified=len(state.verification_results),
         verified_claims=state.verification_results,

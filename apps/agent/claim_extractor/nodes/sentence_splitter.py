@@ -33,7 +33,6 @@ def ensure_nltk_resources() -> None:
 
 
 async def _sentence_splitter_and_context_creator(
-    question: str,
     answer_text: str,
     p_sentences: int = 1,
     f_sentences: int = 1,
@@ -43,7 +42,6 @@ async def _sentence_splitter_and_context_creator(
     """Split text into sentences and add context windows.
 
     Args:
-        question: Original question
         answer_text: Text to split
         p_sentences: Number of preceding sentences for context
         f_sentences: Number of following sentences for context
@@ -94,9 +92,6 @@ async def _sentence_splitter_and_context_creator(
         if include_metadata and metadata:
             context_parts.append(f"[Document Metadata: {metadata}]")
 
-        # Add question
-        context_parts.append(f"Original Question: {question}")
-
         # Add preceding sentences
         start_index = max(0, i - p_sentences)
         if start_index < i:
@@ -120,7 +115,6 @@ async def _sentence_splitter_and_context_creator(
             ContextualSentence(
                 original_sentence=sentence,
                 context_for_llm=full_context_str,
-                question=question,
                 metadata=metadata,
                 original_index=i,
             )
@@ -144,7 +138,6 @@ async def sentence_splitter_node(state: State) -> Dict[str, List[ContextualSente
         Dictionary with contextual_sentences key
     """
     # Get what we need from state
-    question = state.question
     answer_text = state.answer_text
     metadata = state.metadata
 
@@ -154,7 +147,7 @@ async def sentence_splitter_node(state: State) -> Dict[str, List[ContextualSente
 
     # Process the text
     contextual_sentences = await _sentence_splitter_and_context_creator(
-        question, answer_text, p_sentences, f_sentences, bool(metadata), metadata
+        answer_text, p_sentences, f_sentences, bool(metadata), metadata
     )
 
     return {"contextual_sentences": contextual_sentences}

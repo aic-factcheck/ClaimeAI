@@ -62,7 +62,6 @@ async def _decomposition_stage(
         (
             "human",
             HUMAN_PROMPT.format(
-                question=disambiguated_item.original_selected_item.original_context_item.question,
                 excerpt=modified_context,
                 sentence=sentence,
             ),

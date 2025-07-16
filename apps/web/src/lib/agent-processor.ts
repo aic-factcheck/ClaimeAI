@@ -24,7 +24,6 @@ const toUIValidatedClaim = (claim: ValidatedClaim): UIValidatedClaim => ({
 });
 
 const toUIFactCheckReport = (report: FactCheckReport) => ({
-  question: report.question,
   answer: report.answer,
   claims_verified: report.claims_verified,
   summary: report.summary,
@@ -223,7 +222,7 @@ const processFactCheckerEvents = (
   const output: ProcessedAgentUpdateData[] = [];
 
   switch (topLevelNodeKey) {
-    case "extract_claims_node":
+    case "extract_claims":
       if (nodeOrStateData.extracted_claims?.length) {
         const claims = nodeOrStateData.extracted_claims.map(toUIValidatedClaim);
         output.push({ type: "ExtractedClaimsProvided", data: { claims } });
@@ -269,7 +268,7 @@ const processUpdatesEvent = (
     if (Object.hasOwn(nodeDataMap, topLevelNodeKey)) {
       const nodeOrStateData = nodeDataMap[topLevelNodeKey];
 
-      if (sourceNodeInfo?.startsWith("extract_claims_node")) {
+      if (sourceNodeInfo?.startsWith("extract_claims")) {
         if (
           typeof nodeOrStateData === "object" &&
           nodeOrStateData !== null &&

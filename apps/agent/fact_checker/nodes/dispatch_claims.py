@@ -9,12 +9,12 @@ from typing import List
 from langgraph.graph import END
 from langgraph.graph.state import Send
 
-from fact_checker.schemas import FactCheckerState
+from fact_checker.schemas import State
 
 logger = logging.getLogger(__name__)
 
 
-def dispatch_claims_for_verification(state: FactCheckerState) -> List[Send] | str:
+def dispatch_claims_for_verification(state: State) -> List[Send] | str:
     """Dispatch extracted claims for parallel verification.
 
     Args:

@@ -4,7 +4,6 @@ import { z } from "zod";
 export const contextualSentenceSchema = z.object({
   original_sentence: z.string(),
   context_for_llm: z.string().optional(),
-  question: z.string().optional(),
   metadata: z.string().optional(),
   original_index: z.number(),
 });
@@ -62,7 +61,6 @@ export const verdictSchema = z.object({
 });
 
 export const factCheckReportSchema = z.object({
-  question: z.string(),
   answer: z.string(),
   claims_verified: z.number(),
   verified_claims: z.array(verdictSchema),

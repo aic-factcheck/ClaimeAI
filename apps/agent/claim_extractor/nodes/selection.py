@@ -59,7 +59,6 @@ async def _single_selection_attempt(
 
     prompt_messages = messages.invoke(
         {
-            "question": contextual_item.question,
             "excerpt": contextual_item.context_for_llm,
             "sentence": sentence,
         }

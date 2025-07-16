@@ -10,7 +10,6 @@ payload = {
         "They collected samples of lunar material and returned safely to Earth. "
         "The mission also deployed several scientific instruments on the Moon."
     ),
-    "question": "User submission about Apollo 11",
 }
 
 
@@ -18,7 +17,7 @@ async def main():
     client = get_client(url="http://127.0.0.1:2024")
 
     thread_id = str(
-        uuid.UUID(hex=hashlib.md5(payload["question"].encode("UTF-8")).hexdigest())
+        uuid.UUID(hex=hashlib.md5(payload["answer"].encode("UTF-8")).hexdigest())
     )
 
     try:

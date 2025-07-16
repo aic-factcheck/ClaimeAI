@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 };
 
 const RootLayout = ({ children }: Readonly<React.PropsWithChildren>) => (
-  <html lang="en" suppressHydrationWarning>
+  <html lang="en" suppressHydrationWarning className="no-scrollbar">
     <Providers>
       <body
         className={cn(

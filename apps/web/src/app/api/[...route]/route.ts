@@ -1,3 +1,4 @@
+import { env } from "@/env";
 import { agentRoute } from "@/server/routes/agent";
 import { clerkMiddleware } from "@hono/clerk-auth";
 import { Hono } from "hono";
@@ -7,7 +8,12 @@ export const dynamic = "force-dynamic";
 
 const app = new Hono().basePath("/api");
 
-app.use("*", clerkMiddleware());
+app.use(
+  "*",
+  clerkMiddleware({
+    publishableKey: env.CLERK_PUBLISHABLE_KEY,
+  })
+);
 const routes = app
   .get("/health", (c) => {
     return c.json({
@@ -23,4 +29,3 @@ const POST = handle(app);
 
 export { GET, POST };
 export type { AppType };
-

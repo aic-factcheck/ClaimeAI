@@ -12,6 +12,7 @@ app.use(
   "*",
   clerkMiddleware({
     publishableKey: env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+    secretKey: env.CLERK_SECRET_KEY,
   })
 );
 const routes = app

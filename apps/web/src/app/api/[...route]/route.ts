@@ -11,7 +11,7 @@ const app = new Hono().basePath("/api");
 app.use(
   "*",
   clerkMiddleware({
-    publishableKey: env.CLERK_PUBLISHABLE_KEY,
+    publishableKey: env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
   })
 );
 const routes = app

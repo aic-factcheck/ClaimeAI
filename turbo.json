@@ -4,7 +4,13 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**"],
-      "env": ["LANGGRAPH_API_URL", "LANGSMITH_API_KEY", "CLERK_SECRET_KEY"]
+      "env": [
+        "LANGGRAPH_API_URL",
+        "LANGSMITH_API_KEY",
+        "CLERK_SECRET_KEY",
+        "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
+        "NEXT_PUBLIC_APP_URL"
+      ]
     },
     "lint": {
       "dependsOn": ["^lint"]

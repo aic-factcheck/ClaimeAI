@@ -1,4 +1,5 @@
 import { agentRoute } from "@/server/routes/agent";
+import { clerkMiddleware } from "@hono/clerk-auth";
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
 
@@ -6,6 +7,7 @@ export const dynamic = "force-dynamic";
 
 const app = new Hono().basePath("/api");
 
+app.use("*", clerkMiddleware());
 const routes = app
   .get("/health", (c) => {
     return c.json({
@@ -21,3 +23,4 @@ const POST = handle(app);
 
 export { GET, POST };
 export type { AppType };
+

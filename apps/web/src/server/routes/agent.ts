@@ -1,4 +1,5 @@
 import { client } from "@/lib/langgraph";
+import { getAuth } from "@hono/clerk-auth";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
@@ -18,6 +19,12 @@ export const agentRoute = new Hono().post(
   zValidator("json", inputSchema),
   (c) => {
     const { answer } = c.req.valid("json");
+    const auth = getAuth(c);
+
+    if (!auth?.userId) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
+
     return streamSSE(c, async (stream) => {
       try {
         const thread = await client.threads.create();

@@ -16,7 +16,9 @@
     "tc": "tsc --noEmit"
   },
   "dependencies": {
+    "@clerk/backend": "^2.4.5",
     "@clerk/nextjs": "^6.25.2",
+    "@hono/clerk-auth": "^3.0.2",
     "@hono/zod-validator": "^0.7.1",
     "@langchain/langgraph-sdk": "^0.0.95",
     "@radix-ui/react-accordion": "^1.2.11",

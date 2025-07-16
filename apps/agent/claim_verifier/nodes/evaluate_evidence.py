@@ -40,7 +40,7 @@ class EvidenceEvaluationOutput(BaseModel):
         description="Clear, concise reasoning for the verdict (1-2 sentences). Explain what specific evidence led to this conclusion, mentioning the reliability of sources and any limitations in the evidence. Avoid speculation and base reasoning strictly on the provided evidence."
     )
     influential_source_indices: List[int] = Field(
-        description="1-based indices of the evidence sources that were most influential in reaching this verdict. Include only sources that directly contributed to the decision. If no specific sources were particularly influential (e.g., for 'Insufficient Information'), return an empty list.",
+        description="1-based indices of the evidence sources that were consulted in reaching this verdict. For 'Supported' and 'Refuted' verdicts, include sources that directly support the decision. For 'Insufficient Information' and 'Conflicting Evidence' verdicts, include all relevant sources that were considered, even if they were inadequate or contradictory. This ensures transparency in the fact-checking process.",
         default_factory=list,
     )
 

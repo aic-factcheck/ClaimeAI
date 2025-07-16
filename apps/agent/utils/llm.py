@@ -17,6 +17,52 @@ M = TypeVar("M", bound=BaseModel)
 logger = logging.getLogger(__name__)
 
 
+def estimate_token_count(text: str) -> int:
+    return len(text) // 4
+
+
+def truncate_evidence_for_token_limit(
+    evidence_items: List[Any],
+    claim_text: str,
+    system_prompt: str,
+    human_prompt_template: str,
+    max_tokens: int = 120000,
+    format_evidence_func: Callable[[List[Any]], str] = None,
+) -> List[Any]:
+    if not evidence_items:
+        return evidence_items
+
+    format_func = format_evidence_func or (
+        lambda items: "\n\n".join(
+            f"Evidence {i + 1}: {str(item)}" for i, item in enumerate(items)
+        )
+    )
+
+    base_tokens = estimate_token_count(
+        system_prompt
+        + human_prompt_template.format(claim_text=claim_text, evidence_snippets="")
+    )
+    available_tokens = max_tokens - base_tokens - 1000
+
+    if available_tokens <= 0:
+        return evidence_items[:1]
+
+    selected = []
+    for evidence in reversed(evidence_items):
+        test_tokens = estimate_token_count(format_func(selected + [evidence]))
+        if test_tokens <= available_tokens:
+            selected.append(evidence)
+        else:
+            break
+
+    result = [e for e in evidence_items if e in selected]
+
+    if len(result) < len(evidence_items):
+        logger.info(f"Truncated evidence: {len(evidence_items)} → {len(result)} items")
+
+    return result
+
+
 async def call_llm_with_structured_output(
     llm: BaseChatModel,
     output_class: Type[M],

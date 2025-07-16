@@ -3,7 +3,12 @@
 Common tools shared across all components.
 """
 
-from .llm import call_llm_with_structured_output, process_with_voting
+from .llm import (
+    call_llm_with_structured_output,
+    process_with_voting,
+    estimate_token_count,
+    truncate_evidence_for_token_limit,
+)
 from .models import get_llm, get_default_llm
 from .redis import redis_client, test_redis_connection
 from .settings import settings
@@ -17,6 +22,8 @@ __all__ = [
     # LLM utilities
     "call_llm_with_structured_output",
     "process_with_voting",
+    "estimate_token_count",
+    "truncate_evidence_for_token_limit",
     # LLM models
     "get_llm",
     "get_default_llm",

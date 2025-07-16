@@ -19,20 +19,16 @@ from claim_verifier.schemas import (
     Verdict,
     VerificationResult,
 )
-from utils import get_llm, call_llm_with_structured_output
+from utils import (
+    get_llm,
+    call_llm_with_structured_output,
+    truncate_evidence_for_token_limit,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class EvidenceEvaluationOutput(BaseModel):
-    """Final claim verification assessment based on evidence analysis.
-
-    Provides a definitive fact-checking verdict based solely on the evidence
-    provided, without relying on prior knowledge. The assessment should be
-    conservative and clearly distinguish between different levels of evidence
-    quality and reliability.
-    """
-
     verdict: VerificationResult = Field(
         description="The final fact-checking verdict. Use 'Supported' only when evidence clearly and consistently supports the claim from reliable sources. Use 'Refuted' when evidence clearly contradicts the claim with authoritative sources. Use 'Insufficient Information' when evidence is limited, unclear, or not comprehensive enough for a definitive conclusion. Use 'Conflicting Evidence' when reliable sources provide contradictory information about the claim."
     )
@@ -46,24 +42,20 @@ class EvidenceEvaluationOutput(BaseModel):
 
 
 def _format_evidence_snippets(snippets: List[Evidence]) -> str:
-    """Format evidence snippets for the LLM prompt."""
     if not snippets:
         return "No relevant evidence snippets were found."
 
-    formatted_snippets = []
-    for idx, snippet in enumerate(snippets):
-        snippet_text = f"Source {idx + 1}: {snippet.url}\n"
-        if snippet.title:
-            snippet_text += f"Title: {snippet.title}\n"
-        snippet_text += f"Snippet: {snippet.text.strip()}\n---"
-        formatted_snippets.append(snippet_text)
-
-    return "\n\n".join(formatted_snippets)
+    return "\n\n".join(
+        [
+            f"Source {i + 1}: {s.url}\n"
+            + (f"Title: {s.title}\n" if s.title else "")
+            + f"Snippet: {s.text.strip()}\n---"
+            for i, s in enumerate(snippets)
+        ]
+    )
 
 
 async def evaluate_evidence_node(state: ClaimVerifierState) -> dict:
-    """Evaluate claim against evidence snippets to determine final verdict."""
-
     claim = state.claim
     evidence_snippets = state.evidence
     iteration_count = state.iteration_count
@@ -74,21 +66,30 @@ async def evaluate_evidence_node(state: ClaimVerifierState) -> dict:
         f"after {iteration_count} iterations"
     )
 
-    formatted_snippets = _format_evidence_snippets(evidence_snippets)
-    llm = get_llm()
+    system_prompt = EVIDENCE_EVALUATION_SYSTEM_PROMPT.format(
+        current_time=get_current_timestamp()
+    )
 
-    current_time = get_current_timestamp()
+    truncated_evidence = truncate_evidence_for_token_limit(
+        evidence_items=evidence_snippets,
+        claim_text=claim.claim_text,
+        system_prompt=system_prompt,
+        human_prompt_template=EVIDENCE_EVALUATION_HUMAN_PROMPT,
+        format_evidence_func=_format_evidence_snippets,
+    )
 
     messages = [
-        ("system", EVIDENCE_EVALUATION_SYSTEM_PROMPT.format(current_time=current_time)),
+        ("system", system_prompt),
         (
             "human",
             EVIDENCE_EVALUATION_HUMAN_PROMPT.format(
                 claim_text=claim.claim_text,
-                evidence_snippets=formatted_snippets,
+                evidence_snippets=_format_evidence_snippets(truncated_evidence),
             ),
         ),
     ]
+
+    llm = get_llm()
 
     response = await call_llm_with_structured_output(
         llm=llm,
@@ -120,8 +121,8 @@ async def evaluate_evidence_node(state: ClaimVerifierState) -> dict:
 
         sources = []
         for idx in response.influential_source_indices:
-            if 1 <= idx <= len(evidence_snippets):
-                sources.append(evidence_snippets[idx - 1])
+            if 1 <= idx <= len(truncated_evidence):
+                sources.append(truncated_evidence[idx - 1])
             else:
                 logger.warning(f"Invalid source index {idx} referenced in verdict")
 

@@ -1,5 +1,7 @@
+import { env } from "@/env";
 import { Client } from "@langchain/langgraph-sdk";
 
 export const client = new Client({
-  apiUrl: "http://127.0.0.1:2024",
+  apiUrl: env.LANGGRAPH_API_URL,
+  apiKey: env.LANGSMITH_API_KEY,
 });

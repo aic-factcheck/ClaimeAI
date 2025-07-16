@@ -1,7 +1,4 @@
-import { PageFooter } from "@/components/page-footer";
-import { PageHeader } from "@/components/page-header";
-import { AestheticBackground } from "@/components/ui/aesthetic-background";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Providers } from "@/components/providers";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Geist_Mono } from "next/font/google";
@@ -21,7 +18,7 @@ const satoshi = localFont({
   style: "normal",
 });
 
-const metadata: Metadata = {
+export const metadata: Metadata = {
   title: "ClaimeAI | AI-powered factual verification",
   description:
     "Verify factual accuracy using our modular LangGraph system that extracts claims, cross-references them with real-world evidence, and provides a detailed verification report.",
@@ -42,29 +39,18 @@ const metadata: Metadata = {
 
 const RootLayout = ({ children }: Readonly<React.PropsWithChildren>) => (
   <html lang="en" suppressHydrationWarning>
-    <body
-      className={cn(
-        "bg-neutral-50 font-[family-name:var(--font-satoshi)] antialiased",
-        "selection:bg-neutral-700 selection:text-white dark:selection:bg-white dark:selection:text-neutral-700",
-        satoshi.variable,
-        geistMono.variable
-      )}
-    >
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-6 focus:top-6 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+    <Providers>
+      <body
+        className={cn(
+          "font-[family-name:var(--font-satoshi)] antialiased",
+          "selection:bg-neutral-700 selection:text-white dark:selection:bg-white dark:selection:text-neutral-700",
+          satoshi.variable,
+          geistMono.variable
+        )}
       >
-        Skip to main content
-      </a>
-      <AestheticBackground />
-      <TooltipProvider>
-        <div className="mx-auto flex min-h-screen max-w-5xl flex-col text-black">
-          <PageHeader />
-          {children}
-          <PageFooter />
-        </div>
-      </TooltipProvider>
-    </body>
+        {children}
+      </body>
+    </Providers>
   </html>
 );
 

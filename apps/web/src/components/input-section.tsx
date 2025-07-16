@@ -71,7 +71,7 @@ export const InputSection = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4, delay: 0.1 }}
       aria-label="Question and answer input"
-      className="relative"
+      className="relative w-full"
     >
       <fieldset disabled={isLoading} className="space-y-0">
         <legend className="sr-only">

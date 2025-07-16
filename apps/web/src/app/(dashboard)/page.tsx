@@ -7,7 +7,7 @@ import { Suspense } from "react";
 
 const Home = () => (
   <main
-    className="flex flex-grow flex-col gap-4 rounded-t-2xl border-x border-t bg-white p-6 pb-6"
+    className="flex flex-grow flex-col items-center justify-center gap-4 p-6 pb-6 max-w-4xl min-w-4xl mx-auto"
     id="main-content"
   >
     <Suspense>

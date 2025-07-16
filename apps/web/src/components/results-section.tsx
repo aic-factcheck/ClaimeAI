@@ -87,14 +87,15 @@ export const ResultsSection = () => {
               />
             </article>
           </AnimatedPanel>
-        ) : (
-          <AnimatedPanel
-            keyName="empty-state"
-            className="flex w-full flex-grow items-center justify-center rounded-lg border border-neutral-200 border-dashed bg-neutral-50/50 shadow-sm"
-          >
-            <EmptyState />
-          </AnimatedPanel>
-        )}
+        ) : // ) : (
+        //   <AnimatedPanel
+        //     keyName="empty-state"
+        //     className="flex w-full flex-grow items-center justify-center rounded-lg border border-neutral-200 border-dashed bg-neutral-50/50 shadow-sm"
+        //   >
+        //     <EmptyState />
+        //   </AnimatedPanel>
+        // )}
+        null}
       </AnimatePresence>
     </motion.section>
   );

@@ -2,6 +2,7 @@
 
 import { useMemo, memo } from "react";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 const phrases = [
   "Extracting factual claims...",
@@ -80,7 +81,11 @@ const PhraseItem = ({
   </motion.span>
 );
 
-export const AestheticBackground = memo(function AestheticBackground() {
+export const AestheticBackground = memo(function AestheticBackground({
+  className,
+}: {
+  className?: string;
+}) {
   const extendedPhrases = useMemo(() => {
     // Reduced from 25 to 15 repetitions for better performance
     const base = new Array(15).fill(null).flatMap(() => phrases);
@@ -98,7 +103,10 @@ export const AestheticBackground = memo(function AestheticBackground() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8, delay: 0.2 }}
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-[-1] h-1/2 overflow-hidden"
+      className={cn(
+        "pointer-events-none fixed inset-x-0 bottom-0 z-[-1] h-1/2 overflow-hidden",
+        className
+      )}
       aria-hidden="true"
     >
       <div className="absolute inset-0">
@@ -106,7 +114,10 @@ export const AestheticBackground = memo(function AestheticBackground() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.2 }}
-          className="absolute inset-0 z-20 bg-gradient-to-t from-white/90 via-white/60 to-transparent"
+          className={cn(
+            "absolute inset-0 z-20 bg-gradient-to-t from-white/90 via-white/60 to-transparent",
+            className
+          )}
           style={{
             maskImage: "linear-gradient(to top, black 60%, transparent 100%)",
             WebkitMaskImage:

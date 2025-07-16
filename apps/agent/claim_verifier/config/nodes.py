@@ -9,7 +9,8 @@ QUERY_GENERATION_CONFIG = {
 }
 
 EVIDENCE_RETRIEVAL_CONFIG = {
-    "results_per_query": 3,  # Number of search results to fetch per query (Exa neural search is more precise)
+    "results_per_query": 3,  # Number of search results to fetch per query
+    "search_provider": "exa",  # Search provider: "exa" or "tavily"
 }
 
 EVIDENCE_EVALUATION_CONFIG = {

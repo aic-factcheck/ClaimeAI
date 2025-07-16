@@ -4,9 +4,10 @@ Uses search queries to retrieve relevant evidence snippets from the web using ne
 """
 
 import logging
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from langchain_exa import ExaSearchRetriever
+from langchain_tavily import TavilySearch
 
 from claim_verifier.config import EVIDENCE_RETRIEVAL_CONFIG
 from claim_verifier.schemas import ClaimVerifierState, Evidence
@@ -15,75 +16,95 @@ logger = logging.getLogger(__name__)
 
 # Retrieval settings
 RESULTS_PER_QUERY = EVIDENCE_RETRIEVAL_CONFIG["results_per_query"]
+SEARCH_PROVIDER = EVIDENCE_RETRIEVAL_CONFIG["search_provider"]
+
+
+class SearchProviders:
+    @staticmethod
+    async def exa(query: str) -> List[Evidence]:
+        logger.info(f"Searching with Exa: '{query}'")
+
+        try:
+            retriever = ExaSearchRetriever(
+                k=RESULTS_PER_QUERY,
+                text_contents_options={"max_characters": 2000},
+                type="neural",
+            )
+
+            results = await retriever.ainvoke(query)
+
+            evidence = [
+                Evidence(
+                    url=doc.metadata.get("url", ""),
+                    text=doc.page_content[:2000],
+                    title=doc.metadata.get("title"),
+                )
+                for doc in results
+            ]
+
+            logger.info(f"Retrieved {len(evidence)} evidence items")
+            return evidence
+
+        except Exception as e:
+            logger.error(f"Exa search failed for '{query}': {e}")
+            return []
+
+    @staticmethod
+    async def tavily(query: str) -> List[Evidence]:
+        logger.info(f"Searching with Tavily: '{query}'")
+
+        try:
+            search = TavilySearch(
+                max_results=RESULTS_PER_QUERY,
+                topic="general",
+                include_raw_content="markdown",
+            )
+
+            results = await search.ainvoke(query)
+            evidence = SearchProviders._parse_tavily_results(results)
+
+            logger.info(f"Retrieved {len(evidence)} evidence items")
+            return evidence
+
+        except Exception as e:
+            logger.error(f"Tavily search failed for '{query}': {e}")
+            return []
+
+    @staticmethod
+    def _parse_tavily_results(results: Any) -> List[Evidence]:
+        match results:
+            case {"results": search_results} if isinstance(search_results, list):
+                return [
+                    Evidence(
+                        url=result.get("url", ""),
+                        text=result.get("raw_content") or result.get("content", ""),
+                        title=result.get("title", ""),
+                    )
+                    for result in search_results
+                    if isinstance(result, dict)
+                ]
+            case str():
+                return [Evidence(url="", text=results, title="Tavily Search Result")]
+            case _:
+                return []
 
 
 async def _search_query(query: str) -> List[Evidence]:
-    """Execute a search query using Exa Search and format the results.
-
-    Args:
-        query: Search query to execute
-
-    Returns:
-        List of evidence snippets from search results
-    """
-    logger.info(f"Searching with Exa for: '{query}'")
-
-    try:
-        exa_retriever = ExaSearchRetriever(
-            k=RESULTS_PER_QUERY,
-            text_contents_options={"max_characters": 1000},
-            highlights={"num_sentences": 3, "highlights_per_url": 1},
-            type="neural",  # Use neural search for better semantic matching
-        )
-
-        # Execute the search
-        search_results = await exa_retriever.ainvoke(query)
-
-        # Extract evidence from the results
-        evidence_list: List[Evidence] = []
-
-        for doc in search_results:
-            # Extract highlights if available, otherwise use page content
-            content = doc.page_content
-            if hasattr(doc, "metadata") and "highlights" in doc.metadata:
-                highlights = doc.metadata.get("highlights", [])
-                if highlights:
-                    content = " ".join(highlights)
-
-            evidence_list.append(
-                Evidence(
-                    url=doc.metadata.get("url", ""),
-                    text=content,
-                    title=doc.metadata.get("title"),
-                )
-            )
-
-        logger.info(
-            f"Retrieved {len(evidence_list)} evidence items for query: '{query}'"
-        )
-        return evidence_list
-
-    except Exception as e:
-        logger.error(f"Error searching with Exa for '{query}': {str(e)}")
-        return []
+    match SEARCH_PROVIDER.lower():
+        case "tavily":
+            return await SearchProviders.tavily(query)
+        case _:
+            return await SearchProviders.exa(query)
 
 
 async def retrieve_evidence_node(
-    state: ClaimVerifierState,  # noqa: F821
+    state: ClaimVerifierState,
 ) -> Dict[str, List[Evidence]]:
-    """Retrieve evidence snippets for search query using Exa Search.
-
-    Args:
-        state: Current workflow state with search query
-
-    Returns:
-        Dictionary with evidence key containing evidence snippets
-    """
     if not state.query:
         logger.warning("No search query to process")
         return {"evidence": []}
 
-    all_evidence = await _search_query(state.query)
+    evidence = await _search_query(state.query)
+    logger.info(f"Retrieved {len(evidence)} total evidence snippets")
 
-    logger.info(f"Retrieved a total of {len(all_evidence)} evidence snippets")
-    return {"evidence": [evidence.model_dump() for evidence in all_evidence]}
+    return {"evidence": [item.model_dump() for item in evidence]}

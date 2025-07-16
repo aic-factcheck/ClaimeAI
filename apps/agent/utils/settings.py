@@ -22,8 +22,16 @@ def _validate_exa_api_key(v: str | None) -> str | None:
     return v
 
 
+def _validate_tavily_api_key(v: str | None) -> str | None:
+    """Validate that the Tavily API key starts with 'tvly-'."""
+    if v and not v.startswith("tvly-"):
+        raise ValueError("Tavily API key must start with 'tvly-'")
+    return v
+
+
 OpenAIAPIKey = Annotated[str | None, AfterValidator(_validate_openai_api_key)]
 ExaAPIKey = Annotated[str | None, AfterValidator(_validate_exa_api_key)]
+TavilyAPIKey = Annotated[str | None, AfterValidator(_validate_tavily_api_key)]
 
 
 class Settings(BaseSettings):
@@ -31,6 +39,7 @@ class Settings(BaseSettings):
 
     openai_api_key: OpenAIAPIKey = Field(default=None, alias="OPENAI_API_KEY")
     exa_api_key: ExaAPIKey = Field(default=None, alias="EXA_API_KEY")
+    tavily_api_key: TavilyAPIKey = Field(default=None, alias="TAVILY_API_KEY")
     redis_uri: RedisDsn = Field(default="redis://localhost:6379", alias="REDIS_URL")
 
     model_config = SettingsConfigDict(

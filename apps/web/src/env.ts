@@ -8,23 +8,7 @@ export const env = createEnv({
       .url()
       .optional()
       .default("http://localhost:2024"),
-    LANGSMITH_API_KEY: z
-      .string()
-      .min(1)
-      .optional()
-      .refine(
-        (val) => {
-          // If NODE_ENV is production, LANGSMITH_API_KEY is required
-          const nodeEnv = process.env.NODE_ENV || "development";
-          if (nodeEnv === "production") {
-            return val != null && val.length > 0;
-          }
-          return true;
-        },
-        {
-          message: "LANGSMITH_API_KEY is required when NODE_ENV is production",
-        }
-      ),
+    LANGSMITH_API_KEY: z.string().min(1).optional(),
     NODE_ENV: z
       .enum(["development", "production"])
       .optional()

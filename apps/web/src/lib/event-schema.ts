@@ -85,7 +85,7 @@ export const errorEventSchema = z.object({
 
 export const updatesEventSchema = z.object({
   event: z.string(),
-  data: z.record(z.any()),
+  data: z.record(z.any(), z.any()),
 });
 
 export const sseEventSchema = z.union([

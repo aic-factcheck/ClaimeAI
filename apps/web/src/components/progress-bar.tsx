@@ -33,7 +33,7 @@ export const ProgressBar = memo(({ stages, isLoading }: ProgressBarProps) => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.25, ease: "easeOut" },
+      transition: { duration: 0.25 },
     },
   };
 

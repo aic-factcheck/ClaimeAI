@@ -7,7 +7,6 @@ import { MethodologyIndicators } from "@/components/methodology-indicators";
 import { ResultsSection } from "@/components/results-section";
 import { useFactCheckerResults } from "@/lib/store";
 import { cn } from "@/lib/utils";
-import { Suspense } from "react";
 
 const HomePage = () => {
   const { submittedAnswer } = useFactCheckerResults();
@@ -21,11 +20,15 @@ const HomePage = () => {
       )}
       id="main-content"
     >
-      {isEmptyState ? <EmptyState /> : <ResultsSection />}
-      <Suspense>
-        <InputSection />
-      </Suspense>
-      {isEmptyState && <MethodologyIndicators />}
+      {isEmptyState ? (
+        <>
+          <EmptyState />
+          <InputSection />
+          <MethodologyIndicators />
+        </>
+      ) : (
+        <ResultsSection />
+      )}
       <DebugReport />
     </main>
   );

@@ -36,8 +36,8 @@ export const metadata: Metadata = {
 };
 
 const RootLayout = ({ children }: Readonly<React.PropsWithChildren>) => (
-  <html className="no-scrollbar" lang="en" suppressHydrationWarning>
-    <Providers>
+  <Providers>
+    <html className="no-scrollbar" lang="en" suppressHydrationWarning>
       <body
         className={cn(
           "font-[family-name:var(--font-satoshi)] antialiased",
@@ -48,8 +48,8 @@ const RootLayout = ({ children }: Readonly<React.PropsWithChildren>) => (
       >
         {children}
       </body>
-    </Providers>
-  </html>
+    </html>
+  </Providers>
 );
 
 export default RootLayout;

@@ -264,7 +264,7 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
           const response = await fetch("/api/agent/run", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ answer }),
+            body: JSON.stringify({ text: answer }),
           });
 
           if (!(response.ok && response.body)) {

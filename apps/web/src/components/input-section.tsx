@@ -1,45 +1,45 @@
 "use client";
 
-import NumberFlow from "@number-flow/react";
-import { motion } from "framer-motion";
-import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowUpIcon, type ArrowUpIconHandle } from "@/components/ui/icons";
+import { MAX_INPUT_LIMIT } from "@/lib/constants";
 import { useFactCheckerInput } from "@/lib/store";
-import { cn } from "@/lib/utils";
-
-const CHARACTER_LIMIT = 2500;
+import { cn, generateCheckId } from "@/lib/utils";
+import NumberFlow from "@number-flow/react";
+import { motion } from "framer-motion";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const useInputHandler = () => {
   const { answer, setAnswer, isLoading, startVerification } =
     useFactCheckerInput();
   const [isLimitReached, setLimitReached] = useState(false);
-  const searchParams = useSearchParams();
 
   useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
     const answerFromUrl = searchParams.get("a");
     if (answerFromUrl) {
       try {
         const decodedAnswer = decodeURIComponent(answerFromUrl);
         setAnswer(decodedAnswer);
+        const checkId = generateCheckId(decodedAnswer);
+        window.history.replaceState({}, "", `/checks/${checkId}`);
         startVerification();
       } catch (e) {
         console.error("Failed to decode answer from URL:", e);
         setAnswer("(Error decoding answer)");
       }
     }
-  }, [searchParams, setAnswer, startVerification]);
+  }, []);
 
   const characterCount = answer.length;
-  const isOverLimit = characterCount >= CHARACTER_LIMIT;
-  const isNearLimit = characterCount > CHARACTER_LIMIT * 0.8 && !isOverLimit;
+  const isOverLimit = characterCount >= MAX_INPUT_LIMIT;
+  const isNearLimit = characterCount > MAX_INPUT_LIMIT * 0.8 && !isOverLimit;
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       const text = e.target.value;
-      if (text.length > CHARACTER_LIMIT) {
-        setAnswer(text.slice(0, CHARACTER_LIMIT));
+      if (text.length > MAX_INPUT_LIMIT) {
+        setAnswer(text.slice(0, MAX_INPUT_LIMIT));
         setLimitReached(true);
         setTimeout(() => setLimitReached(false), 500);
       } else {
@@ -51,6 +51,8 @@ const useInputHandler = () => {
 
   const handleSubmit = useCallback(() => {
     if (!isLoading && answer && !isOverLimit) {
+      const checkId = generateCheckId(answer);
+      window.history.replaceState({}, "", `/checks/${checkId}`);
       startVerification();
     }
   }, [isLoading, answer, isOverLimit, startVerification]);
@@ -110,7 +112,7 @@ const CharacterCounter = ({
     />
     <span className="text-neutral-300">/</span>
     <span className="font-medium text-neutral-400">
-      {CHARACTER_LIMIT.toLocaleString()}
+      {MAX_INPUT_LIMIT.toLocaleString()}
     </span>
   </motion.div>
 );

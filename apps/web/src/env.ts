@@ -3,13 +3,13 @@ import { z } from "zod";
 
 export const env = createEnv({
   server: {
-    LANGGRAPH_API_URL: z
-      .string()
-      .url()
-      .optional()
-      .default("http://localhost:2024"),
+    LANGGRAPH_API_URL: z.url().optional().default("http://localhost:2024"),
     LANGSMITH_API_KEY: z.string().min(1).optional(),
     CLERK_SECRET_KEY: z.string().min(1).startsWith("sk_"),
+    CLERK_WEBHOOK_SECRET: z.string().min(1),
+    DATABASE_URL: z.string().min(1),
+    UPSTASH_REDIS_REST_URL: z.url().min(1),
+    UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
     NODE_ENV: z
       .enum(["development", "production"])
       .optional()
@@ -24,11 +24,7 @@ export const env = createEnv({
 
   client: {
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1).startsWith("pk_"),
-    NEXT_PUBLIC_APP_URL: z
-      .string()
-      .url()
-      .default("http://localhost:3000")
-      .optional(),
+    NEXT_PUBLIC_APP_URL: z.url().default("http://localhost:3000").optional(),
   },
 
   /**

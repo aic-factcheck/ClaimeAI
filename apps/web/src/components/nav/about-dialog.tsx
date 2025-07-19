@@ -1,4 +1,4 @@
-import { CheckCircle, Info } from "lucide-react";
+import { Info } from "lucide-react";
 import { Badge } from "../ui/badge";
 import {
   Dialog,
@@ -9,6 +9,15 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { SidebarMenuButton } from "../ui/sidebar";
+
+const FEATURES = [
+  "Automated claim extraction using the Claimify methodology",
+  "Evidence-based verification through web search",
+  "Detailed reporting with source citations",
+  "Real-time processing and analysis",
+];
+
+const BADGES = ["AI-Powered", "Research-Based", "Open Source"];
 
 export const AboutDialog = () => {
   return (
@@ -22,7 +31,6 @@ export const AboutDialog = () => {
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <CheckCircle className="h-5 w-5 text-green-600" />
             About ClaimeAI
           </DialogTitle>
           <DialogDescription className="space-y-4 text-left">
@@ -34,18 +42,17 @@ export const AboutDialog = () => {
             <div className="space-y-2">
               <h4 className="font-semibold text-foreground">Key Features:</h4>
               <ul className="list-inside list-disc space-y-1 text-sm">
-                <li>
-                  Automated claim extraction using the Claimify methodology
-                </li>
-                <li>Evidence-based verification through web search</li>
-                <li>Detailed reporting with source citations</li>
-                <li>Real-time processing and analysis</li>
+                {FEATURES.map((feature) => (
+                  <li key={feature}>{feature}</li>
+                ))}
               </ul>
             </div>
             <div className="flex gap-2 pt-2">
-              <Badge variant="secondary">AI-Powered</Badge>
-              <Badge variant="secondary">Research-Based</Badge>
-              <Badge variant="secondary">Open Source</Badge>
+              {BADGES.map((badge) => (
+                <Badge key={badge} variant="secondary">
+                  {badge}
+                </Badge>
+              ))}
             </div>
           </DialogDescription>
         </DialogHeader>

@@ -27,13 +27,12 @@ const SidebarWrapper = ({ children }: React.PropsWithChildren) => (
   </SidebarFooter>
 );
 
-const MenuButton = ({ children }: React.PropsWithChildren) => (
+const MenuButton = (props: React.ComponentProps<typeof SidebarMenuButton>) => (
   <SidebarMenuButton
     className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
     size="lg"
-  >
-    {children}
-  </SidebarMenuButton>
+    {...props}
+  />
 );
 
 const UserAvatar = ({ user }: { user: any }) => {

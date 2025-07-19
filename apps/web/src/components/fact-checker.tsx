@@ -1,7 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useMemo, useState } from "react";
 import type { Verdict } from "@/lib/event-schema";
 import type {
   ContextualSentence,
@@ -9,8 +7,9 @@ import type {
   PotentialClaimData,
   SelectedContentData,
 } from "@/lib/store";
-import { cn } from "@/lib/utils";
 import type { UIValidatedClaim } from "@/types";
+import { motion } from "framer-motion";
+import { useMemo, useState } from "react";
 
 import { LoadingState } from "./loading-state";
 import { ProcessedAnswer } from "./processed-answer";
@@ -80,34 +79,32 @@ export const FactChecker = ({
 
   return (
     <motion.div
-      animate={{ opacity: 1, y: 0 }}
-      className={cn("w-full")}
       initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
+      className="w-full"
     >
+      <ProgressBar isLoading={isLoading} stages={progressStages} />
+
       {contextualSentences.length === 0 ? (
-        <>
-          <ProgressBar isLoading={isLoading} stages={progressStages} />
-          <LoadingState message="Initializing verification..." />
-        </>
+        <LoadingState message="Initializing verification..." />
       ) : (
-        <>
-          <ProgressBar isLoading={isLoading} stages={progressStages} />
-          {claimVerdicts.length > 0 && <SourcePills verdicts={claimVerdicts} />}
-          <div>
-            {claimVerdicts.length > 0 && (
+        <div>
+          {claimVerdicts.length > 0 && (
+            <>
+              <SourcePills verdicts={claimVerdicts} />
               <VerdictProgress isLoading={isLoading} verdicts={claimVerdicts} />
-            )}
-            <h3 className="my-2.5 mt-6 font-medium text-neutral-900 text-sm">
-              Processed Answer
-            </h3>
-            <ProcessedAnswer
-              expandedCitation={expandedCitation}
-              sentenceEntries={sentenceEntries}
-              setExpandedCitation={setExpandedCitation}
-            />
-          </div>
-        </>
+            </>
+          )}
+          <h3 className="my-2.5 mt-6 font-medium text-neutral-900 text-sm">
+            Processed Answer
+          </h3>
+          <ProcessedAnswer
+            expandedCitation={expandedCitation}
+            sentenceEntries={sentenceEntries}
+            setExpandedCitation={setExpandedCitation}
+          />
+        </div>
       )}
       <VerdictSummary isLoading={isLoading} verdicts={claimVerdicts} />
     </motion.div>

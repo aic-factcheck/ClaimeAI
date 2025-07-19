@@ -7,7 +7,10 @@
     "dev:ext": "concurrently --names \"AGENT,WEB\" --prefix-colors \"blue,green\" --kill-others-on-fail --handle-input \"cd apps/agent && langgraph dev --no-browser --config langgraph.json\" \"turbo dev\"",
     "setup:dev": "pnpm install && cd apps/agent && poetry install && cd ../..",
     "backend:dev": "langgraph dev --no-browser --config apps/agent/langgraph.json",
-    "frontend:dev": "turbo dev --filter=web"
+    "frontend:dev": "turbo dev --filter=web",
+    "db:generate": "pnpm --filter web db:generate",
+    "db:push": "pnpm --filter web db:push",
+    "db:studio": "pnpm --filter web db:studio"
   },
   "workspaces": [
     "apps/*",

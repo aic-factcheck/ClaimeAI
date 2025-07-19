@@ -15,7 +15,9 @@
     "check-types": "tsc --noEmit",
     "tc": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:introspect": "drizzle-kit introspect"
   },
   "dependencies": {
     "@clerk/backend": "^2.4.5",

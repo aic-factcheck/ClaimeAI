@@ -15,8 +15,8 @@ export const users = pgTable(
     imageUrl: text("image_url"),
     ...timestamps,
   },
-  (table) => ({
-    emailIdx: uniqueIndex("users_email_idx").on(table.email),
-    createdAtIdx: index("users_created_at_idx").on(table.createdAt),
-  })
+  (table) => [
+    uniqueIndex("users_email_idx").on(table.email),
+    index("users_created_at_idx").on(table.createdAt),
+  ]
 );

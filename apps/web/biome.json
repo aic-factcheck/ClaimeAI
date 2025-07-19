@@ -1,8 +1,15 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.1.2/schema.json",
   "extends": ["ultracite"],
   "files": {
-    "ignore": ["node_modules", "dist", "build", "public", ".next"]
+    "includes": [
+      "**",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/build",
+      "!**/public",
+      "!**/.next"
+    ]
   },
   "linter": {
     "rules": {
@@ -10,7 +17,8 @@
         "noConsole": "off"
       },
       "style": {
-        "useBlockStatements": "off"
+        "useBlockStatements": "off",
+        "noNestedTernary": "off"
       },
       "correctness": {
         "noUndeclaredVariables": "off"
@@ -21,9 +29,7 @@
       "complexity": {
         "noExcessiveCognitiveComplexity": "off"
       },
-      "nursery": {
-        "noNestedTernary": "off"
-      }
+      "nursery": {}
     }
   },
   "javascript": {

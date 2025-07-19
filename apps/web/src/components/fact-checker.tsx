@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { useMemo, useState } from "react";
 import type { Verdict } from "@/lib/event-schema";
 import type {
   ContextualSentence,
@@ -9,8 +11,6 @@ import type {
 } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import type { UIValidatedClaim } from "@/types";
-import { motion } from "framer-motion";
-import { useMemo, useState } from "react";
 
 import { LoadingState } from "./loading-state";
 import { ProcessedAnswer } from "./processed-answer";
@@ -80,36 +80,36 @@ export const FactChecker = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
       className={cn("w-full")}
+      initial={{ opacity: 0, y: 10 }}
+      transition={{ duration: 0.3 }}
     >
       {contextualSentences.length === 0 ? (
         <>
-          <ProgressBar stages={progressStages} isLoading={isLoading} />
+          <ProgressBar isLoading={isLoading} stages={progressStages} />
           <LoadingState message="Initializing verification..." />
         </>
       ) : (
         <>
-          <ProgressBar stages={progressStages} isLoading={isLoading} />
+          <ProgressBar isLoading={isLoading} stages={progressStages} />
           {claimVerdicts.length > 0 && <SourcePills verdicts={claimVerdicts} />}
           <div>
             {claimVerdicts.length > 0 && (
-              <VerdictProgress verdicts={claimVerdicts} isLoading={isLoading} />
+              <VerdictProgress isLoading={isLoading} verdicts={claimVerdicts} />
             )}
             <h3 className="my-2.5 mt-6 font-medium text-neutral-900 text-sm">
               Processed Answer
             </h3>
             <ProcessedAnswer
-              sentenceEntries={sentenceEntries}
               expandedCitation={expandedCitation}
+              sentenceEntries={sentenceEntries}
               setExpandedCitation={setExpandedCitation}
             />
           </div>
         </>
       )}
-      <VerdictSummary verdicts={claimVerdicts} isLoading={isLoading} />
+      <VerdictSummary isLoading={isLoading} verdicts={claimVerdicts} />
     </motion.div>
   );
 };

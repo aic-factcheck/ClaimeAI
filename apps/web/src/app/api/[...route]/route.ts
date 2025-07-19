@@ -1,8 +1,8 @@
-import { env } from "@/env";
-import { agentRoute } from "@/server/routes/agent";
 import { clerkMiddleware } from "@hono/clerk-auth";
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
+import { env } from "@/env";
+import { agentRoute } from "@/server/routes/agent";
 
 export const dynamic = "force-dynamic";
 

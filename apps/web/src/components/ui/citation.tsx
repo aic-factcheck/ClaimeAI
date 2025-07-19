@@ -1,12 +1,3 @@
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import type { Verdict } from "@/lib/event-schema";
-import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ClipboardCheck,
@@ -18,6 +9,15 @@ import {
   Search,
 } from "lucide-react";
 import type React from "react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import type { Verdict } from "@/lib/event-schema";
+import { cn } from "@/lib/utils";
 import { VerdictBadge } from "./verdict-badge";
 
 interface CitationProps {
@@ -47,8 +47,8 @@ const CitationSection = ({
 }: CitationSectionProps) =>
   items.length > 0 && (
     <motion.div
-      initial={{ opacity: 0, y: 5 }}
       animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 5 }}
       transition={{ duration: 0.2, delay }}
     >
       <div className="mb-1.5 flex items-center gap-1.5">
@@ -73,120 +73,119 @@ export const Citation = ({
   onClick,
 }: CitationProps) => (
   <Sheet
-    open={isExpanded}
     onOpenChange={(open) => {
       if (!open) {
         onClick();
       }
     }}
+    open={isExpanded}
   >
     <SheetTrigger asChild>
       <motion.span
         className={cn(
           "mb-1 ml-1 cursor-pointer text-mono text-neutral-800 text-xs transition-colors hover:text-neutral-700"
         )}
-        whileHover={{ scale: 1.15 }}
-        whileTap={{ scale: 0.95 }}
         onClick={(e) => {
           e.stopPropagation();
           onClick();
         }}
+        whileHover={{ scale: 1.15 }}
+        whileTap={{ scale: 0.95 }}
       >
         [{id + 1}]
       </motion.span>
     </SheetTrigger>
     <SheetContent
-      side="right"
-      className="w-full max-w-md min-w-md gap-0 shadow-none"
+      className="w-full min-w-md max-w-md gap-0 shadow-none"
       onClick={(e) => e.stopPropagation()}
+      side="right"
     >
       <SheetHeader className="border-b">
         <SheetTitle className="flex items-center gap-2 text-left">
           <Quote className="h-4 w-4 text-neutral-600" />
-          Claim Source <i className="text-xs mb-2 -ml-1">{id + 1}</i>
+          Claim Source <i className="-ml-1 mb-2 text-xs">{id + 1}</i>
         </SheetTitle>
       </SheetHeader>
 
       <AnimatePresence>
         {isExpanded && (
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
+            className="no-scrollbar flex-1 overflow-y-auto"
             exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="flex-1 overflow-y-auto no-scrollbar"
+            initial={{ opacity: 0, x: 20 }}
             onClick={(e) => e.stopPropagation()}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className="space-y-4 p-4">
               <CitationSection
-                title="Selected"
-                items={sentenceData.selected}
                 delay={0.05}
                 icon={FileText}
+                items={sentenceData.selected}
                 renderItem={(item, idx) => (
                   <div
-                    key={idx}
                     className="border-b p-3 pt-3 text-neutral-900 first:pt-0 last:border-b-0 last:pb-0"
+                    key={idx}
                   >
                     {item.processedText || item.claimText}
                   </div>
                 )}
+                title="Selected"
               />
 
               <CitationSection
-                title="Disambiguated"
-                items={sentenceData.disambiguated}
                 delay={0.1}
                 icon={Search}
+                items={sentenceData.disambiguated}
                 renderItem={(item, idx) => (
                   <div
-                    key={idx}
                     className="border-b p-3 pt-3 text-neutral-900 first:pt-0 last:border-b-0 last:pb-0"
+                    key={idx}
                   >
                     {item.disambiguatedText}
                   </div>
                 )}
+                title="Disambiguated"
               />
 
               <CitationSection
-                title="Potential Claims"
-                items={sentenceData.potentialClaims}
                 delay={0.15}
                 icon={FileQuestion}
+                items={sentenceData.potentialClaims}
                 renderItem={(item, idx) => (
                   <div
-                    key={idx}
                     className="border-b p-3 pt-3 text-neutral-900 first:pt-0 last:border-b-0 last:pb-0"
+                    key={idx}
                   >
                     {item.claim.claimText}
                   </div>
                 )}
+                title="Potential Claims"
               />
 
               <CitationSection
-                title="Validated Claims"
-                items={sentenceData.validatedClaims}
                 delay={0.2}
                 icon={ClipboardCheck}
+                items={sentenceData.validatedClaims}
                 renderItem={(item, idx) => (
                   <div
-                    key={idx}
                     className="border-b p-3 pt-3 text-neutral-900 first:pt-0 last:border-b-0 last:pb-0"
+                    key={idx}
                   >
                     {item.claim_text || item.claimText}
                   </div>
                 )}
+                title="Validated Claims"
               />
 
               <CitationSection
-                title="Verdicts"
-                items={sentenceData.verdicts}
                 delay={0.25}
                 icon={Scale}
+                items={sentenceData.verdicts}
                 renderItem={(verdict: Verdict, idx) => (
                   <div
-                    key={idx}
                     className="overflow-hidden rounded-md border border-neutral-200 bg-neutral-50 text-sm"
+                    key={idx}
                   >
                     <div className="p-4">
                       <div className="mb-3">
@@ -206,14 +205,14 @@ export const Citation = ({
                           <div className="space-y-2">
                             {verdict.sources.map((source, sidx) => (
                               <div
-                                key={`${source.url}-${sidx}`}
                                 className="text-blue-600 text-sm"
+                                key={`${source.url}-${sidx}`}
                               >
                                 <a
-                                  href={source.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
                                   className="hover:underline"
+                                  href={source.url}
+                                  rel="noopener noreferrer"
+                                  target="_blank"
                                 >
                                   {source.title || source.url}
                                 </a>
@@ -225,6 +224,7 @@ export const Citation = ({
                     </div>
                   </div>
                 )}
+                title="Verdicts"
               />
             </div>
           </motion.div>

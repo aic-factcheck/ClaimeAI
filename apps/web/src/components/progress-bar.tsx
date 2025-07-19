@@ -1,7 +1,7 @@
-import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, ChevronRight, Circle, Loader } from "lucide-react";
 import React, { memo, useMemo } from "react";
+import { cn } from "@/lib/utils";
 import { StreamingIndicator } from "./ui/streaming-indicator";
 
 interface ProgressBarProps {
@@ -47,10 +47,10 @@ export const ProgressBar = memo(({ stages, isLoading }: ProgressBarProps) => {
       </div>
 
       <motion.div
-        variants={containerVariants}
-        initial="hidden"
         animate="visible"
         className="hide-scrollbar flex items-center gap-x-1.5 overflow-x-auto"
+        initial="hidden"
+        variants={containerVariants}
       >
         {stages.map((stage, idx) => {
           const isCompleted = idx < currentStage;
@@ -59,18 +59,18 @@ export const ProgressBar = memo(({ stages, isLoading }: ProgressBarProps) => {
           return (
             <React.Fragment key={stage.name}>
               <motion.div
-                variants={itemVariants}
                 className={cn(
-                  "group relative flex h-6 items-center shadow-inner gap-1.5 rounded-full px-1 text-xs transition-all duration-300",
+                  "group relative flex h-6 items-center gap-1.5 rounded-full px-1 text-xs shadow-inner transition-all duration-300",
                   isCurrent && isLoading
                     ? "border border-neutral-200 bg-neutral-100 text-neutral-900 shadow-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
                     : isCompleted
                       ? "border border-neutral-200 bg-neutral-100 text-neutral-900 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
                       : "border border-neutral-100 bg-neutral-50 text-neutral-400 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-500"
                 )}
+                variants={itemVariants}
               >
-                <div className="absolute -top-px w-[80%] h-px from-neutral-50/20 via-neutral-400/20 to-neutral-50/20 bg-gradient-to-r left-[50%] translate-x-[-50%] rounded-xl" />
-                <div className="absolute -bottom-px w-[80%] h-px from-neutral-50/20 via-neutral-400/20 to-neutral-50/20 bg-gradient-to-r left-[50%] translate-x-[-50%] rounded-xl" />
+                <div className="-top-px absolute left-[50%] h-px w-[80%] translate-x-[-50%] rounded-xl bg-gradient-to-r from-neutral-50/20 via-neutral-400/20 to-neutral-50/20" />
+                <div className="-bottom-px absolute left-[50%] h-px w-[80%] translate-x-[-50%] rounded-xl bg-gradient-to-r from-neutral-50/20 via-neutral-400/20 to-neutral-50/20" />
                 <span className="flex-shrink-0">
                   {isCompleted ? (
                     <CheckCircle2 className="size-4 text-neutral-900 dark:text-neutral-100" />
@@ -93,9 +93,7 @@ export const ProgressBar = memo(({ stages, isLoading }: ProgressBarProps) => {
                 <AnimatePresence>
                   {stage.count > 0 && (
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.5 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.5 }}
                       className={cn(
                         "flex h-4 min-w-4 items-center justify-center rounded-full px-1 font-medium text-[10px]",
                         isCurrent && isLoading
@@ -104,6 +102,8 @@ export const ProgressBar = memo(({ stages, isLoading }: ProgressBarProps) => {
                             ? "bg-neutral-900 text-neutral-50 dark:bg-neutral-100 dark:text-neutral-900"
                             : "bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300"
                       )}
+                      exit={{ opacity: 0, scale: 0.5 }}
+                      initial={{ opacity: 0, scale: 0.5 }}
                     >
                       {stage.count}
                     </motion.div>

@@ -1,21 +1,21 @@
-import { VerdictBadge } from "@/components/ui/verdict-badge";
-import type { Verdict } from "@/lib/event-schema";
-import { cn, extractDomain } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Link as LinkIcon, PlusCircle } from "lucide-react";
-import { memo } from "react";
 import Image from "next/image";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { memo } from "react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { VerdictBadge } from "@/components/ui/verdict-badge";
+import type { Verdict } from "@/lib/event-schema";
+import { cn, extractDomain } from "@/lib/utils";
 
 interface VerdictSummaryProps {
   verdicts: Verdict[];
@@ -31,10 +31,9 @@ const SourceFavicon = ({ url }: { url: string }) => {
   return (
     <div className="relative h-3.5 w-3.5 flex-shrink-0 overflow-hidden rounded-[2px]">
       <Image
-        src={faviconUrl}
-        width={14}
-        height={14}
+        alt={`${domain} favicon`}
         className="h-full w-full object-cover"
+        height={14}
         onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
           const parent = e.currentTarget.parentNode as HTMLElement | null;
           if (parent) {
@@ -45,7 +44,8 @@ const SourceFavicon = ({ url }: { url: string }) => {
             `;
           }
         }}
-        alt={`${domain} favicon`}
+        src={faviconUrl}
+        width={14}
       />
     </div>
   );
@@ -59,21 +59,21 @@ export const VerdictSummary = memo(function VerdictSummary({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
       className="mt-6"
+      initial={{ opacity: 0, y: 10 }}
+      transition={{ duration: 0.2 }}
     >
-      <Accordion type="single" collapsible defaultValue="fact-check-summary">
-        <AccordionItem value="fact-check-summary" className="border-none">
+      <Accordion collapsible defaultValue="fact-check-summary" type="single">
+        <AccordionItem className="border-none" value="fact-check-summary">
           <AccordionTrigger className="px-0 py-2 hover:no-underline">
             <div className="flex items-center font-medium text-neutral-900 text-sm">
               Fact Check Summary
               {isLoading && (
                 <motion.span
-                  initial={{ opacity: 0, x: -5 }}
                   animate={{ opacity: 1, x: 0 }}
                   className="ml-2 font-normal text-neutral-500 text-xs"
+                  initial={{ opacity: 0, x: -5 }}
                 >
                   Processing...
                 </motion.span>
@@ -83,19 +83,23 @@ export const VerdictSummary = memo(function VerdictSummary({
           <AccordionContent className="px-0 pb-0">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {verdicts.map((verdict, idx) => {
-                const visibleSources = verdict.sources.slice(0, MAX_VISIBLE_SOURCES);
-                const hiddenSources = verdict.sources.slice(MAX_VISIBLE_SOURCES);
+                const visibleSources = verdict.sources.slice(
+                  0,
+                  MAX_VISIBLE_SOURCES
+                );
+                const hiddenSources =
+                  verdict.sources.slice(MAX_VISIBLE_SOURCES);
                 const remainingSourcesCount = hiddenSources.length;
 
                 return (
                   <motion.div
-                    key={`verdict-${verdict.claim_text.slice(0, 20)}-${idx}`}
-                    initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2, delay: idx * 0.05 }}
                     className={cn(
-                      "rounded-lg border border-neutral-200 border-dashed bg-white shadow-xs p-3 transition-all dark:border-neutral-800 dark:bg-neutral-900/90"
+                      "rounded-lg border border-neutral-200 border-dashed bg-white p-3 shadow-xs transition-all dark:border-neutral-800 dark:bg-neutral-900/90"
                     )}
+                    initial={{ opacity: 0, y: 5 }}
+                    key={`verdict-${verdict.claim_text.slice(0, 20)}-${idx}`}
+                    transition={{ duration: 0.2, delay: idx * 0.05 }}
                   >
                     <div className="mb-2 flex items-start justify-between gap-2">
                       <VerdictBadge verdict={verdict} />
@@ -103,14 +107,14 @@ export const VerdictSummary = memo(function VerdictSummary({
                         <div className="flex flex-wrap items-center gap-1.5">
                           {visibleSources.map((source, sourceIdx) => (
                             <a
-                              key={`${source.url}-${sourceIdx}-visible`}
-                              href={source.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-1 rounded-sm border border-neutral-300 p-1 transition-all hover:border-neutral-400 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                               aria-label={`View source: ${
                                 source.title || source.url
                               } (opens in new tab)`}
+                              className="flex items-center gap-1 rounded-sm border border-neutral-300 p-1 transition-all hover:border-neutral-400 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                              href={source.url}
+                              key={`${source.url}-${sourceIdx}-visible`}
+                              rel="noopener noreferrer"
+                              target="_blank"
                               title={source.title || source.url}
                             >
                               <SourceFavicon url={source.url} />
@@ -120,37 +124,38 @@ export const VerdictSummary = memo(function VerdictSummary({
                             <Popover>
                               <PopoverTrigger asChild>
                                 <button
-                                  type="button"
-                                  className="flex h-6 w-6 items-center justify-center rounded-sm border border-neutral-300 bg-neutral-100 text-neutral-500 transition-all hover:border-neutral-400 hover:bg-neutral-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                   aria-label={`Show ${remainingSourcesCount} more sources`}
+                                  className="flex h-6 w-6 items-center justify-center rounded-sm border border-neutral-300 bg-neutral-100 text-neutral-500 transition-all hover:border-neutral-400 hover:bg-neutral-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                  type="button"
                                 >
                                   <PlusCircle className="h-3.5 w-3.5" />
                                 </button>
                               </PopoverTrigger>
                               <PopoverContent
+                                align="end"
                                 className="w-auto max-w-xs p-2"
                                 side="top"
-                                align="end"
                               >
                                 <div className="space-y-1.5">
-                                  <p className="text-xs font-medium text-neutral-600">
+                                  <p className="font-medium text-neutral-600 text-xs">
                                     Additional Sources
                                   </p>
                                   {hiddenSources.map((source, sourceIdx) => (
                                     <a
-                                      key={`${source.url}-${sourceIdx}-hidden`}
-                                      href={source.url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="flex items-center gap-2 rounded-md p-1.5 text-xs text-neutral-700 transition-colors hover:bg-neutral-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                       aria-label={`View source: ${
                                         source.title || source.url
                                       } (opens in new tab)`}
+                                      className="flex items-center gap-2 rounded-md p-1.5 text-neutral-700 text-xs transition-colors hover:bg-neutral-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                      href={source.url}
+                                      key={`${source.url}-${sourceIdx}-hidden`}
+                                      rel="noopener noreferrer"
+                                      target="_blank"
                                       title={source.title || source.url}
                                     >
                                       <SourceFavicon url={source.url} />
                                       <span className="truncate">
-                                        {source.title || extractDomain(source.url)}
+                                        {source.title ||
+                                          extractDomain(source.url)}
                                       </span>
                                       <LinkIcon className="ml-auto h-3 w-3 flex-shrink-0 text-neutral-400" />
                                     </a>

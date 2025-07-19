@@ -1,8 +1,12 @@
 "use client";
 
-import { BookOpen, ExternalLink, Home, Plus } from "lucide-react";
+import { BookOpen, ExternalLink } from "lucide-react";
 import Link from "next/link";
-import { Separator } from "../ui/separator";
+import { usePathname } from "next/navigation";
+import { useRef } from "react";
+import { Separator } from "@/components/ui/separator";
+import { HomeIcon, type HomeIconHandle } from "../ui/icons/home";
+import { PlusIcon, type PlusIconHandle } from "../ui/icons/plus";
 import {
   Sidebar,
   SidebarContent,
@@ -17,19 +21,18 @@ import {
 import { AboutDialog } from "./about-dialog";
 import { HowItWorksDialog } from "./how-it-works-dialog";
 import { AppSidebarFooter } from "./sidebar-footer";
-import { usePathname } from "next/navigation";
 
 const mainItems = [
   {
     title: "Fact Checker",
     url: "/",
-    icon: Home,
+    icon: HomeIcon,
     description: "Main fact-checking interface",
   },
   {
     title: "New Check",
     url: "/?clear=true",
-    icon: Plus,
+    icon: PlusIcon,
     description: "Start a new fact-check",
   },
 ];
@@ -37,16 +40,30 @@ const mainItems = [
 export const AppSidebar = () => {
   const pathname = usePathname();
   const isActive = (url: string) => pathname === url;
+
+  const homeIconRef = useRef<HomeIconHandle>(null);
+  const plusIconRef = useRef<PlusIconHandle>(null);
+
+  const iconRefs = [homeIconRef, plusIconRef];
+
+  const handleMenuItemEnter = (index: number) => {
+    iconRefs[index]?.current?.startAnimation();
+  };
+
+  const handleMenuItemLeave = (index: number) => {
+    iconRefs[index]?.current?.stopAnimation();
+  };
+
   return (
     <Sidebar collapsible="icon" variant="inset">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
+            <SidebarMenuButton asChild size="lg">
               <Link href="/">
                 <div
-                  className="size-6 rounded-full border-5 border-black border-dashed"
                   aria-hidden="true"
+                  className="size-6 rounded-full border-5 border-black border-dashed"
                 />
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">ClaimeAI</span>
@@ -63,11 +80,19 @@ export const AppSidebar = () => {
           <SidebarGroupLabel>Fact Checking</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.description} isActive={isActive(item.url)}>
+              {mainItems.map(({ icon: Icon, ...item }, index) => (
+                <SidebarMenuItem
+                  key={item.title}
+                  onMouseEnter={() => handleMenuItemEnter(index)}
+                  onMouseLeave={() => handleMenuItemLeave(index)}
+                >
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isActive(item.url)}
+                    tooltip={item.description}
+                  >
                     <Link href={item.url}>
-                      <item.icon />
+                      <Icon ref={iconRefs[index]} />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -76,7 +101,7 @@ export const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <Separator className="max-w-[90%] mx-auto" />
+        <Separator className="mx-auto max-w-[90%]" />
         <SidebarGroup>
           <SidebarGroupLabel>Learn More</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -91,8 +116,8 @@ export const AppSidebar = () => {
 
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  tooltip="View technical documentation on GitHub"
                   asChild
+                  tooltip="View technical documentation on GitHub"
                 >
                   <Link
                     className="flex items-center gap-2"
@@ -102,7 +127,7 @@ export const AppSidebar = () => {
                     <BookOpen />
                     <span>Documentation</span>
                     <ExternalLink
-                      className="ml-auto opacity-70 size-2.5"
+                      className="ml-auto size-2.5 opacity-70"
                       strokeWidth={1.5}
                     />
                   </Link>

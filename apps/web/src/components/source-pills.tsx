@@ -1,8 +1,8 @@
-import type { Evidence, Verdict } from "@/lib/event-schema";
-import { cn, extractDomain } from "@/lib/utils";
 import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
+import type { Evidence, Verdict } from "@/lib/event-schema";
+import { cn, extractDomain } from "@/lib/utils";
 
 interface SourcePillsProps {
   verdicts: Verdict[];
@@ -44,8 +44,8 @@ export const SourcePills = ({ verdicts, maxSources = 7 }: SourcePillsProps) => {
         <h3 className="my-2.5 mt-6 font-medium text-sm">Sources</h3>
         {hasMoreSources && (
           <button
-            onClick={() => setExpanded(!expanded)}
             className="flex items-center gap-1 text-neutral-500 text-xs transition-colors hover:text-neutral-900"
+            onClick={() => setExpanded(!expanded)}
             type="button"
           >
             {expanded ? (
@@ -71,11 +71,6 @@ export const SourcePills = ({ verdicts, maxSources = 7 }: SourcePillsProps) => {
 
           return (
             <a
-              key={source.url}
-              href={source.url}
-              target="_blank"
-              rel="noreferrer"
-              title={title}
               className={cn(
                 "flex items-center gap-1.5 px-2 py-0.5 text-xs",
                 "rounded-md border border-neutral-200 bg-white text-neutral-700",
@@ -83,13 +78,17 @@ export const SourcePills = ({ verdicts, maxSources = 7 }: SourcePillsProps) => {
                 "hover:border-neutral-300 hover:bg-neutral-100 hover:shadow-sm",
                 "focus:outline-none focus:ring-1 focus:ring-neutral-300"
               )}
+              href={source.url}
+              key={source.url}
+              rel="noreferrer"
+              target="_blank"
+              title={title}
             >
               <div className="relative h-3.5 w-3.5 flex-shrink-0 overflow-hidden rounded-[2px]">
                 <Image
-                  src={faviconUrl}
-                  width={14}
-                  height={14}
+                  alt=""
                   className="h-full w-full object-cover"
+                  height={14}
                   onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                     // Use first letter of domain as fallback
                     (e.currentTarget.parentNode as HTMLElement).innerHTML = `
@@ -98,10 +97,11 @@ export const SourcePills = ({ verdicts, maxSources = 7 }: SourcePillsProps) => {
                       </div>
                     `;
                   }}
-                  alt=""
+                  src={faviconUrl}
+                  width={14}
                 />
               </div>
-              <span className="truncate font-medium max-w-40">{title}</span>
+              <span className="max-w-40 truncate font-medium">{title}</span>
               <ExternalLink className="h-2.5 w-2.5 flex-shrink-0 text-neutral-400" />
             </a>
           );
@@ -109,8 +109,6 @@ export const SourcePills = ({ verdicts, maxSources = 7 }: SourcePillsProps) => {
 
         {!expanded && hasMoreSources && (
           <button
-            type="button"
-            onClick={() => setExpanded(true)}
             className={cn(
               "flex items-center gap-1 px-2 py-0.5 text-xs",
               "rounded-md border border-neutral-200 bg-neutral-50 text-neutral-500",
@@ -118,6 +116,8 @@ export const SourcePills = ({ verdicts, maxSources = 7 }: SourcePillsProps) => {
               "transition-all duration-150 ease-in-out",
               "focus:outline-none focus:ring-1 focus:ring-neutral-300"
             )}
+            onClick={() => setExpanded(true)}
+            type="button"
           >
             +{hiddenSourcesCount} more
             <ChevronDown className="h-3 w-3" />

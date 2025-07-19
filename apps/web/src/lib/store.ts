@@ -1,18 +1,18 @@
 "use client";
 
+import { create } from "zustand";
+import { devtools } from "zustand/middleware";
 import type {
   AgentSSEStreamEvent,
   ProcessedAgentUpdateData,
   UIValidatedClaim,
 } from "@/types";
-import { create } from "zustand";
-import { devtools } from "zustand/middleware";
 import { processAgentSSEEvent } from "./agent-processor";
 import {
   type Evidence,
+  parseSSEEventData,
   type SSEEvent,
   type Verdict,
-  parseSSEEventData,
 } from "./event-schema";
 
 // ContextualSentence as processed for the store
@@ -267,7 +267,7 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
             body: JSON.stringify({ answer }),
           });
 
-          if (!response.ok || !response.body) {
+          if (!(response.ok && response.body)) {
             throw new Error("Network error");
           }
 

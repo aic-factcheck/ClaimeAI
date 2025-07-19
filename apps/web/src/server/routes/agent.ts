@@ -1,9 +1,9 @@
-import { client } from "@/lib/langgraph";
 import { getAuth } from "@hono/clerk-auth";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 import { z } from "zod";
+import { client } from "@/lib/langgraph";
 
 const inputSchema = z.object({
   answer: z.string().min(1).optional(),

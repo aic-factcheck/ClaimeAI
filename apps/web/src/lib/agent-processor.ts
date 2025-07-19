@@ -10,9 +10,9 @@ import {
   type DisambiguatedContent,
   type FactCheckReport,
   type PotentialClaim,
+  parseSSEEventData,
   type SelectedContent,
   type ValidatedClaim,
-  parseSSEEventData,
 } from "./event-schema";
 
 const toUIValidatedClaim = (claim: ValidatedClaim): UIValidatedClaim => ({

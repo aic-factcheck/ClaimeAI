@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { Citation } from "@/components/ui/citation";
 import type { Verdict } from "@/lib/event-schema";
 import type {
@@ -6,9 +7,8 @@ import type {
   PotentialClaimData,
   SelectedContentData,
 } from "@/lib/store";
-import type { UIValidatedClaim } from "@/types";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import type { UIValidatedClaim } from "@/types";
 
 interface ProcessedAnswerProps {
   sentenceEntries: [
@@ -20,7 +20,7 @@ interface ProcessedAnswerProps {
       potentialClaims: PotentialClaimData[];
       validatedClaims: UIValidatedClaim[];
       verdicts: Verdict[];
-    }
+    },
   ][];
   expandedCitation: number | null;
   setExpandedCitation: (id: number | null) => void;
@@ -96,29 +96,29 @@ export const ProcessedAnswer = ({
 
         return (
           <motion.button
-            key={id}
-            initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2, delay: Math.min(idx * 0.02, 1) }}
             className={cn(
-              "transition-colors duration-200 text-start",
+              "text-start transition-colors duration-200",
               hasDerivatives
-                ? `bg-white border ${verdictColor} inline-block rounded-md px-2 py-1.5 hover:bg-neutral-200/60`
+                ? `border bg-white ${verdictColor} inline-block rounded-md px-2 py-1.5 hover:bg-neutral-200/60`
                 : "inline-block rounded-md border border-neutral-300 border-dashed px-2 py-1.5 text-neutral-700"
             )}
+            initial={{ opacity: 0, y: 5 }}
+            key={id}
             onClick={() =>
               setExpandedCitation(expandedCitation === idx ? null : idx)
             }
+            transition={{ duration: 0.2, delay: Math.min(idx * 0.02, 1) }}
           >
             {data.original.text}
             {hasDerivatives && (
               <Citation
                 id={idx}
-                sentenceData={data}
                 isExpanded={expandedCitation === idx}
                 onClick={() =>
                   setExpandedCitation(expandedCitation === idx ? null : idx)
                 }
+                sentenceData={data}
               />
             )}
             {idx < sentenceEntries.length - 1 && " "}

@@ -1,4 +1,5 @@
 import { CheckCircle, Info } from "lucide-react";
+import { Badge } from "../ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -8,7 +9,6 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { SidebarMenuButton } from "../ui/sidebar";
-import { Badge } from "../ui/badge";
 
 export const AboutDialog = () => {
   return (
@@ -25,7 +25,7 @@ export const AboutDialog = () => {
             <CheckCircle className="h-5 w-5 text-green-600" />
             About ClaimeAI
           </DialogTitle>
-          <DialogDescription className="text-left space-y-4">
+          <DialogDescription className="space-y-4 text-left">
             <p>
               ClaimeAI is an advanced AI-powered fact-checking system that helps
               you verify the accuracy of textual claims using cutting-edge
@@ -33,7 +33,7 @@ export const AboutDialog = () => {
             </p>
             <div className="space-y-2">
               <h4 className="font-semibold text-foreground">Key Features:</h4>
-              <ul className="list-disc list-inside space-y-1 text-sm">
+              <ul className="list-inside list-disc space-y-1 text-sm">
                 <li>
                   Automated claim extraction using the Claimify methodology
                 </li>

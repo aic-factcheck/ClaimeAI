@@ -4,7 +4,6 @@ import { ClerkProvider } from "@clerk/nextjs";
 import type { Theme } from "@clerk/types";
 import type { ComponentProps } from "react";
 
-
 export const AuthProvider = (
   properties: ComponentProps<typeof ClerkProvider>
 ) => {

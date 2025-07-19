@@ -1,8 +1,8 @@
-import { Providers } from "@/components/providers";
-import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
+import { Providers } from "@/components/providers";
+import { cn } from "@/lib/utils";
 import "./globals.css";
 
 const geistMono = Geist_Mono({
@@ -11,7 +11,7 @@ const geistMono = Geist_Mono({
 });
 
 const satoshi = localFont({
-  src: "../styles/Satoshi-Variable.woff2",
+  src: "../styles/fonts/Satoshi-Variable.woff2",
   variable: "--font-satoshi",
   weight: "100 200 300 400 500 600 700 800 900",
   display: "swap",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 };
 
 const RootLayout = ({ children }: Readonly<React.PropsWithChildren>) => (
-  <html lang="en" suppressHydrationWarning className="no-scrollbar">
+  <html className="no-scrollbar" lang="en" suppressHydrationWarning>
     <Providers>
       <body
         className={cn(

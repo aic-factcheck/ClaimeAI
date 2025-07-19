@@ -1,8 +1,8 @@
 "use client";
 
+import { SignOutButton, useUser } from "@clerk/nextjs";
 import { LogOut, Plus, Settings, User2 } from "lucide-react";
 import Link from "next/link";
-import { useUser, SignOutButton } from "@clerk/nextjs";
 import { Badge } from "../ui/badge";
 import {
   DropdownMenu,
@@ -31,8 +31,8 @@ export const AppSidebarFooter = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
-                  size="lg"
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                  size="lg"
                 >
                   <User2 />
                   <div className="grid flex-1 text-left text-sm leading-tight">
@@ -42,9 +42,9 @@ export const AppSidebarFooter = () => {
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
+                align="end"
                 className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
                 side="bottom"
-                align="end"
                 sideOffset={4}
               >
                 <DropdownMenuItem asChild>
@@ -74,14 +74,14 @@ export const AppSidebarFooter = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
-                size="lg"
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                size="lg"
               >
                 {user?.imageUrl ? (
                   <img
-                    src={user.imageUrl}
                     alt={user.fullName || "User"}
                     className="h-8 w-8 rounded-full"
+                    src={user.imageUrl}
                   />
                 ) : (
                   <User2 />
@@ -90,22 +90,22 @@ export const AppSidebarFooter = () => {
                   <span className="truncate font-semibold">
                     {user?.primaryEmailAddress?.emailAddress || "No email"}
                   </span>
-                  <span className="truncate text-xs text-muted-foreground">
+                  <span className="truncate text-muted-foreground text-xs">
                     Basic User
                   </span>
                 </div>
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent
+              align="end"
               className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
               side="bottom"
-              align="end"
               sideOffset={4}
             >
               <DropdownMenuItem>
                 <Settings className="mr-2 h-4 w-4" />
                 Settings
-                <Badge variant="secondary" className="ml-auto text-xs">
+                <Badge className="ml-auto text-xs" variant="secondary">
                   Soon
                 </Badge>
               </DropdownMenuItem>

@@ -24,18 +24,18 @@ export const HowItWorksDialog = () => {
             <Zap className="h-5 w-5 text-blue-600" />
             How ClaimeAI Works
           </DialogTitle>
-          <DialogDescription className="text-left space-y-4">
+          <DialogDescription className="space-y-4 text-left">
             <p>
               Our fact-checking process follows a sophisticated multi-step
               pipeline to ensure accurate verification:
             </p>
             <div className="space-y-4">
               <div className="flex gap-3">
-                <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-semibold">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 font-semibold text-blue-600 text-sm">
                   1
                 </div>
                 <div>
-                  <h4 className="font-semibold text-foreground flex items-center gap-2">
+                  <h4 className="flex items-center gap-2 font-semibold text-foreground">
                     <Target className="h-4 w-4" />
                     Claim Extraction
                   </h4>
@@ -46,11 +46,11 @@ export const HowItWorksDialog = () => {
                 </div>
               </div>
               <div className="flex gap-3">
-                <div className="flex-shrink-0 w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-sm font-semibold">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-100 font-semibold text-green-600 text-sm">
                   2
                 </div>
                 <div>
-                  <h4 className="font-semibold text-foreground flex items-center gap-2">
+                  <h4 className="flex items-center gap-2 font-semibold text-foreground">
                     <Search className="h-4 w-4" />
                     Evidence Gathering
                   </h4>
@@ -61,11 +61,11 @@ export const HowItWorksDialog = () => {
                 </div>
               </div>
               <div className="flex gap-3">
-                <div className="flex-shrink-0 w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm font-semibold">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 font-semibold text-purple-600 text-sm">
                   3
                 </div>
                 <div>
-                  <h4 className="font-semibold text-foreground flex items-center gap-2">
+                  <h4 className="flex items-center gap-2 font-semibold text-foreground">
                     <Shield className="h-4 w-4" />
                     Verification
                   </h4>
@@ -76,11 +76,11 @@ export const HowItWorksDialog = () => {
                 </div>
               </div>
               <div className="flex gap-3">
-                <div className="flex-shrink-0 w-8 h-8 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-sm font-semibold">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 font-semibold text-orange-600 text-sm">
                   4
                 </div>
                 <div>
-                  <h4 className="font-semibold text-foreground flex items-center gap-2">
+                  <h4 className="flex items-center gap-2 font-semibold text-foreground">
                     <FileText className="h-4 w-4" />
                     Report Generation
                   </h4>

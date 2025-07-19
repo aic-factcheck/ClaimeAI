@@ -1,3 +1,6 @@
+import { motion } from "framer-motion";
+import { InfoIcon } from "lucide-react";
+import { useMemo } from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -6,9 +9,6 @@ import {
 } from "@/components/ui/tooltip";
 import type { Verdict } from "@/lib/event-schema";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
-import { InfoIcon } from "lucide-react";
-import { useMemo } from "react";
 
 interface VerdictProgressProps {
   verdicts: Verdict[];
@@ -102,8 +102,8 @@ export const VerdictProgress = ({
   return (
     <TooltipProvider>
       <motion.div
-        initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
+        initial={{ opacity: 0 }}
         transition={{ duration: 0.4 }}
       >
         <div className="flex items-center justify-between">
@@ -118,14 +118,14 @@ export const VerdictProgress = ({
               <TooltipTrigger asChild>
                 <div className="cursor-help">
                   <InfoIcon
-                    className="h-3.5 w-3.5 text-neutral-400 transition-colors hover:text-neutral-500"
                     aria-hidden="true"
+                    className="h-3.5 w-3.5 text-neutral-400 transition-colors hover:text-neutral-500"
                   />
                 </div>
               </TooltipTrigger>
               <TooltipContent
-                side="top"
                 className="border-0 bg-black px-3 py-1.5 text-white text-xs"
+                side="top"
               >
                 Distribution of verification results
               </TooltipContent>
@@ -136,9 +136,9 @@ export const VerdictProgress = ({
         <div className="relative h-2 w-full overflow-hidden rounded-full bg-neutral-100">
           {/* Fluid progress bar */}
           <motion.div
+            animate={{ width: "100%" }}
             className="absolute inset-0 flex"
             initial={{ width: 0 }}
-            animate={{ width: "100%" }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           >
             {/* Supported section */}
@@ -177,10 +177,10 @@ export const VerdictProgress = ({
           {/* Loading effect */}
           {isLoading && (
             <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-400/30 to-transparent"
               animate={{
                 x: ["-100%", "200%"],
               }}
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-400/30 to-transparent"
               transition={{
                 duration: 1.0,
                 repeat: Number.POSITIVE_INFINITY,
@@ -192,9 +192,9 @@ export const VerdictProgress = ({
 
         {/* Legend */}
         <motion.div
+          animate={{ opacity: 1 }}
           className="mt-2.5 flex items-center justify-between px-0.5"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.2 }}
         >
           {Object.entries(verdictConfig).map(([verdict, config]) => {
@@ -209,11 +209,11 @@ export const VerdictProgress = ({
                 <TooltipTrigger asChild>
                   <div className="flex cursor-default items-center gap-1.5">
                     <div
+                      aria-hidden="true"
                       className={cn(
                         "h-2 w-2 rounded-full",
                         count > 0 ? config.bgClass : "bg-neutral-300"
                       )}
-                      aria-hidden="true"
                     />
                     <div
                       className={cn(
@@ -229,8 +229,8 @@ export const VerdictProgress = ({
                   </div>
                 </TooltipTrigger>
                 <TooltipContent
-                  side="bottom"
                   className="border-0 bg-black px-2.5 py-1.5 text-white text-xs"
+                  side="bottom"
                 >
                   {config.description} · {count} claims
                 </TooltipContent>

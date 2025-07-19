@@ -6,27 +6,27 @@ import { ExternalLink, Github } from "lucide-react";
 export const PageFooter = () => {
   return (
     <motion.footer
-      initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className="w-full border-x border-t bg-white px-6 py-8"
+      initial={{ opacity: 0 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="mx-auto max-w-5xl">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <motion.section
-            initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
+            aria-labelledby="about-heading"
+            className="space-y-3"
+            initial={{ opacity: 0, y: 5 }}
             transition={{
               duration: 0.4,
               delay: 0.3,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="space-y-3"
-            aria-labelledby="about-heading"
           >
             <h3
-              id="about-heading"
               className="font-semibold text-neutral-900 text-sm"
+              id="about-heading"
             >
               About ClaimeAI
             </h3>
@@ -39,19 +39,19 @@ export const PageFooter = () => {
           </motion.section>
 
           <motion.section
-            initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
+            aria-labelledby="resources-heading"
+            className="space-y-3"
+            initial={{ opacity: 0, y: 5 }}
             transition={{
               duration: 0.4,
               delay: 0.4,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="space-y-3"
-            aria-labelledby="resources-heading"
           >
             <h3
-              id="resources-heading"
               className="font-semibold text-neutral-900 text-sm"
+              id="resources-heading"
             >
               Resources
             </h3>
@@ -59,32 +59,32 @@ export const PageFooter = () => {
               <ul className="space-y-2">
                 <li>
                   <a
-                    href="/#"
-                    className="flex items-center gap-1 text-neutral-500 text-xs transition-colors hover:text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
                     aria-label="View documentation (opens in same tab)"
+                    className="flex items-center gap-1 rounded text-neutral-500 text-xs transition-colors hover:text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    href="/#"
                   >
                     Documentation{" "}
-                    <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                    <ExternalLink aria-hidden="true" className="h-3 w-3" />
                   </a>
                 </li>
                 <li>
                   <a
-                    href="/#"
-                    className="flex items-center gap-1 text-neutral-500 text-xs transition-colors hover:text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
                     aria-label="View API reference (opens in same tab)"
+                    className="flex items-center gap-1 rounded text-neutral-500 text-xs transition-colors hover:text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    href="/#"
                   >
                     API Reference{" "}
-                    <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                    <ExternalLink aria-hidden="true" className="h-3 w-3" />
                   </a>
                 </li>
                 <li>
                   <a
-                    href="/#"
-                    className="flex items-center gap-1 text-neutral-500 text-xs transition-colors hover:text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
                     aria-label="View privacy policy (opens in same tab)"
+                    className="flex items-center gap-1 rounded text-neutral-500 text-xs transition-colors hover:text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    href="/#"
                   >
                     Privacy Policy{" "}
-                    <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                    <ExternalLink aria-hidden="true" className="h-3 w-3" />
                   </a>
                 </li>
               </ul>
@@ -92,19 +92,19 @@ export const PageFooter = () => {
           </motion.section>
 
           <motion.section
-            initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
+            aria-labelledby="research-heading"
+            className="space-y-3"
+            initial={{ opacity: 0, y: 5 }}
             transition={{
               duration: 0.4,
               delay: 0.5,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="space-y-3"
-            aria-labelledby="research-heading"
           >
             <h3
-              id="research-heading"
               className="font-semibold text-neutral-900 text-sm"
+              id="research-heading"
             >
               Research
             </h3>
@@ -112,14 +112,14 @@ export const PageFooter = () => {
               <ul className="space-y-2">
                 <li>
                   <a
-                    href="https://arxiv.org/abs/2502.10855"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-neutral-500 text-xs transition-colors hover:text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
                     aria-label="Read Claimify Methodology paper by Metropolitansky & Larson, 2025 (opens in new tab)"
+                    className="flex items-center gap-1 rounded text-neutral-500 text-xs transition-colors hover:text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    href="https://arxiv.org/abs/2502.10855"
+                    rel="noopener noreferrer"
+                    target="_blank"
                   >
                     Claimify Methodology{" "}
-                    <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                    <ExternalLink aria-hidden="true" className="h-3 w-3" />
                   </a>
                   <div className="text-neutral-400 text-xs">
                     Metropolitansky & Larson, 2025
@@ -127,14 +127,14 @@ export const PageFooter = () => {
                 </li>
                 <li>
                   <a
-                    href="https://arxiv.org/abs/2403.18802"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-neutral-500 text-xs transition-colors hover:text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
                     aria-label="Read SAFE Methodology paper by Wei et al., 2024 (opens in new tab)"
+                    className="flex items-center gap-1 rounded text-neutral-500 text-xs transition-colors hover:text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    href="https://arxiv.org/abs/2403.18802"
+                    rel="noopener noreferrer"
+                    target="_blank"
                   >
                     SAFE Methodology{" "}
-                    <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                    <ExternalLink aria-hidden="true" className="h-3 w-3" />
                   </a>
                   <div className="text-neutral-400 text-xs">
                     Wei et al., 2024
@@ -145,45 +145,45 @@ export const PageFooter = () => {
           </motion.section>
 
           <motion.section
-            initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
+            aria-labelledby="connect-heading"
+            className="space-y-3"
+            initial={{ opacity: 0, y: 5 }}
             transition={{
               duration: 0.4,
               delay: 0.6,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="space-y-3"
-            aria-labelledby="connect-heading"
           >
             <h3
-              id="connect-heading"
               className="font-semibold text-neutral-900 text-sm"
+              id="connect-heading"
             >
               Connect
             </h3>
             <a
-              href="https://github.com/BharathXD/claime"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-md border border-neutral-200 px-3 py-1.5 text-neutral-700 text-xs transition-colors hover:border-neutral-300 hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               aria-label="View ClaimeAI project on GitHub (opens in new tab)"
+              className="inline-flex items-center gap-2 rounded-md border border-neutral-200 px-3 py-1.5 text-neutral-700 text-xs transition-colors hover:border-neutral-300 hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              href="https://github.com/BharathXD/claime"
+              rel="noopener noreferrer"
+              target="_blank"
             >
-              <Github className="h-3.5 w-3.5" aria-hidden="true" />
+              <Github aria-hidden="true" className="h-3.5 w-3.5" />
               <span>View on GitHub</span>
             </a>
           </motion.section>
         </div>
 
         <motion.div
-          initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="mt-8 flex flex-col items-center justify-between border-neutral-100 border-t pt-6 sm:flex-row"
+          initial={{ opacity: 0 }}
+          transition={{ duration: 0.4, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
           <div className="flex items-center gap-2">
             <div
-              className="h-5 w-5 rounded-full border-4 border-black border-dashed"
               aria-hidden="true"
+              className="h-5 w-5 rounded-full border-4 border-black border-dashed"
             />
             <p className="font-semibold text-neutral-600 text-xs">ClaimeAI</p>
           </div>

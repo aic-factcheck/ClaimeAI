@@ -1,8 +1,8 @@
+import { motion } from "framer-motion";
+import { AlertCircle, Check, Info, X } from "lucide-react";
 import { Badge, type BadgeProps } from "@/components/ui/badge";
 import type { Verdict } from "@/lib/event-schema";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
-import { AlertCircle, Check, Info, X } from "lucide-react";
 
 interface VerdictBadgeProps {
   verdict: Verdict;
@@ -40,15 +40,15 @@ const getIcon = (result: string) => {
 
 export const VerdictBadge = ({ verdict }: VerdictBadgeProps) => (
   <Badge
-    variant={getBadgeVariant(verdict.result)}
     className={cn("flex w-fit items-center rounded-sm px-2 py-0.5 text-[11px]")}
+    variant={getBadgeVariant(verdict.result)}
   >
     {getIcon(verdict.result)}
     <motion.span
-      initial={{ opacity: 0, x: -2 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.2 }}
       className="truncate"
+      initial={{ opacity: 0, x: -2 }}
+      transition={{ duration: 0.2 }}
     >
       {verdict.result}
     </motion.span>

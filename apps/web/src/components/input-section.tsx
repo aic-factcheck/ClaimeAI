@@ -1,115 +1,199 @@
 "use client";
 
+import NumberFlow from "@number-flow/react";
+import { motion } from "framer-motion";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { ArrowUpIcon, type ArrowUpIconHandle } from "@/components/ui/icons";
 import { useFactCheckerInput } from "@/lib/store";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
-import { ChevronRight } from "lucide-react";
-import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
 
-export const InputSection = () => {
+const CHARACTER_LIMIT = 2500;
+
+const useInputHandler = () => {
   const { answer, setAnswer, isLoading, startVerification } =
     useFactCheckerInput();
-
+  const [isLimitReached, setLimitReached] = useState(false);
   const searchParams = useSearchParams();
 
   useEffect(() => {
     const answerFromUrl = searchParams.get("a");
-
-    let processedAnswer = false;
-
     if (answerFromUrl) {
       try {
         const decodedAnswer = decodeURIComponent(answerFromUrl);
         setAnswer(decodedAnswer);
-        processedAnswer = true;
+        startVerification();
       } catch (e) {
         console.error("Failed to decode answer from URL:", e);
-        setAnswer("(Error decoding answer)"); // Set error placeholder
+        setAnswer("(Error decoding answer)");
       }
-    }
-
-    if (answerFromUrl) {
-      void startVerification();
     }
   }, [searchParams, setAnswer, startVerification]);
 
-  const handleSubmit = () => {
-    if (!isLoading && answer) {
+  const characterCount = answer.length;
+  const isOverLimit = characterCount >= CHARACTER_LIMIT;
+  const isNearLimit = characterCount > CHARACTER_LIMIT * 0.8 && !isOverLimit;
+
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const text = e.target.value;
+      if (text.length > CHARACTER_LIMIT) {
+        setAnswer(text.slice(0, CHARACTER_LIMIT));
+        setLimitReached(true);
+        setTimeout(() => setLimitReached(false), 500);
+      } else {
+        setAnswer(text);
+      }
+    },
+    [setAnswer]
+  );
+
+  const handleSubmit = useCallback(() => {
+    if (!isLoading && answer && !isOverLimit) {
       startVerification();
     }
+  }, [isLoading, answer, isOverLimit, startVerification]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+        handleSubmit();
+      }
+    },
+    [handleSubmit]
+  );
+
+  return {
+    answer,
+    isLoading,
+    characterCount,
+    isOverLimit,
+    isNearLimit,
+    isLimitReached,
+    handleChange,
+    handleKeyDown,
+    handleSubmit,
   };
+};
+
+type CharacterCounterProps = {
+  count: number;
+  isLimitReached: boolean;
+  isOverLimit: boolean;
+  isNearLimit: boolean;
+};
+
+const CharacterCounter = ({
+  count,
+  isLimitReached,
+  isOverLimit,
+  isNearLimit,
+}: CharacterCounterProps) => (
+  <motion.div
+    animate={{
+      x: isLimitReached ? [-1, 1, -1, 1, 0] : 0,
+    }}
+    className="flex items-center gap-1.5 pl-2 text-xs"
+    transition={{ duration: 0.3, ease: "easeInOut" }}
+  >
+    <NumberFlow
+      className={cn(
+        "font-medium tabular-nums transition-colors",
+        isOverLimit
+          ? "text-red-500"
+          : isNearLimit
+          ? "text-amber-500"
+          : "text-neutral-400"
+      )}
+      value={count}
+    />
+    <span className="text-neutral-300">/</span>
+    <span className="font-medium text-neutral-400">
+      {CHARACTER_LIMIT.toLocaleString()}
+    </span>
+  </motion.div>
+);
+
+type SubmitButtonProps = {
+  isLoading: boolean;
+  isDisabled: boolean;
+  onSubmit: () => void;
+};
+
+const SubmitButton = ({
+  isLoading,
+  isDisabled,
+  onSubmit,
+}: SubmitButtonProps) => {
+  const arrowIconRef = useRef<ArrowUpIconHandle>(null);
+
+  const handleMouseEnter = () => arrowIconRef.current?.startAnimation();
+  const handleMouseLeave = () => arrowIconRef.current?.stopAnimation();
+
+  return (
+    <Button
+      className="size-8 border border-transparent bg-neutral-800 transition-all hover:bg-neutral-700 disabled:border-neutral-400/60 disabled:bg-neutral-100 disabled:text-neutral-500"
+      disabled={isLoading || isDisabled}
+      onClick={onSubmit}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      size="icon"
+    >
+      {isLoading ? (
+        <div className="size-4 animate-spin rounded-full border-2 border-neutral-700 border-t-transparent" />
+      ) : (
+        <ArrowUpIcon ref={arrowIconRef} />
+      )}
+    </Button>
+  );
+};
+
+export const InputSection = () => {
+  const {
+    answer,
+    isLoading,
+    characterCount,
+    isOverLimit,
+    isNearLimit,
+    isLimitReached,
+    handleChange,
+    handleKeyDown,
+    handleSubmit,
+  } = useInputHandler();
 
   return (
     <motion.section
-      initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.4, delay: 0.1 }}
-      aria-label="Answer input"
-      className="relative w-full"
+      className="relative max-h-32 min-h-32 w-full rounded-xl border bg-white p-2"
+      initial={{ opacity: 0 }}
+      transition={{ duration: 0.3, delay: 0.2 }}
     >
-      <fieldset disabled={isLoading} className="space-y-0">
-        <legend className="sr-only">Enter an answer to fact-check</legend>
-
-        <div className="space-y-0">
-          <label htmlFor="answer-input" className="sr-only">
-            Answer to verify
-          </label>
-          <Textarea
-            id="answer-input"
-            placeholder="Drop that sus answer here (e.g., 'Einstein definitely said we'd have flying cars by 2020, trust me bro')"
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-            className="peer max-h-32 min-h-32 w-full max-w-5xl resize-none whitespace-pre-wrap border-neutral-200 bg-white pr-20 text-sm transition-all duration-200 placeholder:text-neutral-400"
-            disabled={isLoading}
-            aria-describedby="answer-help"
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-                handleSubmit();
-              }
-            }}
-          />
-          <div id="answer-help" className="sr-only">
-            Enter the answer you want to verify for factual accuracy
-          </div>
-        </div>
-      </fieldset>
-
-      <Button
-        onClick={handleSubmit}
-        disabled={isLoading || !answer}
-        size="sm"
-        variant="secondary"
+      <textarea
         className={cn(
-          "h-8 border py-2 font-medium text-neutral-700 text-sm transition-all",
-          "absolute right-3.5 bottom-3.5 bg-white",
-          "hover:bg-neutral-50 hover:shadow-md",
-          isLoading ? "opacity-70" : "!pr-1.5"
+          "w-full max-w-5xl resize-none rounded-sm border-neutral-200 bg-white pr-20 pb-8 text-sm transition-colors placeholder:text-neutral-400",
+          "focus:outline-none focus:ring-0",
+          isOverLimit && "border-red-200 focus:border-red-300"
         )}
-        aria-label={
-          isLoading
-            ? "Verification in progress"
-            : "Start fact-checking verification"
-        }
-        type="submit"
-      >
-        {isLoading ? (
-          <>
-            <div
-              className="animate-spin size-4 rounded-full border-3 border-neutral-700 border-dashed"
-              aria-hidden="true"
-            />
-            <span className="sr-only">Verifying...</span>
-          </>
-        ) : (
-          <>
-            <span>Verify</span>
-            <ChevronRight className="size-4" aria-hidden="true" />
-          </>
-        )}
-      </Button>
+        disabled={isLoading}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        placeholder="Drop any claim here to see if it stands up to the facts..."
+        value={answer}
+      />
+      <div className="flex items-center justify-between bg-white">
+        <CharacterCounter
+          count={characterCount}
+          isLimitReached={isLimitReached}
+          isNearLimit={isNearLimit}
+          isOverLimit={isOverLimit}
+        />
+        <SubmitButton
+          isDisabled={!answer || isOverLimit}
+          isLoading={isLoading}
+          onSubmit={handleSubmit}
+        />
+      </div>
     </motion.section>
   );
 };

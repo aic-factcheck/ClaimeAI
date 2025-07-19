@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, memo } from "react";
 import { motion } from "framer-motion";
+import { memo, useMemo } from "react";
 import { cn } from "@/lib/utils";
 
 const phrases = [
@@ -63,18 +63,18 @@ const PhraseItem = ({
   delay,
 }: PhraseItemProps) => (
   <motion.span
-    initial={{ opacity: 0, y: 5 }}
     animate={{ opacity: Number.parseFloat(opacity), y: 0 }}
+    className={`select-none px-0.5 text-[9px] leading-tight md:text-[10px] ${
+      highlight ? "font-medium text-neutral-600" : "text-neutral-400"
+    }`}
+    initial={{ opacity: 0, y: 5 }}
+    style={{
+      transform: rotation ? `rotate(${rotation}deg)` : "none",
+    }}
     transition={{
       duration: 0.6,
       delay,
       ease: [0.22, 1, 0.36, 1],
-    }}
-    className={`select-none px-0.5 text-[9px] leading-tight md:text-[10px] ${
-      highlight ? "font-medium text-neutral-600" : "text-neutral-400"
-    }`}
-    style={{
-      transform: rotation ? `rotate(${rotation}deg)` : "none",
     }}
   >
     {text}
@@ -100,40 +100,40 @@ export const AestheticBackground = memo(function AestheticBackground({
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.8, delay: 0.2 }}
+      aria-hidden="true"
       className={cn(
         "pointer-events-none fixed inset-x-0 bottom-0 z-[-1] h-1/2 overflow-hidden",
         className
       )}
-      aria-hidden="true"
+      initial={{ opacity: 0 }}
+      transition={{ duration: 0.8, delay: 0.2 }}
     >
       <div className="absolute inset-0">
         <motion.div
-          initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1.2 }}
           className={cn(
             "absolute inset-0 z-20 bg-gradient-to-t from-white/90 via-white/60 to-transparent",
             className
           )}
+          initial={{ opacity: 0 }}
           style={{
             maskImage: "linear-gradient(to top, black 60%, transparent 100%)",
             WebkitMaskImage:
               "linear-gradient(to top, black 60%, transparent 100%)",
           }}
+          transition={{ duration: 1.2 }}
         />
         <div className="relative h-full w-full p-3 md:p-5 lg:p-6">
           <div className="grid grid-cols-6 gap-x-0.5 gap-y-0.5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-14">
             {extendedPhrases.map((item, index) => (
               <PhraseItem
-                key={`${item.text}-${index}`}
-                text={item.text}
+                delay={item.delay}
                 highlight={item.highlight}
+                key={`${item.text}-${index}`}
                 opacity={item.opacity}
                 rotation={item.rotation}
-                delay={item.delay}
+                text={item.text}
               />
             ))}
           </div>

@@ -33,8 +33,6 @@ export const metadata: Metadata = {
     "evidence analysis",
   ],
   authors: [{ name: "ClaimeAI Team" }],
-  viewport: "width=device-width, initial-scale=1",
-  themeColor: "#ffffff",
 };
 
 const RootLayout = ({ children }: Readonly<React.PropsWithChildren>) => (

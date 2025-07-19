@@ -15,30 +15,27 @@ import {
   type Verdict,
 } from "./event-schema";
 
-// ContextualSentence as processed for the store
 export interface ContextualSentence {
   id: number;
   text: string;
 }
 
-// For SelectedContentAdded events
 export interface SelectedContentData {
   id: number;
   processedText: string;
   originalSentenceText: string;
 }
 
-// For DisambiguatedContentAdded events
 export interface DisambiguatedContentData {
   id: number;
   disambiguatedText: string;
   originalSentenceText: string;
 }
 
-// For PotentialClaimAdded events
 export interface UIClaim {
   claimText: string;
 }
+
 export interface PotentialClaimData {
   originalSentenceId: number;
   originalSentenceText: string;
@@ -46,7 +43,6 @@ export interface PotentialClaimData {
   sourceDisambiguatedSentenceText: string;
 }
 
-// UI version of FactCheckReport with parsed date
 export interface UIFactCheckReport {
   answer: string;
   claims_verified: number;
@@ -56,14 +52,9 @@ export interface UIFactCheckReport {
 }
 
 interface FactCheckerState {
-  // User inputs
   answer: string;
   submittedAnswer: string | null;
-
-  // UI State
   isLoading: boolean;
-
-  // Processing results - raw events and specific data types
   rawServerEvents: SSEEvent[];
   contextualSentences: ContextualSentence[];
   selectedContents: SelectedContentData[];
@@ -77,14 +68,9 @@ interface FactCheckerState {
 }
 
 interface FactCheckerActions {
-  // Input actions
   setAnswer: (answer: string) => void;
-
-  // Process actions
-  startVerification: () => Promise<void>;
+  startVerification: (text: string, checkId: string) => Promise<string>;
   resetState: () => void;
-
-  // Update actions
   setIsLoading: (isLoading: boolean) => void;
   addRawServerEvent: (event: AgentSSEStreamEvent) => void;
   addContextualSentence: (sentence: ContextualSentence) => void;
@@ -96,81 +82,77 @@ interface FactCheckerActions {
   addEvidenceBatch: (evidence: Evidence[]) => void;
   addClaimVerdict: (verdict: Verdict) => void;
   setFactCheckReport: (report: UIFactCheckReport) => void;
-
-  // Process SSE events
   processEventData: (eventData: string) => void;
   handleProcessedItem: (item: ProcessedAgentUpdateData) => void;
 }
 
 type FactCheckerStore = FactCheckerState & FactCheckerActions;
 
-/**
- * Helper function to process SSE buffer chunks
- * Extracts and processes complete SSE messages from the buffer
- */
-const processBufferChunk = (
-  buffer: string,
-  processEventData: (data: string) => void
-): void => {
-  const messages = buffer.split("\n\n");
-  // Process all complete messages (excluding the last one if it's incomplete)
-  for (let i = 0; i < messages.length - 1; i++) {
-    const message = messages[i].trim();
-    if (!message) continue;
+const createErrorEvent = (message: string, runId = "local-error") => ({
+  event: "error",
+  data: { message, run_id: runId },
+});
 
-    // Extract data field from SSE format
-    let jsonData = "";
-    const lines = message.split("\n");
-    for (const line of lines) {
-      if (line.startsWith("data:")) {
-        jsonData += line.substring(5).trim();
-      }
-    }
+const startFactChecking = async (
+  text: string,
+  checkId: string
+): Promise<string> => {
+  const response = await fetch("/api/agent/run", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text, checkId }),
+  });
 
-    if (jsonData) {
-      try {
-        processEventData(jsonData);
-      } catch (e) {
-        console.error("Error processing message:", e, `Message: '${jsonData}'`);
-      }
+  if (!response.ok) {
+    throw new Error(`Failed to start verification: ${response.statusText}`);
+  }
+
+  return await response.json();
+};
+
+const parseSSEMessage = (
+  message: string
+): { eventType: string; jsonData: string } | null => {
+  const lines = message.split("\n");
+  let eventType = "";
+  let jsonData = "";
+
+  for (const line of lines) {
+    if (line.startsWith("event:")) {
+      eventType = line.substring(6).trim();
+    } else if (line.startsWith("data:")) {
+      jsonData = line.substring(5).trim();
     }
   }
+
+  return eventType && jsonData ? { eventType, jsonData } : null;
 };
+
+const initialState: FactCheckerState = {
+  answer: "",
+  submittedAnswer: null,
+  isLoading: false,
+  rawServerEvents: [],
+  contextualSentences: [],
+  selectedContents: [],
+  disambiguatedContents: [],
+  potentialClaims: [],
+  validatedClaims: [],
+  searchQueriesLog: [],
+  evidenceBatchesLog: [],
+  claimVerdicts: [],
+  factCheckReport: null,
+};
+
+const resetState = () => ({ ...initialState, answer: "" });
 
 export const useFactCheckerStore = create<FactCheckerStore>()(
   devtools(
     (set, get) => ({
-      answer: "",
-      submittedAnswer: null,
-      isLoading: false,
-      rawServerEvents: [],
-      contextualSentences: [],
-      selectedContents: [],
-      disambiguatedContents: [],
-      potentialClaims: [],
-      validatedClaims: [],
-      searchQueriesLog: [],
-      evidenceBatchesLog: [],
-      claimVerdicts: [],
-      factCheckReport: null,
+      ...initialState,
 
       setAnswer: (answer) => set({ answer }),
-
-      resetState: () =>
-        set({
-          rawServerEvents: [],
-          submittedAnswer: null,
-          contextualSentences: [],
-          selectedContents: [],
-          disambiguatedContents: [],
-          potentialClaims: [],
-          validatedClaims: [],
-          searchQueriesLog: [],
-          evidenceBatchesLog: [],
-          claimVerdicts: [],
-          factCheckReport: null,
-        }),
-
+      resetState: () => set(resetState()),
       setIsLoading: (isLoading) => set({ isLoading }),
 
       addRawServerEvent: (event) =>
@@ -180,16 +162,17 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
 
       addContextualSentence: (sentence) =>
         set((state) => {
-          // Ensure no duplicates based on id
-          if (!state.contextualSentences.find((s) => s.id === sentence.id)) {
-            return {
-              contextualSentences: [
-                ...state.contextualSentences,
-                sentence,
-              ].sort((a, b) => a.id - b.id),
-            };
-          }
-          return {}; // No change
+          const exists = state.contextualSentences.find(
+            (s) => s.id === sentence.id
+          );
+          return exists
+            ? {}
+            : {
+                contextualSentences: [
+                  ...state.contextualSentences,
+                  sentence,
+                ].sort((a, b) => a.id - b.id),
+              };
         }),
 
       addSelectedContent: (content) =>
@@ -210,17 +193,15 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
       addValidatedClaim: (claim) =>
         set((state) => {
           const isDuplicate = state.validatedClaims.some(
-            (existingClaim) =>
-              existingClaim.claimText === claim.claimText &&
-              existingClaim.originalIndex === claim.originalIndex
+            (existing) =>
+              existing.claimText === claim.claimText &&
+              existing.originalIndex === claim.originalIndex
           );
-
-          if (!isDuplicate) {
-            return {
-              validatedClaims: [...state.validatedClaims, claim],
-            };
-          }
-          return {};
+          return isDuplicate
+            ? {}
+            : {
+                validatedClaims: [...state.validatedClaims, claim],
+              };
         }),
 
       addSearchQuery: (query) =>
@@ -236,166 +217,89 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
       addClaimVerdict: (verdict) =>
         set((state) => {
           const isDuplicate = state.claimVerdicts.some(
-            (existingVerdict) =>
-              existingVerdict.claim_text === verdict.claim_text
+            (existing) => existing.claim_text === verdict.claim_text
           );
-
-          if (!isDuplicate) {
-            return {
-              claimVerdicts: [...state.claimVerdicts, verdict],
-            };
-          }
-          return {};
+          return isDuplicate
+            ? {}
+            : {
+                claimVerdicts: [...state.claimVerdicts, verdict],
+              };
         }),
 
       setFactCheckReport: (report) => set({ factCheckReport: report }),
 
-      startVerification: async () => {
-        const { answer, resetState, processEventData } = get();
+      startVerification: async (text: string, checkId: string) => {
+        if (!text) throw new Error("No text provided for verification");
 
-        if (!answer) {
-          return;
-        }
-
-        resetState();
-        set({ submittedAnswer: answer, isLoading: true });
+        get().resetState();
+        set({ submittedAnswer: text, isLoading: true });
 
         try {
-          const response = await fetch("/api/agent/run", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: answer }),
-          });
-
-          if (!(response.ok && response.body)) {
-            throw new Error("Network error");
-          }
-
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder();
-          let buffer = "";
-
-          while (true) {
-            const { done, value } = await reader.read();
-
-            if (done) {
-              set({ isLoading: false });
-
-              // Process any remaining data
-              if (buffer.trim()) {
-                processBufferChunk(buffer, processEventData);
-              }
-
-              break;
-            }
-
-            buffer += decoder.decode(value, { stream: true });
-            processBufferChunk(buffer, processEventData);
-
-            // Reset buffer to whatever remains after processing
-            const lastDelimiterPos = buffer.lastIndexOf("\n\n");
-            if (lastDelimiterPos !== -1) {
-              buffer = buffer.substring(lastDelimiterPos + 2);
-            }
-          }
+          const streamId = await startFactChecking(text, checkId);
+          return { streamId, checkId };
         } catch (error) {
-          console.error("Failed to connect to SSE or process stream:", error);
-          set((state) => ({
-            rawServerEvents: [
-              ...state.rawServerEvents,
-              {
-                event: "error",
-                data: {
-                  message: (error as Error).message,
-                  run_id: "local-error",
-                },
-              },
-            ],
-            isLoading: false,
-          }));
+          console.error("Failed to start verification:", error);
+          get().addRawServerEvent(createErrorEvent((error as Error).message));
+          set({ isLoading: false });
+          throw error;
         }
       },
 
       processEventData: (eventData) => {
-        // Log the raw eventData before parsing
         try {
-          // Parse and validate with Zod schema
           const parsedServerEvent = parseSSEEventData(eventData);
           get().addRawServerEvent(parsedServerEvent);
 
           const processedItems = processAgentSSEEvent(eventData);
-          for (const item of processedItems) {
-            get().handleProcessedItem(item);
-          }
+          processedItems.forEach((item) => get().handleProcessedItem(item));
         } catch (error) {
-          // Log the problematic eventData here as well
-          console.error(
-            "Failed to process event data in processEventData:",
-            error,
-            `Problematic eventData: '${eventData}'`
-          );
+          console.error("Failed to process event data:", error);
         }
       },
 
       handleProcessedItem: (item) => {
         const state = get();
+        const { type, data } = item;
 
-        // Remove this block that adds the entire submitted answer as a single contextual sentence
-        // This is causing collision with actual contextual sentences from the backend
-
-        switch (item.type) {
-          case "AgentRunMetadata":
-            break;
-
+        switch (type) {
           case "ContextualSentenceAdded":
-            state.addContextualSentence(item.data);
-            break;
-
-          case "SelectedContentAdded":
-            state.addSelectedContent(item.data);
-            break;
-
-          case "DisambiguatedContentAdded":
-            state.addDisambiguatedContent(item.data);
-            break;
-
-          case "PotentialClaimAdded":
-            state.addPotentialClaim(item.data);
-            break;
-
-          case "ValidatedClaimAdded":
-            state.addValidatedClaim(item.data);
-            break;
-
-          case "SearchQueryGenerated":
-            state.addSearchQuery(item.data.query);
-            break;
-
-          case "EvidenceRetrieved":
-            state.addEvidenceBatch(item.data.evidence);
-            break;
-
-          case "ClaimVerificationResult": {
-            state.addClaimVerdict(item.data);
-            break;
-          }
-
-          case "ExtractedClaimsProvided":
-            for (const claim of item.data.claims) {
-              state.addValidatedClaim(claim);
+            state.addContextualSentence(data);
+            if (!state.submittedAnswer && data.id === 0) {
+              set({ submittedAnswer: data.text, isLoading: true });
             }
             break;
-
+          case "SelectedContentAdded":
+            state.addSelectedContent(data);
+            break;
+          case "DisambiguatedContentAdded":
+            state.addDisambiguatedContent(data);
+            break;
+          case "PotentialClaimAdded":
+            state.addPotentialClaim(data);
+            break;
+          case "ValidatedClaimAdded":
+            state.addValidatedClaim(data);
+            break;
+          case "SearchQueryGenerated":
+            state.addSearchQuery(data.query);
+            break;
+          case "EvidenceRetrieved":
+            state.addEvidenceBatch(data.evidence);
+            break;
+          case "ClaimVerificationResult":
+            state.addClaimVerdict(data);
+            break;
+          case "ExtractedClaimsProvided":
+            data.claims.forEach((claim) => state.addValidatedClaim(claim));
+            break;
           case "FactCheckReportGenerated":
-            state.setFactCheckReport(item.data);
+            state.setFactCheckReport(data);
+            if (!state.submittedAnswer) set({ submittedAnswer: data.answer });
             break;
-
+          case "AgentRunMetadata":
+            break;
           default:
-            console.warn(
-              "Unhandled processed item type:",
-              (item as ProcessedAgentUpdateData).type
-            );
-            break;
+            console.warn("Unhandled processed item type:", type);
         }
       },
     }),
@@ -406,17 +310,13 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
 export const useFactCheckerInput = () => {
   const store = useFactCheckerStore();
 
-  const clearInputs = () => {
-    store.setAnswer("");
-  };
-
   return {
     answer: store.answer,
     setAnswer: store.setAnswer,
     isLoading: store.isLoading,
     startVerification: store.startVerification,
     resetState: store.resetState,
-    clearInputs,
+    clearInputs: () => store.setAnswer(""),
   };
 };
 
@@ -437,4 +337,75 @@ export const useFactCheckerResults = () => {
     claimVerdicts: store.claimVerdicts,
     factCheckReport: store.factCheckReport,
   };
+};
+
+export const useSSEConnection = () => {
+  const { processEventData, addRawServerEvent, setIsLoading } =
+    useFactCheckerStore();
+
+  const connectToStream = async (streamId: string) => {
+    try {
+      const response = await fetch(`/api/agent/stream/${streamId}`);
+
+      if (!response.ok)
+        throw new Error(`Stream connection failed: ${response.statusText}`);
+
+      if (!response.body) throw new Error("No response body received");
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+
+          if (done) {
+            setIsLoading(false);
+            break;
+          }
+
+          buffer += decoder.decode(value, { stream: true });
+          const messages = buffer.split("\n\n");
+
+          for (let i = 0; i < messages.length - 1; i++) {
+            const message = messages[i].trim();
+            if (!message) continue;
+
+            try {
+              const parsed = parseSSEMessage(message);
+              if (!parsed) continue;
+
+              const { eventType, jsonData } = parsed;
+              const eventData = {
+                event: eventType,
+                data: JSON.parse(jsonData),
+              };
+
+              processEventData(JSON.stringify(eventData));
+
+              if (eventType === "complete" || eventType === "error")
+                setIsLoading(false);
+            } catch (error) {
+              console.error("Failed to process SSE message:", error);
+            }
+          }
+
+          const lastDelimiterPos = buffer.lastIndexOf("\n\n");
+          buffer =
+            lastDelimiterPos !== -1
+              ? buffer.substring(lastDelimiterPos + 2)
+              : buffer;
+        }
+      } finally {
+        reader.releaseLock();
+      }
+    } catch (error) {
+      console.error("Failed to connect to stream:", error);
+      addRawServerEvent(createErrorEvent((error as Error).message));
+      setIsLoading(false);
+    }
+  };
+
+  return { connectToStream };
 };

@@ -8,11 +8,13 @@ import { cn, generateCheckId } from "@/lib/utils";
 import NumberFlow from "@number-flow/react";
 import { motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const useInputHandler = () => {
   const { answer, setAnswer, isLoading, startVerification } =
     useFactCheckerInput();
   const [isLimitReached, setLimitReached] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -21,15 +23,12 @@ const useInputHandler = () => {
       try {
         const decodedAnswer = decodeURIComponent(answerFromUrl);
         setAnswer(decodedAnswer);
-        const checkId = generateCheckId(decodedAnswer);
-        window.history.replaceState({}, "", `/checks/${checkId}`);
-        startVerification();
       } catch (e) {
         console.error("Failed to decode answer from URL:", e);
         setAnswer("(Error decoding answer)");
       }
     }
-  }, []);
+  }, [router, setAnswer]);
 
   const characterCount = answer.length;
   const isOverLimit = characterCount >= MAX_INPUT_LIMIT;
@@ -49,13 +48,17 @@ const useInputHandler = () => {
     [setAnswer]
   );
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     if (!isLoading && answer && !isOverLimit) {
-      const checkId = generateCheckId(answer);
-      window.history.replaceState({}, "", `/checks/${checkId}`);
-      startVerification();
+      try {
+        const checkId = generateCheckId(answer);
+        await startVerification(answer, checkId);
+        router.push(`/checks/${checkId}`);
+      } catch (error) {
+        console.error("Failed to start verification:", error);
+      }
     }
-  }, [isLoading, answer, isOverLimit, startVerification]);
+  }, [isLoading, answer, isOverLimit, startVerification, router]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {

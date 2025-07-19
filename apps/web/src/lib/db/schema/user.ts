@@ -7,14 +7,16 @@ import {
 } from "drizzle-orm/pg-core";
 import { timestamps } from ".";
 
-export const users = pgTable("users", {
-  id: varchar("id", { length: 30 }).primaryKey(),
-  email: text("email").notNull().unique(),
-  imageUrl: text("image_url"),
-  ...timestamps,
-});
-
-export const usersEmailIdx = uniqueIndex("users_email_idx").on(users.email);
-export const usersCreatedAtIdx = index("users_created_at_idx").on(
-  users.createdAt
+export const users = pgTable(
+  "users",
+  {
+    id: varchar("id", { length: 30 }).primaryKey(),
+    email: text("email").notNull().unique(),
+    imageUrl: text("image_url"),
+    ...timestamps,
+  },
+  (table) => ({
+    emailIdx: uniqueIndex("users_email_idx").on(table.email),
+    createdAtIdx: index("users_created_at_idx").on(table.createdAt),
+  })
 );

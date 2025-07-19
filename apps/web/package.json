@@ -13,7 +13,9 @@
     "fmw": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "start": "next start",
     "check-types": "tsc --noEmit",
-    "tc": "tsc --noEmit"
+    "tc": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push"
   },
   "dependencies": {
     "@clerk/backend": "^2.4.5",
@@ -34,6 +36,7 @@
     "@t3-oss/env-core": "^0.13.8",
     "@types/ws": "^8.18.1",
     "@upstash/redis": "^1.35.1",
+    "better-sse": "^0.15.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-kit": "^0.31.4",
@@ -60,6 +63,7 @@
     "@types/node": "^24.0.14",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
+    "postgres": "^3.4.7",
     "tailwindcss": "^4.1.11",
     "tw-animate-css": "^1.3.5",
     "typescript": "^5.8.3",

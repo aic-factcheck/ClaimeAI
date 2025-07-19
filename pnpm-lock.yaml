@@ -93,6 +93,9 @@ importers:
       '@upstash/redis':
         specifier: ^1.35.1
         version: 1.35.1
+      better-sse:
+        specifier: ^0.15.1
+        version: 0.15.1
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -104,7 +107,7 @@ importers:
         version: 0.31.4
       drizzle-orm:
         specifier: ^0.44.3
-        version: 0.44.3(@neondatabase/serverless@1.0.1)(@types/pg@8.15.4)(@upstash/redis@1.35.1)
+        version: 0.44.3(@neondatabase/serverless@1.0.1)(@types/pg@8.15.4)(@upstash/redis@1.35.1)(postgres@3.4.7)
       framer-motion:
         specifier: ^12.23.6
         version: 12.23.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -166,6 +169,9 @@ importers:
       '@types/react-dom':
         specifier: ^19.1.6
         version: 19.1.6(@types/react@19.1.8)
+      postgres:
+        specifier: ^3.4.7
+        version: 3.4.7
       tailwindcss:
         specifier: ^4.1.11
         version: 4.1.11
@@ -2198,6 +2204,10 @@ packages:
   batch@0.6.1:
     resolution: {integrity: sha512-x+VAiMRL6UPkx+kudNvxTl6hB2XNNCG2r+7wixVfIYwu/2HKRXimwQyaumLjMveWvT2Hkd/cAJw+QBMfJ/EKVw==}
 
+  better-sse@0.15.1:
+    resolution: {integrity: sha512-E8YmmIs7P2T5nHM8VG5Pmtp8CgDsIhT+6CYhg+8Gmke5kJb11ohN1jtEXn/2taSr7WkcU3yNTgoqNYvZ/GQ4sw==}
+    engines: {node: '>=20', pnpm: '>=9'}
+
   big.js@5.2.2:
     resolution: {integrity: sha512-vyL2OymJxmarO8gxMr0mhChsO9QGwhynfuu4+MHTAW6czfq9humCB7rKpUjDd9YUiDPU4mzpyupFSvOClAwbmQ==}
 
@@ -3840,6 +3850,10 @@ packages:
   postgres-interval@1.2.0:
     resolution: {integrity: sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==}
     engines: {node: '>=0.10.0'}
+
+  postgres@3.4.7:
+    resolution: {integrity: sha512-Jtc2612XINuBjIl/QTWsV5UvE8UHuNblcO3vVADSrKsrc6RqGX6lOW1cEo3CM2v0XG4Nat8nI+YM7/f26VxXLw==}
+    engines: {node: '>=12'}
 
   preact@10.26.9:
     resolution: {integrity: sha512-SSjF9vcnF27mJK1XyFMNJzFd5u3pQiATFqoaDy03XuN00u4ziveVVEGt5RKJrDR8MHE/wJo9Nnad56RLzS2RMA==}
@@ -6689,6 +6703,8 @@ snapshots:
 
   batch@0.6.1: {}
 
+  better-sse@0.15.1: {}
+
   big.js@5.2.2: {}
 
   binary-extensions@2.3.0: {}
@@ -7024,11 +7040,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.44.3(@neondatabase/serverless@1.0.1)(@types/pg@8.15.4)(@upstash/redis@1.35.1):
+  drizzle-orm@0.44.3(@neondatabase/serverless@1.0.1)(@types/pg@8.15.4)(@upstash/redis@1.35.1)(postgres@3.4.7):
     optionalDependencies:
       '@neondatabase/serverless': 1.0.1
       '@types/pg': 8.15.4
       '@upstash/redis': 1.35.1
+      postgres: 3.4.7
 
   dunder-proto@1.0.1:
     dependencies:
@@ -8377,6 +8394,8 @@ snapshots:
   postgres-interval@1.2.0:
     dependencies:
       xtend: 4.0.2
+
+  postgres@3.4.7: {}
 
   preact@10.26.9: {}
 

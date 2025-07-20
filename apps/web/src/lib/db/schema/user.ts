@@ -1,9 +1,9 @@
 import {
+  index,
   pgTable,
   text,
-  varchar,
-  index,
   uniqueIndex,
+  varchar,
 } from "drizzle-orm/pg-core";
 import { timestamps } from "./utils";
 

@@ -1,5 +1,5 @@
-import { env } from "@/env";
 import { Redis } from "@upstash/redis";
+import { env } from "@/env";
 
 const STREAM_EXPIRY_SECONDS = 24 * 60 * 60;
 
@@ -19,7 +19,7 @@ const buildEventsKey = (streamId: string) => `events:${streamId}`;
 const buildChannelKey = (streamId: string) => `channel:${streamId}`;
 
 const generateEventId = () =>
-  `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 
 const createStreamEvent = (event: string, data: unknown): StreamEvent => ({
   event,
@@ -49,6 +49,8 @@ export const addEvent = async (
   const streamEvent = createStreamEvent(eventType, eventData);
 
   await redis.lpush(eventsKey, JSON.stringify(streamEvent));
+  await redis.ltrim(eventsKey, 0, 999); // Keep last 1000 events
+  await redis.expire(eventsKey, STREAM_EXPIRY_SECONDS);
   await redis.publish(channelKey, JSON.stringify(streamEvent));
 };
 
@@ -57,17 +59,18 @@ export const getEvents = async (streamId: string): Promise<StreamEvent[]> => {
 
   try {
     const rawEvents = await redis.lrange(eventsKey, 0, -1);
-    return rawEvents.reverse().map((eventData: any) => {
+    return rawEvents.reverse().map((eventData: unknown) => {
       if (typeof eventData === "string") {
         return JSON.parse(eventData) as StreamEvent;
       }
 
+      const event = eventData as Partial<StreamEvent>;
       return {
-        event: eventData.event || "unknown",
-        data: eventData.data || {},
-        timestamp: eventData.timestamp || Date.now(),
-        id: eventData.id || generateEventId(),
-      } as StreamEvent;
+        event: event.event ?? "unknown",
+        data: event.data ?? {},
+        timestamp: event.timestamp ?? Date.now(),
+        id: event.id ?? generateEventId(),
+      } satisfies StreamEvent;
     });
   } catch (error) {
     console.error("Failed to fetch events:", error);
@@ -77,24 +80,20 @@ export const getEvents = async (streamId: string): Promise<StreamEvent[]> => {
 
 export const waitForEvents = async (
   streamId: string,
-  lastEventId: string = "0",
-  timeoutMs: number = 30000
+  lastEventId = "0"
 ): Promise<StreamEvent[]> => {
   try {
     const allEvents = await getEvents(streamId);
 
-    if (lastEventId === "0") {
-      return allEvents;
-    }
+    if (lastEventId === "0") return allEvents;
 
     const lastEventIndex = allEvents.findIndex(
       (event) => event.id === lastEventId
     );
-    if (lastEventIndex === -1) {
-      return allEvents;
-    }
 
-    return allEvents.slice(lastEventIndex + 1);
+    return lastEventIndex === -1
+      ? allEvents
+      : allEvents.slice(lastEventIndex + 1);
   } catch (error) {
     console.error("Failed to wait for events:", error);
     return [];
@@ -104,10 +103,7 @@ export const waitForEvents = async (
 export const getLastEventId = async (streamId: string): Promise<string> => {
   try {
     const events = await getEvents(streamId);
-    if (events.length > 0) {
-      return events[events.length - 1].id || "0";
-    }
-    return "0";
+    return events.at(-1)?.id ?? "0";
   } catch (error) {
     console.error("Failed to get last event ID:", error);
     return "0";

@@ -1,11 +1,11 @@
-import { env } from "@/env";
-import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema/user";
-import { getPrimaryEmail, extractClerkId } from "@/lib/utils";
 import type { UserJSON, WebhookEvent } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { Webhook } from "svix";
+import { env } from "@/env";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema/user";
+import { extractClerkId, getPrimaryEmail } from "@/lib/utils";
 
 const handleUserCreated = async (data: UserJSON) => {
   const id = extractClerkId(data.id);
@@ -32,7 +32,7 @@ export const POST = async (request: Request): Promise<Response> => {
   const svixTimestamp = headerPayload.get("svix-timestamp");
   const svixSignature = headerPayload.get("svix-signature");
 
-  if (!svixId || !svixTimestamp || !svixSignature) {
+  if (!(svixId && svixTimestamp && svixSignature)) {
     return new Response("Error occurred: no svix headers", { status: 400 });
   }
 

@@ -1,10 +1,10 @@
 "use client";
 
-import { FactChecker } from "@/components/fact-checker";
-import { useFactCheckerResults, useSSEConnection } from "@/lib/store";
 import { Loader } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { FactChecker } from "@/components/fact-checker";
+import { useFactCheckerResults, useSSEConnection } from "@/lib/store";
 
 const CheckPage = () => {
   const { checkId } = useParams();
@@ -30,9 +30,9 @@ const CheckPage = () => {
 
   if (!submittedAnswer) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-center">
-          <Loader className="size-8 mx-auto mb-4 animate-spin" />
+          <Loader className="mx-auto mb-4 size-8 animate-spin" />
           <p className="text-neutral-600">Loading verification...</p>
         </div>
       </div>
@@ -40,22 +40,22 @@ const CheckPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto max-w-4xl px-4 py-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-neutral-900 mb-2">
+        <h1 className="mb-2 font-bold text-2xl text-neutral-900">
           Claime Results
         </h1>
         <p className="text-neutral-600 text-sm">{submittedAnswer}</p>
       </div>
 
       <FactChecker
-        contextualSentences={contextualSentences}
-        selectedContents={selectedContents}
-        disambiguatedContents={disambiguatedContents}
-        potentialClaims={potentialClaims}
-        validatedClaims={validatedClaims}
         claimVerdicts={claimVerdicts}
+        contextualSentences={contextualSentences}
+        disambiguatedContents={disambiguatedContents}
         isLoading={isLoading}
+        potentialClaims={potentialClaims}
+        selectedContents={selectedContents}
+        validatedClaims={validatedClaims}
       />
     </div>
   );

@@ -56,13 +56,13 @@ export const HowItWorksDialog = () => (
           </p>
           <div className="space-y-6">
             {HOW_IT_WORKS_STEPS.map((step, index) => (
-              <div key={step.title} className="flex items-start gap-4">
+              <div className="flex items-start gap-4" key={step.title}>
                 <div className="space-y-1">
-                  <h4 className="flex items-center text-base gap-1.5 font-semibold text-foreground">
+                  <h4 className="flex items-center gap-1.5 font-semibold text-base text-foreground">
                     <step.icon className="size-3.5" />
                     {step.title}
                   </h4>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     {step.description}
                   </p>
                 </div>

@@ -30,9 +30,9 @@ const FEATURES = [
 export const EmptyState = () => (
   <motion.div
     animate={{ opacity: 1 }}
+    className="flex w-full flex-col items-center justify-center space-y-8 text-center"
     initial={{ opacity: 0 }}
     transition={{ duration: 0.4 }}
-    className="flex w-full flex-col items-center justify-center space-y-8 text-center"
   >
     <div className="space-y-4">
       <h1 className="font-semibold text-3xl text-neutral-900 tracking-tight">

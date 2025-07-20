@@ -4,8 +4,8 @@ import { MethodologyIndicators } from "@/components/methodology-indicators";
 
 const HomePage = () => (
   <main
+    className="mx-auto flex min-w-4xl max-w-4xl flex-grow flex-col items-center justify-center gap-3 p-6"
     id="main-content"
-    className="mx-auto flex justify-center min-w-4xl max-w-4xl flex-grow flex-col items-center gap-3 p-6"
   >
     <EmptyState />
     <InputSection />

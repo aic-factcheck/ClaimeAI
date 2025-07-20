@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { useMemo, useState } from "react";
 import type { Verdict } from "@/lib/event-schema";
 import type {
   ContextualSentence,
@@ -8,8 +10,6 @@ import type {
   SelectedContentData,
 } from "@/lib/store";
 import type { UIValidatedClaim } from "@/types";
-import { motion } from "framer-motion";
-import { useMemo, useState } from "react";
 
 import { LoadingState } from "./loading-state";
 import { ProcessedAnswer } from "./processed-answer";
@@ -79,10 +79,10 @@ export const FactChecker = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
       className="w-full"
+      initial={{ opacity: 0, y: 10 }}
+      transition={{ duration: 0.3 }}
     >
       <ProgressBar isLoading={isLoading} stages={progressStages} />
 

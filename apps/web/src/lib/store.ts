@@ -94,13 +94,13 @@ const createErrorEvent = (message: string, runId = "local-error") => ({
 });
 
 const startFactChecking = async (
-  text: string,
+  content: string,
   checkId: string
 ): Promise<string> => {
   const response = await fetch("/api/agent/run", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, checkId }),
+    body: JSON.stringify({ content, checkId }),
   });
 
   if (!response.ok) {
@@ -228,14 +228,14 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
 
       setFactCheckReport: (report) => set({ factCheckReport: report }),
 
-      startVerification: async (text: string, checkId: string) => {
-        if (!text) throw new Error("No text provided for verification");
+      startVerification: async (content: string, checkId: string) => {
+        if (!content) throw new Error("No text provided for verification");
 
         get().resetState();
-        set({ submittedAnswer: text, isLoading: true });
+        set({ submittedAnswer: content, isLoading: true });
 
         try {
-          const streamId = await startFactChecking(text, checkId);
+          const streamId = await startFactChecking(content, checkId);
           return { streamId, checkId };
         } catch (error) {
           console.error("Failed to start verification:", error);

@@ -1,7 +1,7 @@
 "use client";
 
 import { SignOutButton, useUser } from "@clerk/nextjs";
-import { UserResource } from "@clerk/types";
+import type { UserResource } from "@clerk/types";
 import { Loader, LogOut, Plus, Settings, User2 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "../ui/badge";
@@ -51,7 +51,7 @@ const UserAvatar = ({ user }: { user: any }) => {
 const LoadingState = () => (
   <SidebarWrapper>
     <MenuButton>
-      <div className="flex items-center justify-center size-8 bg-neutral-900 rounded-full">
+      <div className="flex size-8 items-center justify-center rounded-full bg-neutral-900">
         <Loader className="size-4 animate-spin text-white" />
       </div>
       <div className="grid flex-1 text-left text-sm leading-tight">

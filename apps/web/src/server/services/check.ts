@@ -1,3 +1,4 @@
+import { z } from "zod";
 import {
   createCheck,
   findOrCreateText,
@@ -12,7 +13,6 @@ import {
   failStream,
   getEvents,
 } from "@/lib/redis";
-import { z } from "zod";
 
 interface InitializeSessionParams {
   content: string;
@@ -23,7 +23,6 @@ interface InitializeSessionParams {
 interface ExecuteAgentParams {
   streamId: string;
   content: string;
-  userId: string;
 }
 
 const agentEventSchema = z.object({
@@ -98,19 +97,18 @@ export const initializeFactCheckSession = async ({
   checkId,
   userId,
 }: InitializeSessionParams) => {
-  const textRecord = await findOrCreateText(content);
-  const checkRecord = await createCheck(checkId, userId, textRecord.id);
-
-  return {
-    textRecord,
-    checkRecord,
-  };
+  const text = await findOrCreateText(content);
+  const check = await createCheck({
+    checkId,
+    userId,
+    textId: text.id,
+  });
+  return { text, check };
 };
 
 export const executeFactCheckingAgent = async ({
   streamId,
   content,
-  userId,
 }: ExecuteAgentParams): Promise<void> => {
   try {
     await createStream(streamId);

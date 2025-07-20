@@ -1,4 +1,3 @@
-import { env } from "@/env";
 import {
   type NeonQueryFunction,
   neon,
@@ -7,6 +6,7 @@ import {
 import type { NeonHttpDatabase } from "drizzle-orm/neon-http";
 import { drizzle } from "drizzle-orm/neon-http";
 import ws from "ws";
+import { env } from "@/env";
 
 const LOCAL_DB_CONFIG = {
   host: "db.localtest.me",

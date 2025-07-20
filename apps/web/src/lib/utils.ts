@@ -1,7 +1,7 @@
+import type { UserJSON } from "@clerk/nextjs/server";
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
 import { nanoid } from "nanoid";
-import { UserJSON } from "@clerk/nextjs/server";
+import { twMerge } from "tailwind-merge";
 
 export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 

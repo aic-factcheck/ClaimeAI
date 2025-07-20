@@ -1,3 +1,9 @@
+import { getAuth } from "@hono/clerk-auth";
+import { zValidator } from "@hono/zod-validator";
+import { eq } from "drizzle-orm";
+import { Hono } from "hono";
+import { type SSEStreamingApi, streamSSE } from "hono/streaming";
+import { z } from "zod";
 import { MAX_INPUT_LIMIT } from "@/lib/constants";
 import { db } from "@/lib/db";
 import { checks } from "@/lib/db/schema";
@@ -6,15 +12,9 @@ import {
   executeFactCheckingAgent,
   initializeFactCheckSession,
 } from "@/server/services/check";
-import { getAuth } from "@hono/clerk-auth";
-import { zValidator } from "@hono/zod-validator";
-import { eq } from "drizzle-orm";
-import { Hono } from "hono";
-import { SSEStreamingApi, streamSSE } from "hono/streaming";
-import { z } from "zod";
 
 const factCheckRequestSchema = z.object({
-  text: z
+  content: z
     .string()
     .trim()
     .min(1)
@@ -22,6 +22,11 @@ const factCheckRequestSchema = z.object({
     .describe("The text to be fact-checked"),
   checkId: z.string().trim().min(1).max(100).describe("The ID of the check"),
 });
+
+interface StoredEvent {
+  event: string;
+  data: unknown;
+}
 
 const writeStreamEvent = async (
   stream: SSEStreamingApi,
@@ -34,15 +39,21 @@ const writeStreamEvent = async (
   });
 };
 
-const streamStoredResults = async (stream: SSEStreamingApi, results: any[]) => {
+const streamStoredResults = async (
+  stream: SSEStreamingApi,
+  results: StoredEvent[]
+) => {
   await writeStreamEvent(stream, "connection", {
     message: "Connection established",
   });
 
-  for (const event of results) {
-    await writeStreamEvent(stream, event.event, event.data);
-  }
+  await Promise.all(
+    results.map((event) => writeStreamEvent(stream, event.event, event.data))
+  );
 };
+
+const isTerminalEvent = (eventType: string) =>
+  ["complete", "error"].includes(eventType);
 
 const streamLiveEvents = async (stream: SSEStreamingApi, streamId: string) => {
   await writeStreamEvent(stream, "connection", {
@@ -53,38 +64,39 @@ const streamLiveEvents = async (stream: SSEStreamingApi, streamId: string) => {
 
   for (const event of existingEvents) {
     await writeStreamEvent(stream, event.event, event.data);
-    if (event.event === "complete" || event.event === "error") {
-      break;
-    }
+    if (isTerminalEvent(event.event)) break;
   }
 
-  let lastProcessedEventId =
-    existingEvents.length > 0
-      ? existingEvents[existingEvents.length - 1].id || "0"
-      : "0";
+  let lastProcessedEventId = existingEvents.at(-1)?.id ?? "0";
   let streamActive = true;
 
   stream.onAbort(() => {
     streamActive = false;
   });
 
+  const sleep = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+
   while (streamActive) {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await sleep(1000);
 
     if (!streamActive) break;
 
     const currentEvents = await getEvents(streamId);
-    const newEvents = currentEvents.filter((event) => {
-      if (!event.id || !lastProcessedEventId) return false;
-      return event.id > lastProcessedEventId;
-    });
+    const lastKnownIndex = currentEvents.findIndex(
+      (event) => event.id === lastProcessedEventId
+    );
+    const newEvents = lastKnownIndex === -1 
+      ? currentEvents 
+      : currentEvents.slice(lastKnownIndex + 1);
 
     for (const event of newEvents) {
       if (!streamActive) break;
-      await writeStreamEvent(stream, event.event, event.data);
-      lastProcessedEventId = event.id || lastProcessedEventId;
 
-      if (event.event === "complete" || event.event === "error") {
+      await writeStreamEvent(stream, event.event, event.data);
+      lastProcessedEventId = event.id ?? lastProcessedEventId;
+
+      if (isTerminalEvent(event.event)) {
         streamActive = false;
         break;
       }
@@ -93,18 +105,18 @@ const streamLiveEvents = async (stream: SSEStreamingApi, streamId: string) => {
 };
 
 const getCompletedCheckResults = async (streamId: string) => {
-  const existingCheck = await db
+  const [existingCheck] = await db
     .select()
     .from(checks)
     .where(eq(checks.slug, streamId))
     .limit(1);
 
-  if (existingCheck.length === 0) return null;
+  if (!existingCheck) return null;
 
-  const check = existingCheck[0];
-  const isCompleted = check.status === "completed" && check.result;
+  const isCompleted =
+    existingCheck.status === "completed" && !!existingCheck.result;
 
-  return isCompleted ? (check.result as any[]) : null;
+  return isCompleted ? (existingCheck.result as StoredEvent[]) : null;
 };
 
 export const agentRoute = new Hono()
@@ -114,22 +126,18 @@ export const agentRoute = new Hono()
       return context.json({ error: "Unauthorized" }, 401);
     }
 
-    const { text, checkId } = context.req.valid("json");
+    const { content, checkId } = context.req.valid("json");
 
     try {
       await initializeFactCheckSession({
-        content: text,
+        content,
         checkId,
         userId: auth.userId,
       });
 
-      executeFactCheckingAgent({
-        streamId: checkId,
-        content: text,
-        userId: auth.userId,
-      }).catch((error) => {
-        console.error("Background agent processing failed:", error);
-      });
+      executeFactCheckingAgent({ streamId: checkId, content }).catch(
+        console.error.bind(console, "Background agent processing failed:")
+      );
 
       return context.json({ checkId });
     } catch (error) {
@@ -149,9 +157,9 @@ export const agentRoute = new Hono()
       const storedResults = await getCompletedCheckResults(streamId);
 
       if (storedResults) {
-        return streamSSE(context, async (stream) => {
-          await streamStoredResults(stream, storedResults);
-        });
+        return streamSSE(context, (stream) =>
+          streamStoredResults(stream, storedResults)
+        );
       }
 
       const streamIsActive = await streamExists(streamId);

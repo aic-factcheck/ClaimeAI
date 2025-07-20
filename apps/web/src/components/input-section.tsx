@@ -1,14 +1,14 @@
 "use client";
 
+import NumberFlow from "@number-flow/react";
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowUpIcon, type ArrowUpIconHandle } from "@/components/ui/icons";
 import { MAX_INPUT_LIMIT } from "@/lib/constants";
 import { useFactCheckerInput } from "@/lib/store";
 import { cn, generateCheckId } from "@/lib/utils";
-import NumberFlow from "@number-flow/react";
-import { motion } from "framer-motion";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 
 const useInputHandler = () => {
   const { answer, setAnswer, isLoading, startVerification } =
@@ -108,8 +108,8 @@ const CharacterCounter = ({
         isOverLimit
           ? "text-red-500"
           : isNearLimit
-          ? "text-amber-500"
-          : "text-neutral-400"
+            ? "text-amber-500"
+            : "text-neutral-400"
       )}
       value={count}
     />

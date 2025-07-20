@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 import { eq } from "drizzle-orm";
+import { extractClerkId } from "../utils";
 import { db } from ".";
 import { checks, texts } from "./schema";
-import { extractClerkId } from "../utils";
 
 const generateContentHash = (content: string): string => {
   return createHash("sha256").update(content.trim()).digest("hex");
@@ -38,11 +38,17 @@ export const findOrCreateText = async (content: string) => {
   return newText;
 };
 
-export const createCheck = async (
-  checkId: string,
-  userId: string,
-  textId: string
-) => {
+type CreateCheckParams = {
+  checkId: string;
+  userId: string;
+  textId: string;
+};
+
+export const createCheck = async ({
+  checkId,
+  userId,
+  textId,
+}: CreateCheckParams) => {
   const [newCheck] = await db
     .insert(checks)
     .values({

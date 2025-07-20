@@ -149,12 +149,8 @@
           "name": "checks_user_id_users_id_fk",
           "tableFrom": "checks",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -162,12 +158,8 @@
           "name": "checks_text_id_texts_id_fk",
           "tableFrom": "checks",
           "tableTo": "texts",
-          "columnsFrom": [
-            "text_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["text_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -177,9 +169,7 @@
         "checks_slug_unique": {
           "name": "checks_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {},
@@ -282,9 +272,7 @@
         "texts_hash_unique": {
           "name": "texts_hash_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "hash"
-          ]
+          "columns": ["hash"]
         }
       },
       "policies": {},
@@ -366,9 +354,7 @@
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},

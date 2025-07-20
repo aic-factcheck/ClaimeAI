@@ -49,9 +49,11 @@ export const addEvent = async (
   const streamEvent = createStreamEvent(eventType, eventData);
 
   await redis.lpush(eventsKey, JSON.stringify(streamEvent));
-  await redis.ltrim(eventsKey, 0, 999); // Keep last 1000 events
-  await redis.expire(eventsKey, STREAM_EXPIRY_SECONDS);
-  await redis.publish(channelKey, JSON.stringify(streamEvent));
+  await Promise.all([
+    redis.ltrim(eventsKey, 0, 999),
+    redis.expire(eventsKey, STREAM_EXPIRY_SECONDS),
+    redis.publish(channelKey, JSON.stringify(streamEvent)),
+  ]);
 };
 
 export const getEvents = async (streamId: string): Promise<StreamEvent[]> => {

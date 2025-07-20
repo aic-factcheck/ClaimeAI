@@ -1,20 +1,19 @@
 import { MAX_INPUT_LIMIT } from "@/lib/constants";
-import { client } from "@/lib/langgraph";
+import { db } from "@/lib/db";
+import { checks } from "@/lib/db/schema";
+import { getEvents, streamExists } from "@/lib/redis";
 import {
-  createStream,
-  addEvent,
-  getEvents,
-  streamExists,
-  completeStream,
-  failStream,
-} from "@/lib/redis";
+  executeFactCheckingAgent,
+  initializeFactCheckSession,
+} from "@/server/services/check";
 import { getAuth } from "@hono/clerk-auth";
 import { zValidator } from "@hono/zod-validator";
+import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { SSEStreamingApi, streamSSE } from "hono/streaming";
 import { z } from "zod";
 
-const inputSchema = z.object({
+const factCheckRequestSchema = z.object({
   text: z
     .string()
     .trim()
@@ -24,182 +23,145 @@ const inputSchema = z.object({
   checkId: z.string().trim().min(1).max(100).describe("The ID of the check"),
 });
 
-const eventSchema = z.object({
-  event: z.string(),
-  data: z.unknown(),
-});
-
-const processAgentEvent = async (
-  streamId: string,
-  event: unknown
-): Promise<void> => {
-  const parseResult = eventSchema.safeParse(event);
-
-  if (parseResult.success) {
-    await addEvent(streamId, parseResult.data.event, parseResult.data.data);
-  } else {
-    console.error("Invalid event structure:", parseResult.error);
-    await addEvent(streamId, "error", {
-      message: "Server received malformed event data",
-      run_id: "validation-error",
-    });
-  }
-};
-
-const runFactCheckingAgent = async (
-  streamId: string,
-  text: string
-): Promise<void> => {
-  try {
-    await createStream(streamId);
-    await addEvent(streamId, "connected", {
-      message: "Connected to SSE",
-      streamId,
-    });
-
-    const thread = await client.threads.create();
-
-    const run = client.runs.stream(thread.thread_id, "fact_checker", {
-      input: { answer: text },
-      streamSubgraphs: true,
-      streamMode: ["updates"],
-    });
-
-    for await (const event of run) {
-      await processAgentEvent(streamId, event);
-    }
-
-    await completeStream(streamId);
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
-    console.error("Agent processing error:", error);
-
-    await addEvent(streamId, "error", {
-      message: errorMessage,
-      run_id: "server-error",
-    });
-
-    await failStream(streamId, errorMessage);
-  }
-};
-
-const sendSSEEvent = async (
+const writeStreamEvent = async (
   stream: SSEStreamingApi,
-  event: string,
-  data: unknown
-): Promise<void> => {
+  eventType: string,
+  eventData: unknown
+) => {
   await stream.writeSSE({
-    event,
-    data: JSON.stringify(data),
+    event: eventType,
+    data: JSON.stringify(eventData),
   });
 };
 
-const isStreamComplete = (events: Array<{ event: string }>): boolean => {
-  return events.some((e) => e.event === "complete" || e.event === "error");
-};
-
-const handleStreamConnection = async (
-  stream: SSEStreamingApi,
-  streamId: string
-): Promise<void> => {
-  return new Promise<void>((resolve, reject) => {
-    let pollInterval: NodeJS.Timeout;
-
-    const cleanup = () => {
-      if (pollInterval) clearInterval(pollInterval);
-      resolve();
-    };
-
-    const sendInitialEvents = async (): Promise<number> => {
-      await sendSSEEvent(stream, "test", {
-        message: "SSE connection established",
-      });
-
-      const initialEvents = await getEvents(streamId);
-
-      for (const event of initialEvents) {
-        await sendSSEEvent(stream, event.event, event.data);
-      }
-
-      return initialEvents.length;
-    };
-
-    const startPolling = (sentEventCount: number): void => {
-      pollInterval = setInterval(async () => {
-        try {
-          const allEvents = await getEvents(streamId);
-          const newEvents = allEvents.slice(sentEventCount);
-
-          if (newEvents.length === 0) return;
-
-          for (const event of newEvents) {
-            await sendSSEEvent(stream, event.event, event.data);
-          }
-
-          sentEventCount = allEvents.length;
-
-          if (isStreamComplete(newEvents)) {
-            cleanup();
-          }
-        } catch (error) {
-          console.error("Polling error:", error);
-          cleanup();
-        }
-      }, 1000);
-    };
-
-    const initialize = async (): Promise<void> => {
-      try {
-        const sentEventCount = await sendInitialEvents();
-        const initialEvents = await getEvents(streamId);
-
-        if (isStreamComplete(initialEvents)) {
-          cleanup();
-          return;
-        }
-
-        startPolling(sentEventCount);
-        stream.onAbort(cleanup);
-      } catch (error) {
-        console.error("Stream initialization error:", error);
-        reject(error);
-      }
-    };
-
-    initialize();
+const streamStoredResults = async (stream: SSEStreamingApi, results: any[]) => {
+  await writeStreamEvent(stream, "connection", {
+    message: "Connection established",
   });
+
+  for (const event of results) {
+    await writeStreamEvent(stream, event.event, event.data);
+  }
 };
 
-const requireAuth = (c: any) => {
-  const auth = getAuth(c);
-  if (!auth?.userId) return c.json({ error: "Unauthorized" }, 401);
-  return null;
+const streamLiveEvents = async (stream: SSEStreamingApi, streamId: string) => {
+  await writeStreamEvent(stream, "connection", {
+    message: "Connection established",
+  });
+
+  const existingEvents = await getEvents(streamId);
+
+  for (const event of existingEvents) {
+    await writeStreamEvent(stream, event.event, event.data);
+    if (event.event === "complete" || event.event === "error") {
+      break;
+    }
+  }
+
+  let lastProcessedEventId =
+    existingEvents.length > 0
+      ? existingEvents[existingEvents.length - 1].id || "0"
+      : "0";
+  let streamActive = true;
+
+  stream.onAbort(() => {
+    streamActive = false;
+  });
+
+  while (streamActive) {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    if (!streamActive) break;
+
+    const currentEvents = await getEvents(streamId);
+    const newEvents = currentEvents.filter((event) => {
+      if (!event.id || !lastProcessedEventId) return false;
+      return event.id > lastProcessedEventId;
+    });
+
+    for (const event of newEvents) {
+      if (!streamActive) break;
+      await writeStreamEvent(stream, event.event, event.data);
+      lastProcessedEventId = event.id || lastProcessedEventId;
+
+      if (event.event === "complete" || event.event === "error") {
+        streamActive = false;
+        break;
+      }
+    }
+  }
+};
+
+const getCompletedCheckResults = async (streamId: string) => {
+  const existingCheck = await db
+    .select()
+    .from(checks)
+    .where(eq(checks.slug, streamId))
+    .limit(1);
+
+  if (existingCheck.length === 0) return null;
+
+  const check = existingCheck[0];
+  const isCompleted = check.status === "completed" && check.result;
+
+  return isCompleted ? (check.result as any[]) : null;
 };
 
 export const agentRoute = new Hono()
-  .post("/run", zValidator("json", inputSchema), async (c) => {
-    const authError = requireAuth(c);
-    if (authError) return authError;
-
-    const { text, checkId } = c.req.valid("json");
-
-    runFactCheckingAgent(checkId, text).catch((error) => {
-      console.error("Background agent processing failed:", error);
-    });
-
-    return c.json({ checkId });
-  })
-  .get("/stream/:streamId", async (c) => {
-    const authError = requireAuth(c);
-    if (authError) return authError;
-
-    const streamId = c.req.param("streamId");
-
-    const exists = await streamExists(streamId);
-    if (!exists) {
-      return c.json({ error: "Stream not found" }, 404);
+  .post("/run", zValidator("json", factCheckRequestSchema), async (context) => {
+    const auth = getAuth(context);
+    if (!auth?.userId) {
+      return context.json({ error: "Unauthorized" }, 401);
     }
 
-    return streamSSE(c, (stream) => handleStreamConnection(stream, streamId));
+    const { text, checkId } = context.req.valid("json");
+
+    try {
+      await initializeFactCheckSession({
+        content: text,
+        checkId,
+        userId: auth.userId,
+      });
+
+      executeFactCheckingAgent({
+        streamId: checkId,
+        content: text,
+        userId: auth.userId,
+      }).catch((error) => {
+        console.error("Background agent processing failed:", error);
+      });
+
+      return context.json({ checkId });
+    } catch (error) {
+      console.error("Failed to initialize fact-check:", error);
+      return context.json({ error: "Failed to start fact-check" }, 500);
+    }
+  })
+  .get("/stream/:streamId", async (context) => {
+    const auth = getAuth(context);
+    if (!auth?.userId) {
+      return context.json({ error: "Unauthorized" }, 401);
+    }
+
+    const streamId = context.req.param("streamId");
+
+    try {
+      const storedResults = await getCompletedCheckResults(streamId);
+
+      if (storedResults) {
+        return streamSSE(context, async (stream) => {
+          await streamStoredResults(stream, storedResults);
+        });
+      }
+
+      const streamIsActive = await streamExists(streamId);
+      if (!streamIsActive) {
+        return context.json({ error: "Stream not found" }, 404);
+      }
+
+      return streamSSE(context, (stream) => streamLiveEvents(stream, streamId));
+    } catch (error) {
+      console.error("Stream connection error:", error);
+      return context.json({ error: "Failed to connect to stream" }, 500);
+    }
   });

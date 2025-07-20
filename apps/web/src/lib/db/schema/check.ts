@@ -4,11 +4,12 @@ import {
   jsonb,
   pgTable,
   text,
+  timestamp,
   uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
-import { nanoid, timestamps } from ".";
 import { users } from "./user";
+import { nanoid, timestamps } from "./utils";
 
 export const checks = pgTable(
   "checks",
@@ -25,6 +26,7 @@ export const checks = pgTable(
       .references(() => texts.id),
     result: jsonb("result"),
     status: varchar("status", { length: 20 }).notNull().default("pending"),
+    completedAt: timestamp("completed_at"),
     ...timestamps,
   },
   (table) => [

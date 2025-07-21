@@ -28,7 +28,6 @@ async def generate_report_node(state: State) -> Dict[str, FactCheckReport]:
     result_counts = {
         VerificationResult.SUPPORTED: 0,
         VerificationResult.REFUTED: 0,
-        VerificationResult.INSUFFICIENT_INFORMATION: 0,
     }
 
     for verdict in state.verification_results:
@@ -40,8 +39,7 @@ async def generate_report_node(state: State) -> Dict[str, FactCheckReport]:
     summary = (
         f"Fact-check complete. Of {len(state.verification_results)} claims verified: "
         f"{result_counts[VerificationResult.SUPPORTED]} supported, "
-        f"{result_counts[VerificationResult.REFUTED]} refuted, "
-        f"{result_counts[VerificationResult.INSUFFICIENT_INFORMATION]} with insufficient information."
+        f"{result_counts[VerificationResult.REFUTED]} refuted"
     )
 
     # Create the final report

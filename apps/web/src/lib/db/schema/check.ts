@@ -18,6 +18,7 @@ export const checks = pgTable(
       .primaryKey()
       .$defaultFn(() => nanoid()),
     slug: varchar("slug", { length: 100 }).notNull().unique(),
+    title: varchar("title", { length: 200 }),
     userId: varchar("user_id", { length: 30 })
       .notNull()
       .references(() => users.id),

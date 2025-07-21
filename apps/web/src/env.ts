@@ -5,6 +5,7 @@ export const env = createEnv({
   server: {
     LANGGRAPH_API_URL: z.url().optional().default("http://localhost:2024"),
     LANGSMITH_API_KEY: z.string().min(1).optional(),
+    OPENAI_API_KEY: z.string().min(1).startsWith("sk-"),
     CLERK_SECRET_KEY: z.string().min(1).startsWith("sk_"),
     CLERK_WEBHOOK_SECRET: z.string().min(1),
     DATABASE_URL: z.string().min(1),

@@ -11,7 +11,7 @@ import { useFactCheckerInput } from "@/lib/store";
 import { cn, generateCheckId } from "@/lib/utils";
 
 const useInputHandler = () => {
-  const { answer, setAnswer, isLoading, startVerification } =
+  const { answer, setAnswer, isLoading, startVerification, resetState } =
     useFactCheckerInput();
   const [isLimitReached, setLimitReached] = useState(false);
   const router = useRouter();
@@ -53,7 +53,7 @@ const useInputHandler = () => {
       try {
         const checkId = generateCheckId(answer);
         await startVerification(answer, checkId);
-        router.push(`/checks/${checkId}`);
+        router.push(`/checks/${checkId}?new=true`);
       } catch (error) {
         console.error("Failed to start verification:", error);
       }
@@ -108,8 +108,8 @@ const CharacterCounter = ({
         isOverLimit
           ? "text-red-500"
           : isNearLimit
-            ? "text-amber-500"
-            : "text-neutral-400"
+          ? "text-amber-500"
+          : "text-neutral-400"
       )}
       value={count}
     />

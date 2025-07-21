@@ -1,17 +1,20 @@
-import { getAuth } from "@hono/clerk-auth";
-import { zValidator } from "@hono/zod-validator";
-import { eq } from "drizzle-orm";
-import { Hono } from "hono";
-import { type SSEStreamingApi, streamSSE } from "hono/streaming";
-import { z } from "zod";
 import { MAX_INPUT_LIMIT } from "@/lib/constants";
 import { db } from "@/lib/db";
-import { checks } from "@/lib/db/schema";
+import { checks, texts } from "@/lib/db/schema";
 import { getEvents, streamExists } from "@/lib/redis";
+import { extractClerkId } from "@/lib/utils";
 import {
   executeFactCheckingAgent,
   initializeFactCheckSession,
 } from "@/server/services/check";
+import { openai } from "@ai-sdk/openai";
+import { getAuth } from "@hono/clerk-auth";
+import { zValidator } from "@hono/zod-validator";
+import { generateText } from "ai";
+import { desc, eq, sql } from "drizzle-orm";
+import { Hono } from "hono";
+import { type SSEStreamingApi, streamSSE } from "hono/streaming";
+import { z } from "zod";
 
 const factCheckRequestSchema = z.object({
   content: z
@@ -20,6 +23,16 @@ const factCheckRequestSchema = z.object({
     .min(1)
     .max(MAX_INPUT_LIMIT)
     .describe("The text to be fact-checked"),
+  checkId: z.string().trim().min(1).max(100).describe("The ID of the check"),
+});
+
+const generateTitleRequestSchema = z.object({
+  content: z
+    .string()
+    .trim()
+    .min(10)
+    .max(1000)
+    .describe("The text content to generate a title for"),
   checkId: z.string().trim().min(1).max(100).describe("The ID of the check"),
 });
 
@@ -86,9 +99,10 @@ const streamLiveEvents = async (stream: SSEStreamingApi, streamId: string) => {
     const lastKnownIndex = currentEvents.findIndex(
       (event) => event.id === lastProcessedEventId
     );
-    const newEvents = lastKnownIndex === -1 
-      ? currentEvents 
-      : currentEvents.slice(lastKnownIndex + 1);
+    const newEvents =
+      lastKnownIndex === -1
+        ? currentEvents
+        : currentEvents.slice(lastKnownIndex + 1);
 
     for (const event of newEvents) {
       if (!streamActive) break;
@@ -120,6 +134,35 @@ const getCompletedCheckResults = async (streamId: string) => {
 };
 
 export const agentRoute = new Hono()
+  .get("/checks", async (context) => {
+    const auth = getAuth(context);
+    if (!auth?.userId) {
+      return context.json({ error: "Unauthorized" }, 401);
+    }
+
+    try {
+      const userChecks = await db
+        .select({
+          id: checks.id,
+          slug: checks.slug,
+          title: checks.title,
+          status: checks.status,
+          createdAt: checks.createdAt,
+          updatedAt: checks.updatedAt,
+          completedAt: checks.completedAt,
+          textPreview: sql<string>`substring(${texts.content}, 1, 50)`,
+        })
+        .from(checks)
+        .leftJoin(texts, eq(checks.textId, texts.id))
+        .where(eq(checks.userId, extractClerkId(auth.userId)))
+        .orderBy(desc(checks.updatedAt));
+
+      return context.json({ checks: userChecks });
+    } catch (error) {
+      console.error("Failed to fetch checks:", error);
+      return context.json({ error: "Failed to fetch checks" }, 500);
+    }
+  })
   .post("/run", zValidator("json", factCheckRequestSchema), async (context) => {
     const auth = getAuth(context);
     if (!auth?.userId) {
@@ -145,6 +188,55 @@ export const agentRoute = new Hono()
       return context.json({ error: "Failed to start fact-check" }, 500);
     }
   })
+  .post(
+    "/generate-title",
+    zValidator("json", generateTitleRequestSchema),
+    async (ctx) => {
+      const auth = getAuth(ctx);
+      if (!auth?.userId) return ctx.json({ error: "Unauthorized" }, 401);
+
+      const { content, checkId } = ctx.req.valid("json");
+
+      try {
+        const [existingCheck] = await db
+          .select()
+          .from(checks)
+          .where(eq(checks.slug, checkId))
+          .limit(1);
+
+        if (!existingCheck) {
+          return ctx.json({ error: "Check not found" }, 404);
+        }
+
+        if (existingCheck.userId !== auth.userId) {
+          return ctx.json({ error: "Unauthorized access to check" }, 403);
+        }
+
+        const { text: generatedTitle } = await generateText({
+          model: openai("gpt-4.1-nano"),
+          prompt: `Generate a concise, descriptive title (max 50 words) for this fact-checking content. The title should summarize the main claim or topic being fact-checked:
+
+          "${content}"
+
+          Respond with only the title, no additional text or formatting.`,
+          maxTokens: 100,
+          temperature: 0.7,
+        });
+
+        const cleanTitle = generatedTitle.trim().replace(/^["']|["']$/g, "");
+
+        await db
+          .update(checks)
+          .set({ title: cleanTitle, updatedAt: new Date() })
+          .where(eq(checks.slug, checkId));
+
+        return ctx.json({ title: cleanTitle, checkId });
+      } catch (error) {
+        console.error("Failed to generate title:", error);
+        return ctx.json({ error: "Failed to generate title" }, 500);
+      }
+    }
+  )
   .get("/stream/:streamId", async (context) => {
     const auth = getAuth(context);
     if (!auth?.userId) {

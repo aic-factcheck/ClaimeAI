@@ -55,6 +55,7 @@ interface FactCheckerState {
   answer: string;
   submittedAnswer: string | null;
   isLoading: boolean;
+  currentCheckId: string | null;
   rawServerEvents: SSEEvent[];
   contextualSentences: ContextualSentence[];
   selectedContents: SelectedContentData[];
@@ -72,6 +73,7 @@ interface FactCheckerActions {
   startVerification: (text: string, checkId: string) => Promise<string>;
   resetState: () => void;
   setIsLoading: (isLoading: boolean) => void;
+  setCurrentCheckId: (checkId: string | null) => void;
   addRawServerEvent: (event: AgentSSEStreamEvent) => void;
   addContextualSentence: (sentence: ContextualSentence) => void;
   addSelectedContent: (content: SelectedContentData) => void;
@@ -132,6 +134,7 @@ const initialState: FactCheckerState = {
   answer: "",
   submittedAnswer: null,
   isLoading: false,
+  currentCheckId: null,
   rawServerEvents: [],
   contextualSentences: [],
   selectedContents: [],
@@ -154,6 +157,7 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
       setAnswer: (answer) => set({ answer }),
       resetState: () => set(resetState()),
       setIsLoading: (isLoading) => set({ isLoading }),
+      setCurrentCheckId: (checkId) => set({ currentCheckId: checkId }),
 
       addRawServerEvent: (event) =>
         set((state) => ({
@@ -232,7 +236,7 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
         if (!content) throw new Error("No text provided for verification");
 
         get().resetState();
-        set({ submittedAnswer: content, isLoading: true });
+        set({ submittedAnswer: content, isLoading: true, currentCheckId: checkId });
 
         try {
           const streamId = await startFactChecking(content, checkId);
@@ -326,6 +330,7 @@ export const useFactCheckerResults = () => {
   return {
     submittedAnswer: store.submittedAnswer,
     isLoading: store.isLoading,
+    currentCheckId: store.currentCheckId,
     rawServerEvents: store.rawServerEvents,
     contextualSentences: store.contextualSentences,
     selectedContents: store.selectedContents,
@@ -340,12 +345,24 @@ export const useFactCheckerResults = () => {
 };
 
 export const useSSEConnection = () => {
-  const { processEventData, addRawServerEvent, setIsLoading } =
-    useFactCheckerStore();
+  const { 
+    processEventData, 
+    addRawServerEvent, 
+    setIsLoading, 
+    setCurrentCheckId, 
+    resetState,
+    currentCheckId 
+  } = useFactCheckerStore();
 
-  const connectToStream = async (streamId: string) => {
+  const connectToStream = async (checkId: string) => {
+    // Reset state if connecting to a different check
+    if (currentCheckId !== checkId) {
+      resetState();
+      setCurrentCheckId(checkId);
+    }
+
     try {
-      const response = await fetch(`/api/agent/stream/${streamId}`);
+      const response = await fetch(`/api/agent/stream/${checkId}`);
 
       if (!response.ok)
         throw new Error(`Stream connection failed: ${response.statusText}`);

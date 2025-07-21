@@ -89,7 +89,7 @@ async def evaluate_evidence_node(state: ClaimVerifierState) -> dict:
         ),
     ]
 
-    llm = get_llm()
+    llm = get_llm(model_name="openai:gpt-4.1")
 
     response = await call_llm_with_structured_output(
         llm=llm,
@@ -105,7 +105,7 @@ async def evaluate_evidence_node(state: ClaimVerifierState) -> dict:
             disambiguated_sentence=claim.disambiguated_sentence,
             original_sentence=claim.original_sentence,
             original_index=claim.original_index,
-            result=VerificationResult.INSUFFICIENT_INFORMATION,
+            result=VerificationResult.REFUTED,
             reasoning="Failed to evaluate the evidence due to technical issues.",
             sources=[],
         )
@@ -117,7 +117,7 @@ async def evaluate_evidence_node(state: ClaimVerifierState) -> dict:
                 f"Invalid verdict '{response.verdict}' from LLM. "
                 f"Defaulting to Insufficient Information."
             )
-            result = VerificationResult.INSUFFICIENT_INFORMATION
+            result = VerificationResult.REFUTED
 
         sources = []
         for idx in response.influential_source_indices:

@@ -3,10 +3,13 @@
 import { BookOpen, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef } from "react";
-import { Separator } from "@/components/ui/separator";
+import { useMemo, useRef } from "react";
+
+import { Skeleton } from "@/components/ui/skeleton";
+import { useChecks } from "@/hooks/use-checks";
+import { getCheckGroupsForDisplay, groupChecksByTime } from "@/lib/check-utils";
 import { HomeIcon, type HomeIconHandle } from "../ui/icons/home";
-import { PlusIcon, type PlusIconHandle } from "../ui/icons/plus";
+import { type PlusIconHandle } from "../ui/icons/plus";
 import {
   Sidebar,
   SidebarContent,
@@ -21,38 +24,197 @@ import {
 import { AboutDialog } from "./about-dialog";
 import { HowItWorksDialog } from "./how-it-works-dialog";
 import { AppSidebarFooter } from "./sidebar-footer";
+import { cn } from "@/lib/utils";
 
-const mainItems = [
+const NAVIGATION_ITEMS = [
   {
-    title: "Fact Checker",
+    title: "New Check",
     url: "/",
     icon: HomeIcon,
     description: "Main fact-checking interface",
   },
-  {
-    title: "New Check",
-    url: "/?clear=true",
-    icon: PlusIcon,
-    description: "Start a new fact-check",
-  },
 ];
 
+const SKELETON_GROUPS = [
+  { itemCount: 3, labelWidth: "w-16", key: "recent" },
+  { itemCount: 5, labelWidth: "w-20", key: "this-week" },
+  { itemCount: 5, labelWidth: "w-20", key: "last-week" },
+  { itemCount: 5, labelWidth: "w-20", key: "this-month" },
+  { itemCount: 5, labelWidth: "w-20", key: "older" },
+];
+
+interface SkeletonGroupProps {
+  itemCount: number;
+  labelWidth: string;
+  groupKey: string;
+}
+
+const SkeletonGroup = ({
+  itemCount,
+  labelWidth,
+  groupKey,
+}: SkeletonGroupProps) => (
+  <SidebarGroup>
+    <SidebarGroupLabel>
+      <Skeleton className={cn("h-4 bg-neutral-200", labelWidth)} />
+    </SidebarGroupLabel>
+    <SidebarGroupContent>
+      <SidebarMenu>
+        {Array.from({ length: itemCount }).map((_, itemIndex) => (
+          <SidebarMenuItem key={`skeleton-${groupKey}-${itemIndex}`}>
+            <SidebarMenuButton disabled>
+              <Skeleton className="border bg-neutral-200 h-8 w-full" />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        ))}
+      </SidebarMenu>
+    </SidebarGroupContent>
+  </SidebarGroup>
+);
+
+interface CheckGroupProps {
+  checkGroup: ReturnType<typeof getCheckGroupsForDisplay>[0];
+  currentPath: string;
+}
+
+const CheckGroup = ({ checkGroup, currentPath }: CheckGroupProps) => (
+  <SidebarGroup>
+    <SidebarGroupLabel>{checkGroup.label}</SidebarGroupLabel>
+    <SidebarGroupContent>
+      <SidebarMenu>
+        {checkGroup.checks.map((individualCheck) => {
+          const checkDisplayTitle =
+            individualCheck.title ||
+            (individualCheck.textPreview
+              ? `${individualCheck.textPreview}...`
+              : "Untitled Check");
+
+          return (
+            <SidebarMenuItem key={individualCheck.id}>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === `/checks/${individualCheck.slug}`}
+                tooltip={checkDisplayTitle}
+              >
+                <Link href={`/checks/${individualCheck.slug}`}>
+                  <span className="truncate">{checkDisplayTitle}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          );
+        })}
+      </SidebarMenu>
+    </SidebarGroupContent>
+  </SidebarGroup>
+);
+
+interface NavigationItemsProps {
+  currentPath: string;
+  iconReferences: Array<React.RefObject<any>>;
+  onIconAnimationStart: (index: number) => void;
+  onIconAnimationStop: (index: number) => void;
+}
+
+const NavigationItems = ({
+  currentPath,
+  iconReferences,
+  onIconAnimationStart,
+  onIconAnimationStop,
+}: NavigationItemsProps) => {
+  const isCurrentPath = (url: string) => currentPath === url;
+
+  return (
+    <SidebarGroup className="sticky top-0 z-10 bg-neutral-50 py-0">
+      <SidebarGroupLabel>Fact Checking</SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {NAVIGATION_ITEMS.map(
+            ({ icon: IconComponent, ...navigationItem }, itemIndex) => (
+              <SidebarMenuItem
+                key={navigationItem.title}
+                onMouseEnter={() => onIconAnimationStart(itemIndex)}
+                onMouseLeave={() => onIconAnimationStop(itemIndex)}
+              >
+                <SidebarMenuButton
+                  asChild
+                  isActive={isCurrentPath(navigationItem.url)}
+                  tooltip={navigationItem.description}
+                >
+                  <Link href={navigationItem.url}>
+                    <IconComponent ref={iconReferences[itemIndex]} />
+                    <span>{navigationItem.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )
+          )}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+};
+
+const LearnMoreSection = () => (
+  <SidebarGroup className="sticky bottom-0 z-10 bg-neutral-50 py-0">
+    <SidebarGroupLabel>Learn More</SidebarGroupLabel>
+    <SidebarGroupContent>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <AboutDialog />
+        </SidebarMenuItem>
+
+        <SidebarMenuItem>
+          <HowItWorksDialog />
+        </SidebarMenuItem>
+
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            asChild
+            tooltip="View technical documentation on GitHub"
+          >
+            <Link
+              className="flex items-center gap-2"
+              href="https://github.com/BharathxD/claime-ai"
+              target="_blank"
+            >
+              <BookOpen />
+              <span>Documentation</span>
+              <ExternalLink
+                className="ml-auto size-2.5 opacity-70"
+                strokeWidth={1.5}
+              />
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </SidebarGroupContent>
+  </SidebarGroup>
+);
+
 export const AppSidebar = () => {
-  const pathname = usePathname();
-  const isActive = (url: string) => pathname === url;
+  const currentPath = usePathname();
+  const { data: recentChecks, isLoading: isLoadingChecks } = useChecks();
 
   const homeIconRef = useRef<HomeIconHandle>(null);
   const plusIconRef = useRef<PlusIconHandle>(null);
+  const iconReferences = [homeIconRef, plusIconRef];
 
-  const iconRefs = [homeIconRef, plusIconRef];
-
-  const handleMenuItemEnter = (index: number) => {
-    iconRefs[index]?.current?.startAnimation();
+  const handleIconAnimationStart = (iconIndex: number) => {
+    iconReferences[iconIndex]?.current?.startAnimation();
   };
 
-  const handleMenuItemLeave = (index: number) => {
-    iconRefs[index]?.current?.stopAnimation();
+  const handleIconAnimationStop = (iconIndex: number) => {
+    iconReferences[iconIndex]?.current?.stopAnimation();
   };
+
+  const organizedCheckGroups = useMemo(() => {
+    if (!recentChecks || isLoadingChecks) {
+      return [];
+    }
+
+    const timeGroupedChecks = groupChecksByTime(recentChecks);
+    return getCheckGroupsForDisplay(timeGroupedChecks);
+  }, [recentChecks, isLoadingChecks]);
 
   return (
     <Sidebar collapsible="icon" variant="inset">
@@ -75,67 +237,36 @@ export const AppSidebar = () => {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Fact Checking</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {mainItems.map(({ icon: Icon, ...item }, index) => (
-                <SidebarMenuItem
-                  key={item.title}
-                  onMouseEnter={() => handleMenuItemEnter(index)}
-                  onMouseLeave={() => handleMenuItemLeave(index)}
-                >
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.url)}
-                    tooltip={item.description}
-                  >
-                    <Link href={item.url}>
-                      <Icon ref={iconRefs[index]} />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <Separator className="mx-auto max-w-[90%]" />
-        <SidebarGroup>
-          <SidebarGroupLabel>Learn More</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <AboutDialog />
-              </SidebarMenuItem>
+      <SidebarContent className="no-scrollbar gap-0 justify-between">
+        <NavigationItems
+          currentPath={currentPath}
+          iconReferences={iconReferences}
+          onIconAnimationStart={handleIconAnimationStart}
+          onIconAnimationStop={handleIconAnimationStop}
+        />
 
-              <SidebarMenuItem>
-                <HowItWorksDialog />
-              </SidebarMenuItem>
+        {isLoadingChecks &&
+          SKELETON_GROUPS.map((group) => (
+            <SkeletonGroup
+              key={group.key}
+              itemCount={group.itemCount}
+              labelWidth={group.labelWidth}
+              groupKey={group.key}
+            />
+          ))}
 
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  tooltip="View technical documentation on GitHub"
-                >
-                  <Link
-                    className="flex items-center gap-2"
-                    href="https://github.com/BharathxD/claime-ai"
-                    target="_blank"
-                  >
-                    <BookOpen />
-                    <span>Documentation</span>
-                    <ExternalLink
-                      className="ml-auto size-2.5 opacity-70"
-                      strokeWidth={1.5}
-                    />
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {!isLoadingChecks &&
+          recentChecks &&
+          recentChecks.length > 0 &&
+          organizedCheckGroups.map((group) => (
+            <CheckGroup
+              key={group.label}
+              checkGroup={group}
+              currentPath={currentPath}
+            />
+          ))}
+
+        <LearnMoreSection />
       </SidebarContent>
 
       <AppSidebarFooter />

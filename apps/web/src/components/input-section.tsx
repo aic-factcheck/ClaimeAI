@@ -8,65 +8,67 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpIcon, type ArrowUpIconHandle } from "@/components/ui/icons";
 import { MAX_INPUT_LIMIT } from "@/lib/constants";
 import { useFactCheckerInput } from "@/lib/store";
+import { useOptimisticCheckCreation } from "@/hooks/use-checks";
 import { cn, generateCheckId } from "@/lib/utils";
 
-const useInputHandler = () => {
-  const { answer, setAnswer, isLoading, startVerification, resetState } =
-    useFactCheckerInput();
-  const [isLimitReached, setLimitReached] = useState(false);
+const useInputManagement = () => {
+  const { answer, setAnswer, isLoading, startVerification } = useFactCheckerInput();
+  const { addOptimisticCheck, generateTitle } = useOptimisticCheckCreation();
+  const [hasReachedLimit, setHasReachedLimit] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
-    const answerFromUrl = searchParams.get("a");
-    if (answerFromUrl) {
+    const encodedAnswer = searchParams.get("a");
+    if (encodedAnswer) {
       try {
-        const decodedAnswer = decodeURIComponent(answerFromUrl);
+        const decodedAnswer = decodeURIComponent(encodedAnswer);
         setAnswer(decodedAnswer);
-      } catch (e) {
-        console.error("Failed to decode answer from URL:", e);
+      } catch {
         setAnswer("(Error decoding answer)");
       }
     }
-  }, [router, setAnswer]);
+  }, [setAnswer]);
 
   const characterCount = answer.length;
   const isOverLimit = characterCount >= MAX_INPUT_LIMIT;
   const isNearLimit = characterCount > MAX_INPUT_LIMIT * 0.8 && !isOverLimit;
 
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      const text = e.target.value;
-      if (text.length > MAX_INPUT_LIMIT) {
-        setAnswer(text.slice(0, MAX_INPUT_LIMIT));
-        setLimitReached(true);
-        setTimeout(() => setLimitReached(false), 500);
+  const handleTextChange = useCallback(
+    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const inputText = event.target.value;
+      if (inputText.length > MAX_INPUT_LIMIT) {
+        setAnswer(inputText.slice(0, MAX_INPUT_LIMIT));
+        setHasReachedLimit(true);
+        setTimeout(() => setHasReachedLimit(false), 500);
       } else {
-        setAnswer(text);
+        setAnswer(inputText);
       }
     },
     [setAnswer]
   );
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmission = useCallback(async () => {
     if (!isLoading && answer && !isOverLimit) {
       try {
         const checkId = generateCheckId(answer);
+        addOptimisticCheck(checkId, answer);
         await startVerification(answer, checkId);
+        generateTitle({ content: answer, checkId });
         router.push(`/checks/${checkId}?new=true`);
       } catch (error) {
         console.error("Failed to start verification:", error);
       }
     }
-  }, [isLoading, answer, isOverLimit, startVerification, router]);
+  }, [isLoading, answer, isOverLimit, addOptimisticCheck, startVerification, generateTitle, router]);
 
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-        handleSubmit();
+    (event: React.KeyboardEvent) => {
+      if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+        handleSubmission();
       }
     },
-    [handleSubmit]
+    [handleSubmission]
   );
 
   return {
@@ -75,29 +77,29 @@ const useInputHandler = () => {
     characterCount,
     isOverLimit,
     isNearLimit,
-    isLimitReached,
-    handleChange,
+    hasReachedLimit,
+    handleTextChange,
     handleKeyDown,
-    handleSubmit,
+    handleSubmission,
   };
 };
 
-type CharacterCounterProps = {
+interface CharacterCounterProps {
   count: number;
-  isLimitReached: boolean;
+  hasReachedLimit: boolean;
   isOverLimit: boolean;
   isNearLimit: boolean;
-};
+}
 
 const CharacterCounter = ({
   count,
-  isLimitReached,
+  hasReachedLimit,
   isOverLimit,
   isNearLimit,
 }: CharacterCounterProps) => (
   <motion.div
     animate={{
-      x: isLimitReached ? [-1, 1, -1, 1, 0] : 0,
+      x: hasReachedLimit ? [-1, 1, -1, 1, 0] : 0,
     }}
     className="flex items-center gap-1.5 pl-2 text-xs"
     transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -120,17 +122,13 @@ const CharacterCounter = ({
   </motion.div>
 );
 
-type SubmitButtonProps = {
+interface SubmitButtonProps {
   isLoading: boolean;
   isDisabled: boolean;
   onSubmit: () => void;
-};
+}
 
-const SubmitButton = ({
-  isLoading,
-  isDisabled,
-  onSubmit,
-}: SubmitButtonProps) => {
+const SubmitButton = ({ isLoading, isDisabled, onSubmit }: SubmitButtonProps) => {
   const arrowIconRef = useRef<ArrowUpIconHandle>(null);
 
   const handleMouseEnter = () => arrowIconRef.current?.startAnimation();
@@ -161,11 +159,11 @@ export const InputSection = () => {
     characterCount,
     isOverLimit,
     isNearLimit,
-    isLimitReached,
-    handleChange,
+    hasReachedLimit,
+    handleTextChange,
     handleKeyDown,
-    handleSubmit,
-  } = useInputHandler();
+    handleSubmission,
+  } = useInputManagement();
 
   return (
     <motion.section
@@ -181,7 +179,7 @@ export const InputSection = () => {
           isOverLimit && "border-red-200 focus:border-red-300"
         )}
         disabled={isLoading}
-        onChange={handleChange}
+        onChange={handleTextChange}
         onKeyDown={handleKeyDown}
         placeholder="Drop any claim here to see if it stands up to the facts..."
         value={answer}
@@ -189,14 +187,14 @@ export const InputSection = () => {
       <div className="flex items-center justify-between bg-white">
         <CharacterCounter
           count={characterCount}
-          isLimitReached={isLimitReached}
+          hasReachedLimit={hasReachedLimit}
           isNearLimit={isNearLimit}
           isOverLimit={isOverLimit}
         />
         <SubmitButton
           isDisabled={!answer || isOverLimit}
           isLoading={isLoading}
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmission}
         />
       </div>
     </motion.section>

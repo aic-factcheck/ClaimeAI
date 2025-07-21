@@ -6,11 +6,10 @@ import { extractClerkId } from "@/lib/utils";
 import {
   executeFactCheckingAgent,
   initializeFactCheckSession,
+  generateCheckTitle,
 } from "@/server/services/check";
-import { openai } from "@ai-sdk/openai";
 import { getAuth } from "@hono/clerk-auth";
 import { zValidator } from "@hono/zod-validator";
-import { generateText } from "ai";
 import { desc, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { type SSEStreamingApi, streamSSE } from "hono/streaming";
@@ -199,7 +198,7 @@ export const agentRoute = new Hono()
 
       try {
         const [existingCheck] = await db
-          .select()
+          .select({ userId: checks.userId })
           .from(checks)
           .where(eq(checks.slug, checkId))
           .limit(1);
@@ -208,29 +207,16 @@ export const agentRoute = new Hono()
           return ctx.json({ error: "Check not found" }, 404);
         }
 
-        if (existingCheck.userId !== auth.userId) {
+        if (existingCheck.userId !== extractClerkId(auth.userId)) {
           return ctx.json({ error: "Unauthorized access to check" }, 403);
         }
 
-        const { text: generatedTitle } = await generateText({
-          model: openai("gpt-4.1-nano"),
-          prompt: `Generate a concise, descriptive title (max 50 words) for this fact-checking content. The title should summarize the main claim or topic being fact-checked:
+        const title = await generateCheckTitle(checkId, content);
 
-          "${content}"
-
-          Respond with only the title, no additional text or formatting.`,
-          maxTokens: 100,
-          temperature: 0.7,
+        return ctx.json({
+          title: title || "Title generation failed",
+          checkId,
         });
-
-        const cleanTitle = generatedTitle.trim().replace(/^["']|["']$/g, "");
-
-        await db
-          .update(checks)
-          .set({ title: cleanTitle, updatedAt: new Date() })
-          .where(eq(checks.slug, checkId));
-
-        return ctx.json({ title: cleanTitle, checkId });
       } catch (error) {
         console.error("Failed to generate title:", error);
         return ctx.json({ error: "Failed to generate title" }, 500);

@@ -10,6 +10,7 @@ import { useChecks } from "@/hooks/use-checks";
 import { getCheckGroupsForDisplay, groupChecksByTime } from "@/lib/check-utils";
 import { HomeIcon, type HomeIconHandle } from "../ui/icons/home";
 import { type PlusIconHandle } from "../ui/icons/plus";
+import { LoaderIcon } from "../ui/icons/loader";
 import {
   Sidebar,
   SidebarContent,
@@ -77,27 +78,38 @@ interface CheckGroupProps {
   currentPath: string;
 }
 
+const getCheckDisplayTitle = (
+  check: CheckGroupProps["checkGroup"]["checks"][0]
+) => {
+  if (check.title) return check.title;
+  if (check.textPreview) return `${check.textPreview}...`;
+  return "Untitled Check";
+};
+
 const CheckGroup = ({ checkGroup, currentPath }: CheckGroupProps) => (
   <SidebarGroup>
     <SidebarGroupLabel>{checkGroup.label}</SidebarGroupLabel>
     <SidebarGroupContent>
       <SidebarMenu>
-        {checkGroup.checks.map((individualCheck) => {
-          const checkDisplayTitle =
-            individualCheck.title ||
-            (individualCheck.textPreview
-              ? `${individualCheck.textPreview}...`
-              : "Untitled Check");
+        {checkGroup.checks.map((check) => {
+          const displayTitle = getCheckDisplayTitle(check);
+          const isLoadingTitle = !check.title && check.status === "pending";
+          const isActive = currentPath === `/checks/${check.slug}`;
 
           return (
-            <SidebarMenuItem key={individualCheck.id}>
+            <SidebarMenuItem key={check.id}>
               <SidebarMenuButton
                 asChild
-                isActive={currentPath === `/checks/${individualCheck.slug}`}
-                tooltip={checkDisplayTitle}
+                isActive={isActive}
+                tooltip={displayTitle}
               >
-                <Link href={`/checks/${individualCheck.slug}`}>
-                  <span className="truncate">{checkDisplayTitle}</span>
+                <Link href={`/checks/${check.slug}`}>
+                  <span className="truncate">
+                    {isLoadingTitle ? "Loading..." : displayTitle}
+                  </span>
+                  {isLoadingTitle && (
+                    <LoaderIcon className="ml-auto shrink-0" />
+                  )}
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -121,33 +133,33 @@ const NavigationItems = ({
   onIconAnimationStart,
   onIconAnimationStop,
 }: NavigationItemsProps) => {
-  const isCurrentPath = (url: string) => currentPath === url;
-
   return (
     <SidebarGroup className="sticky top-0 z-10 bg-neutral-50 py-0">
       <SidebarGroupLabel>Fact Checking</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
-          {NAVIGATION_ITEMS.map(
-            ({ icon: IconComponent, ...navigationItem }, itemIndex) => (
+          {NAVIGATION_ITEMS.map(({ icon: IconComponent, ...item }, index) => {
+            const isActive = currentPath === item.url;
+
+            return (
               <SidebarMenuItem
-                key={navigationItem.title}
-                onMouseEnter={() => onIconAnimationStart(itemIndex)}
-                onMouseLeave={() => onIconAnimationStop(itemIndex)}
+                key={item.title}
+                onMouseEnter={() => onIconAnimationStart(index)}
+                onMouseLeave={() => onIconAnimationStop(index)}
               >
                 <SidebarMenuButton
                   asChild
-                  isActive={isCurrentPath(navigationItem.url)}
-                  tooltip={navigationItem.description}
+                  isActive={isActive}
+                  tooltip={item.description}
                 >
-                  <Link href={navigationItem.url}>
-                    <IconComponent ref={iconReferences[itemIndex]} />
-                    <span>{navigationItem.title}</span>
+                  <Link href={item.url}>
+                    <IconComponent ref={iconReferences[index]} />
+                    <span>{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-            )
-          )}
+            );
+          })}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
@@ -193,7 +205,7 @@ const LearnMoreSection = () => (
 
 export const AppSidebar = () => {
   const currentPath = usePathname();
-  const { data: recentChecks, isLoading: isLoadingChecks } = useChecks();
+  const { data: checksData, isLoading: isLoadingChecks } = useChecks();
 
   const homeIconRef = useRef<HomeIconHandle>(null);
   const plusIconRef = useRef<PlusIconHandle>(null);
@@ -207,14 +219,13 @@ export const AppSidebar = () => {
     iconReferences[iconIndex]?.current?.stopAnimation();
   };
 
-  const organizedCheckGroups = useMemo(() => {
-    if (!recentChecks || isLoadingChecks) {
-      return [];
-    }
-
-    const timeGroupedChecks = groupChecksByTime(recentChecks);
+  const checkGroups = useMemo(() => {
+    if (!checksData || isLoadingChecks) return [];
+    const timeGroupedChecks = groupChecksByTime(checksData);
     return getCheckGroupsForDisplay(timeGroupedChecks);
-  }, [recentChecks, isLoadingChecks]);
+  }, [checksData, isLoadingChecks]);
+
+  const hasChecks = checksData && checksData.length > 0;
 
   return (
     <Sidebar collapsible="icon" variant="inset">
@@ -256,9 +267,8 @@ export const AppSidebar = () => {
           ))}
 
         {!isLoadingChecks &&
-          recentChecks &&
-          recentChecks.length > 0 &&
-          organizedCheckGroups.map((group) => (
+          hasChecks &&
+          checkGroups.map((group) => (
             <CheckGroup
               key={group.label}
               checkGroup={group}

@@ -1,8 +1,8 @@
 "use client";
 
-import { client } from "@/lib/rpc";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CheckListItem } from "@/lib/check-utils";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { client } from "@/lib/rpc";
 
 const QUERY_KEY = ["checks"] as const;
 const STALE_TIME = 1000 * 60 * 5;

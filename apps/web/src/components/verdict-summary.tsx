@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Link as LinkIcon, PlusCircle, ChevronDown } from "lucide-react";
+import { ChevronDown, Link as LinkIcon, PlusCircle } from "lucide-react";
 import Image from "next/image";
 import { memo, useState } from "react";
 import {
@@ -57,12 +57,15 @@ export const VerdictSummary = memo(function VerdictSummary({
   isLoading,
 }: VerdictSummaryProps) {
   const [showAllCards, setShowAllCards] = useState(false);
-  
+
   if (verdicts.length === 0) return null;
 
-  const visibleVerdicts = showAllCards ? verdicts : verdicts.slice(0, INITIAL_CARDS_TO_SHOW);
+  const visibleVerdicts = showAllCards
+    ? verdicts
+    : verdicts.slice(0, INITIAL_CARDS_TO_SHOW);
   const remainingCardsCount = verdicts.length - INITIAL_CARDS_TO_SHOW;
-  const shouldShowMoreButton = !showAllCards && verdicts.length > INITIAL_CARDS_TO_SHOW;
+  const shouldShowMoreButton =
+    !showAllCards && verdicts.length > INITIAL_CARDS_TO_SHOW;
 
   return (
     <motion.div
@@ -186,7 +189,7 @@ export const VerdictSummary = memo(function VerdictSummary({
                 );
               })}
             </div>
-            
+
             {shouldShowMoreButton && (
               <motion.div
                 animate={{ opacity: 1, y: 0 }}
@@ -195,12 +198,12 @@ export const VerdictSummary = memo(function VerdictSummary({
                 transition={{ duration: 0.2, delay: 0.1 }}
               >
                 <button
+                  className="group inline-flex items-center gap-1.5 rounded-md border border-neutral-200 bg-neutral-50/60 px-3 py-1.5 font-medium text-neutral-500 text-xs transition-all hover:border-neutral-300 hover:bg-neutral-100/60 hover:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 active:scale-[0.98]"
                   onClick={() => setShowAllCards(true)}
-                  className="group inline-flex items-center gap-1.5 rounded-md border border-neutral-200 bg-neutral-50/60 px-3 py-1.5 text-neutral-500 text-xs font-medium transition-all hover:border-neutral-300 hover:bg-neutral-100/60 hover:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 active:scale-[0.98]"
                   type="button"
                 >
                   <span>Show more</span>
-                  <span className="rounded-sm bg-neutral-200/70 px-1.5 py-0.5 text-neutral-400 text-[10px] font-medium group-hover:bg-neutral-200/90 group-hover:text-neutral-500">
+                  <span className="rounded-sm bg-neutral-200/70 px-1.5 py-0.5 font-medium text-[10px] text-neutral-400 group-hover:bg-neutral-200/90 group-hover:text-neutral-500">
                     {remainingCardsCount}
                   </span>
                   <ChevronDown className="h-3 w-3 transition-transform group-hover:translate-y-px" />

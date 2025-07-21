@@ -1,9 +1,9 @@
 "use client";
 
-import { FactChecker } from "@/components/fact-checker";
-import { useFactCheckerResults, useSSEConnection } from "@/lib/store";
 import { useParams } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { FactChecker } from "@/components/fact-checker";
+import { useFactCheckerResults, useSSEConnection } from "@/lib/store";
 
 const CheckPage = () => {
   const { checkId } = useParams();
@@ -35,7 +35,7 @@ const CheckPage = () => {
         </h1>
         <p className="text-neutral-600 text-sm">
           {submittedAnswer ?? (
-            <div className="h-4 w-lg animate-pulse rounded-md bg-neutral-200"></div>
+            <div className="h-4 w-lg animate-pulse rounded-md bg-neutral-200" />
           )}
         </p>
       </div>

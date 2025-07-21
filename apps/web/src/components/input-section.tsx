@@ -6,13 +6,14 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowUpIcon, type ArrowUpIconHandle } from "@/components/ui/icons";
+import { useOptimisticCheckCreation } from "@/hooks/use-checks";
 import { MAX_INPUT_LIMIT } from "@/lib/constants";
 import { useFactCheckerInput } from "@/lib/store";
-import { useOptimisticCheckCreation } from "@/hooks/use-checks";
 import { cn, generateCheckId } from "@/lib/utils";
 
 const useInputManagement = () => {
-  const { answer, setAnswer, isLoading, startVerification } = useFactCheckerInput();
+  const { answer, setAnswer, isLoading, startVerification } =
+    useFactCheckerInput();
   const { addOptimisticCheck, generateTitle } = useOptimisticCheckCreation();
   const [hasReachedLimit, setHasReachedLimit] = useState(false);
   const router = useRouter();
@@ -60,7 +61,15 @@ const useInputManagement = () => {
         console.error("Failed to start verification:", error);
       }
     }
-  }, [isLoading, answer, isOverLimit, addOptimisticCheck, startVerification, generateTitle, router]);
+  }, [
+    isLoading,
+    answer,
+    isOverLimit,
+    addOptimisticCheck,
+    startVerification,
+    generateTitle,
+    router,
+  ]);
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
@@ -110,8 +119,8 @@ const CharacterCounter = ({
         isOverLimit
           ? "text-red-500"
           : isNearLimit
-          ? "text-amber-500"
-          : "text-neutral-400"
+            ? "text-amber-500"
+            : "text-neutral-400"
       )}
       value={count}
     />
@@ -128,7 +137,11 @@ interface SubmitButtonProps {
   onSubmit: () => void;
 }
 
-const SubmitButton = ({ isLoading, isDisabled, onSubmit }: SubmitButtonProps) => {
+const SubmitButton = ({
+  isLoading,
+  isDisabled,
+  onSubmit,
+}: SubmitButtonProps) => {
   const arrowIconRef = useRef<ArrowUpIconHandle>(null);
 
   const handleMouseEnter = () => arrowIconRef.current?.startAnimation();

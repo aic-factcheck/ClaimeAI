@@ -1,3 +1,7 @@
+import { openai } from "@ai-sdk/openai";
+import { generateText } from "ai";
+import { eq } from "drizzle-orm";
+import { z } from "zod";
 import { db } from "@/lib/db";
 import {
   createCheck,
@@ -14,10 +18,6 @@ import {
   failStream,
   getEvents,
 } from "@/lib/redis";
-import { openai } from "@ai-sdk/openai";
-import { generateText } from "ai";
-import { eq } from "drizzle-orm";
-import { z } from "zod";
 
 interface InitializeSessionParams {
   content: string;

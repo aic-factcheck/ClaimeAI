@@ -236,7 +236,11 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
         if (!content) throw new Error("No text provided for verification");
 
         get().resetState();
-        set({ submittedAnswer: content, isLoading: true, currentCheckId: checkId });
+        set({
+          submittedAnswer: content,
+          isLoading: true,
+          currentCheckId: checkId,
+        });
 
         try {
           const streamId = await startFactChecking(content, checkId);
@@ -345,13 +349,13 @@ export const useFactCheckerResults = () => {
 };
 
 export const useSSEConnection = () => {
-  const { 
-    processEventData, 
-    addRawServerEvent, 
-    setIsLoading, 
-    setCurrentCheckId, 
+  const {
+    processEventData,
+    addRawServerEvent,
+    setIsLoading,
+    setCurrentCheckId,
     resetState,
-    currentCheckId 
+    currentCheckId,
   } = useFactCheckerStore();
 
   const connectToStream = async (checkId: string) => {

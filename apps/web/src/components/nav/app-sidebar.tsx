@@ -8,9 +8,10 @@ import { useMemo, useRef } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useChecks } from "@/hooks/use-checks";
 import { getCheckGroupsForDisplay, groupChecksByTime } from "@/lib/check-utils";
+import { cn } from "@/lib/utils";
 import { HomeIcon, type HomeIconHandle } from "../ui/icons/home";
-import { type PlusIconHandle } from "../ui/icons/plus";
 import { LoaderIcon } from "../ui/icons/loader";
+import type { PlusIconHandle } from "../ui/icons/plus";
 import {
   Sidebar,
   SidebarContent,
@@ -25,7 +26,6 @@ import {
 import { AboutDialog } from "./about-dialog";
 import { HowItWorksDialog } from "./how-it-works-dialog";
 import { AppSidebarFooter } from "./sidebar-footer";
-import { cn } from "@/lib/utils";
 
 const NAVIGATION_ITEMS = [
   {
@@ -64,7 +64,7 @@ const SkeletonGroup = ({
         {Array.from({ length: itemCount }).map((_, itemIndex) => (
           <SidebarMenuItem key={`skeleton-${groupKey}-${itemIndex}`}>
             <SidebarMenuButton disabled>
-              <Skeleton className="border bg-neutral-200 h-8 w-full" />
+              <Skeleton className="h-8 w-full border bg-neutral-200" />
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}
@@ -248,7 +248,7 @@ export const AppSidebar = () => {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent className="no-scrollbar gap-0 justify-between">
+      <SidebarContent className="no-scrollbar justify-between gap-0">
         <NavigationItems
           currentPath={currentPath}
           iconReferences={iconReferences}
@@ -259,10 +259,10 @@ export const AppSidebar = () => {
         {isLoadingChecks &&
           SKELETON_GROUPS.map((group) => (
             <SkeletonGroup
-              key={group.key}
-              itemCount={group.itemCount}
-              labelWidth={group.labelWidth}
               groupKey={group.key}
+              itemCount={group.itemCount}
+              key={group.key}
+              labelWidth={group.labelWidth}
             />
           ))}
 
@@ -270,9 +270,9 @@ export const AppSidebar = () => {
           hasChecks &&
           checkGroups.map((group) => (
             <CheckGroup
-              key={group.label}
               checkGroup={group}
               currentPath={currentPath}
+              key={group.label}
             />
           ))}
 

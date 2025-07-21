@@ -1,3 +1,9 @@
+import { getAuth } from "@hono/clerk-auth";
+import { zValidator } from "@hono/zod-validator";
+import { desc, eq, sql } from "drizzle-orm";
+import { Hono } from "hono";
+import { type SSEStreamingApi, streamSSE } from "hono/streaming";
+import { z } from "zod";
 import { MAX_INPUT_LIMIT } from "@/lib/constants";
 import { db } from "@/lib/db";
 import { checks, texts } from "@/lib/db/schema";
@@ -5,15 +11,9 @@ import { getEvents, streamExists } from "@/lib/redis";
 import { extractClerkId } from "@/lib/utils";
 import {
   executeFactCheckingAgent,
-  initializeFactCheckSession,
   generateCheckTitle,
+  initializeFactCheckSession,
 } from "@/server/services/check";
-import { getAuth } from "@hono/clerk-auth";
-import { zValidator } from "@hono/zod-validator";
-import { desc, eq, sql } from "drizzle-orm";
-import { Hono } from "hono";
-import { type SSEStreamingApi, streamSSE } from "hono/streaming";
-import { z } from "zod";
 
 const factCheckRequestSchema = z.object({
   content: z

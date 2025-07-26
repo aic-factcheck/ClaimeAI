@@ -18,7 +18,7 @@ interface VerdictProgressProps {
 interface VerdictDistribution {
   Supported: number;
   Refuted: number;
-  "Insufficient Information": number;
+  // "Insufficient Information": number;
   "Conflicting Evidence": number;
 }
 
@@ -37,7 +37,7 @@ export const VerdictProgress = ({
     const stats: VerdictDistribution = {
       Supported: 0,
       Refuted: 0,
-      "Insufficient Information": 0,
+      // "Insufficient Information": 0,
       "Conflicting Evidence": 0,
     };
 
@@ -58,7 +58,7 @@ export const VerdictProgress = ({
       return {
         Supported: 0,
         Refuted: 0,
-        "Insufficient Information": 0,
+        // "Insufficient Information": 0,
         "Conflicting Evidence": 0,
       };
     }
@@ -66,8 +66,8 @@ export const VerdictProgress = ({
     return {
       Supported: (distribution.Supported / verdicts.length) * 100,
       Refuted: (distribution.Refuted / verdicts.length) * 100,
-      "Insufficient Information":
-        (distribution["Insufficient Information"] / verdicts.length) * 100,
+      // "Insufficient Information":
+      // (distribution["Insufficient Information"] / verdicts.length) * 100,
       "Conflicting Evidence":
         (distribution["Conflicting Evidence"] / verdicts.length) * 100,
     };
@@ -87,11 +87,11 @@ export const VerdictProgress = ({
       shortLabel: "Refuted",
       description: "Claims verified as incorrect",
     },
-    "Insufficient Information": {
-      bgClass: "bg-amber-500",
-      shortLabel: "Insufficient",
-      description: "Claims that cannot be verified",
-    },
+    // "Insufficient Information": {
+    //   bgClass: "bg-amber-500",
+    //   shortLabel: "Insufficient",
+    //   description: "Claims that cannot be verified",
+    // },
     "Conflicting Evidence": {
       bgClass: "bg-purple-500",
       shortLabel: "Conflicting",
@@ -158,12 +158,12 @@ export const VerdictProgress = ({
             )}
 
             {/* Insufficient Information section */}
-            {percentages["Insufficient Information"] > 0 && (
+            {/* {percentages["Insufficient Information"] > 0 && (
               <motion.div
                 className="h-full bg-amber-500"
                 style={{ width: `${percentages["Insufficient Information"]}%` }}
               />
-            )}
+            )} */}
 
             {/* Conflicting Evidence section */}
             {percentages["Conflicting Evidence"] > 0 && (

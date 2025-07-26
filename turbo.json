@@ -10,7 +10,10 @@
         "CLERK_SECRET_KEY",
         "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
         "NEXT_PUBLIC_APP_URL",
-        "CLERK_WEBHOOK_SECRET"
+        "CLERK_WEBHOOK_SECRET",
+        "UPSTASH_REDIS_REST_URL",
+        "UPSTASH_REDIS_REST_TOKEN",
+        "DATABASE_URL"
       ]
     },
     "lint": {

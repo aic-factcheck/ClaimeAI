@@ -34,7 +34,9 @@ export const checks = pgTable(
     index("checks_user_id_idx").on(table.userId),
     index("checks_slug_idx").on(table.slug),
     index("checks_text_id_idx").on(table.textId),
-    index("checks_status_idx").on(table.status).where(sql`status = 'pending'`),
+    index("checks_status_idx")
+      .on(table.status)
+      .where(sql`status = 'pending'`),
     index("checks_created_at_idx").on(table.createdAt),
   ]
 );

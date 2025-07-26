@@ -61,8 +61,8 @@ const SkeletonGroup = ({
     </SidebarGroupLabel>
     <SidebarGroupContent>
       <SidebarMenu>
-        {Array.from({ length: itemCount }).map((_, itemIndex) => (
-          <SidebarMenuItem key={`skeleton-${groupKey}-${itemIndex}`}>
+        {Array.from({ length: itemCount }, (_, itemIndex) => `${groupKey}-${itemIndex}`).map((uniqueKey) => (
+          <SidebarMenuItem key={`skeleton-${uniqueKey}`}>
             <SidebarMenuButton disabled>
               <Skeleton className="h-8 w-full border bg-neutral-200" />
             </SidebarMenuButton>
@@ -87,11 +87,11 @@ const getCheckDisplayTitle = (
 };
 
 const CheckGroup = ({ checkGroup, currentPath }: CheckGroupProps) => (
-  <SidebarGroup>
+  <SidebarGroup className="mb-auto">
     <SidebarGroupLabel>{checkGroup.label}</SidebarGroupLabel>
     <SidebarGroupContent>
       <SidebarMenu>
-        {checkGroup.checks.map((check) => {
+        {[checkGroup.checks[0]].map((check) => {
           const displayTitle = getCheckDisplayTitle(check);
           const isLoadingTitle = !check.title && check.status === "pending";
           const isActive = currentPath === `/checks/${check.slug}`;
@@ -122,7 +122,7 @@ const CheckGroup = ({ checkGroup, currentPath }: CheckGroupProps) => (
 
 interface NavigationItemsProps {
   currentPath: string;
-  iconReferences: Array<React.RefObject<any>>;
+  iconReferences: Array<React.RefObject<HomeIconHandle | PlusIconHandle | null>>;
   onIconAnimationStart: (index: number) => void;
   onIconAnimationStop: (index: number) => void;
 }

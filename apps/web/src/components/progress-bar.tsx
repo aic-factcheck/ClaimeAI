@@ -30,16 +30,12 @@ export const ProgressBar = memo(({ stages, isLoading }: ProgressBarProps) => {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 3 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.25 },
-    },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.25 } },
   };
 
   return (
     <div className="select-none">
-      <div className="mb-3 flex items-center justify-between text-xs">
+      <div className="mb-2.5 flex items-center justify-between text-xs">
         <span className="font-medium text-neutral-800 text-sm dark:text-neutral-200">
           Verification
         </span>
@@ -60,27 +56,36 @@ export const ProgressBar = memo(({ stages, isLoading }: ProgressBarProps) => {
             <React.Fragment key={stage.name}>
               <motion.div
                 className={cn(
-                  "group relative flex h-6 items-center gap-1.5 rounded-full px-1 text-xs transition-all duration-300",
+                  "group relative flex h-6 items-center gap-1 rounded-full px-1 text-xs transition-all duration-300",
                   isCurrent && isLoading
-                    ? "border border-neutral-200 bg-neutral-100 text-neutral-900 shadow-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+                    ? "border border-neutral-200 bg-white text-neutral-900 shadow-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
                     : isCompleted
-                      ? "border border-neutral-200 bg-neutral-100 text-neutral-900 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
-                      : "border border-neutral-100 bg-neutral-50 text-neutral-400 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-500"
+                    ? "border border-neutral-200 bg-white text-neutral-900 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+                    : "border border-neutral-100 bg-neutral-50 text-neutral-400 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-500"
                 )}
                 variants={itemVariants}
               >
                 <span className="flex-shrink-0">
                   {isCompleted ? (
-                    <CheckCircle2 className="size-4 text-neutral-900 dark:text-neutral-100" />
+                    <CheckCircle2
+                      className="size-4 text-neutral-900 dark:text-neutral-100"
+                      strokeWidth={1.5}
+                    />
                   ) : isCurrent && isLoading ? (
-                    <Loader className="size-4 animate-spin text-neutral-900 dark:text-neutral-100" />
+                    <Loader
+                      className="size-4 animate-spin text-neutral-900 dark:text-neutral-100"
+                      strokeWidth={1.5}
+                    />
                   ) : (
-                    <Circle className="size-4 text-neutral-400 dark:text-neutral-500" />
+                    <Circle
+                      className="size-4 text-neutral-400 dark:text-neutral-500"
+                      strokeWidth={1.5}
+                    />
                   )}
                 </span>
                 <span
                   className={cn(
-                    "whitespace-nowrap font-medium",
+                    "whitespace-nowrap font-medium px-0.5",
                     isCompleted || (isCurrent && isLoading)
                       ? "text-neutral-900 dark:text-neutral-100"
                       : "text-neutral-400 dark:text-neutral-500"
@@ -93,12 +98,12 @@ export const ProgressBar = memo(({ stages, isLoading }: ProgressBarProps) => {
                     <motion.div
                       animate={{ opacity: 1, scale: 1 }}
                       className={cn(
-                        "flex h-4 min-w-4 items-center justify-center rounded-full px-1 font-medium text-[10px]",
+                        "flex items-center justify-center pr-1 pl-1.5 font-medium h-6 text-[10px] border-l",
                         isCurrent && isLoading
-                          ? "bg-neutral-900 text-neutral-50 dark:bg-neutral-100 dark:text-neutral-900"
+                          ? "dark:bg-neutral-100 dark:text-neutral-900"
                           : isCompleted
-                            ? "bg-neutral-900 text-neutral-50 dark:bg-neutral-100 dark:text-neutral-900"
-                            : "bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300"
+                          ? "dark:bg-neutral-100 dark:text-neutral-900"
+                          : "text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300"
                       )}
                       exit={{ opacity: 0, scale: 0.5 }}
                       initial={{ opacity: 0, scale: 0.5 }}

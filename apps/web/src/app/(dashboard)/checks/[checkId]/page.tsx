@@ -28,7 +28,7 @@ const CheckPage = () => {
   }, [checkId, connectToStream]);
 
   return (
-    <div className="container mx-auto max-w-4xl p-8">
+    <div className="container mx-auto max-w-6xl p-8">
       <div className="mb-6">
         <h1 className="mb-2 font-bold text-2xl text-neutral-900">
           Claime Results

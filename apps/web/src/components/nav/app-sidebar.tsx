@@ -61,7 +61,10 @@ const SkeletonGroup = ({
     </SidebarGroupLabel>
     <SidebarGroupContent>
       <SidebarMenu>
-        {Array.from({ length: itemCount }, (_, itemIndex) => `${groupKey}-${itemIndex}`).map((uniqueKey) => (
+        {Array.from(
+          { length: itemCount },
+          (_, itemIndex) => `${groupKey}-${itemIndex}`
+        ).map((uniqueKey) => (
           <SidebarMenuItem key={`skeleton-${uniqueKey}`}>
             <SidebarMenuButton disabled>
               <Skeleton className="h-8 w-full border bg-neutral-200" />
@@ -87,7 +90,7 @@ const getCheckDisplayTitle = (
 };
 
 const CheckGroup = ({ checkGroup, currentPath }: CheckGroupProps) => (
-  <SidebarGroup className="mb-auto">
+  <SidebarGroup>
     <SidebarGroupLabel>{checkGroup.label}</SidebarGroupLabel>
     <SidebarGroupContent>
       <SidebarMenu>
@@ -122,7 +125,9 @@ const CheckGroup = ({ checkGroup, currentPath }: CheckGroupProps) => (
 
 interface NavigationItemsProps {
   currentPath: string;
-  iconReferences: Array<React.RefObject<HomeIconHandle | PlusIconHandle | null>>;
+  iconReferences: Array<
+    React.RefObject<HomeIconHandle | PlusIconHandle | null>
+  >;
   onIconAnimationStart: (index: number) => void;
   onIconAnimationStop: (index: number) => void;
 }
@@ -167,7 +172,7 @@ const NavigationItems = ({
 };
 
 const LearnMoreSection = () => (
-  <SidebarGroup className="sticky bottom-0 z-10 bg-neutral-50 py-0">
+  <SidebarGroup className="sticky bottom-0 z-10 bg-neutral-50 py-0 mt-auto">
     <SidebarGroupLabel>Learn More</SidebarGroupLabel>
     <SidebarGroupContent>
       <SidebarMenu>
@@ -248,7 +253,7 @@ export const AppSidebar = () => {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent className="no-scrollbar justify-between gap-0">
+      <SidebarContent className="no-scrollbar flex flex-col gap-0">
         <NavigationItems
           currentPath={currentPath}
           iconReferences={iconReferences}

@@ -97,7 +97,7 @@ export const FactChecker = ({
             </>
           )}
           <h3 className="my-2.5 mt-6 font-medium text-neutral-900 text-sm">
-            Processed Answer
+            Claims
           </h3>
           <ProcessedAnswer
             expandedCitation={expandedCitation}

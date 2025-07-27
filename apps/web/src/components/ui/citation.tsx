@@ -53,7 +53,7 @@ const CitationSection = ({
     >
       <div className="mb-1.5 flex items-center gap-1.5">
         <Icon className="h-3.5 w-3.5 text-neutral-500" />
-        <h5 className="font-medium text-neutral-600 text-xs">{title}</h5>
+        <h5 className="font-medium text-neutral-600 text-sm">{title}</h5>
       </div>
       <div
         className={cn(
@@ -74,9 +74,7 @@ export const Citation = ({
 }: CitationProps) => (
   <Sheet
     onOpenChange={(open) => {
-      if (!open) {
-        onClick();
-      }
+      if (!open) onClick();
     }}
     open={isExpanded}
   >
@@ -96,7 +94,7 @@ export const Citation = ({
       </motion.span>
     </SheetTrigger>
     <SheetContent
-      className="w-full min-w-md max-w-md gap-0 shadow-none"
+      className="w-full min-w-md max-w-md gap-0 shadow-none h-[calc(100vh-17px)] my-auto mr-2 rounded-r-2xl"
       onClick={(e) => e.stopPropagation()}
       side="right"
     >
@@ -119,51 +117,6 @@ export const Citation = ({
           >
             <div className="space-y-4 p-4">
               <CitationSection
-                delay={0.05}
-                icon={FileText}
-                items={sentenceData.selected}
-                renderItem={(item, idx) => (
-                  <div
-                    className="border-b p-3 pt-3 text-neutral-900 first:pt-0 last:border-b-0 last:pb-0"
-                    key={idx}
-                  >
-                    {item.processedText || item.claimText}
-                  </div>
-                )}
-                title="Selected"
-              />
-
-              <CitationSection
-                delay={0.1}
-                icon={Search}
-                items={sentenceData.disambiguated}
-                renderItem={(item, idx) => (
-                  <div
-                    className="border-b p-3 pt-3 text-neutral-900 first:pt-0 last:border-b-0 last:pb-0"
-                    key={idx}
-                  >
-                    {item.disambiguatedText}
-                  </div>
-                )}
-                title="Disambiguated"
-              />
-
-              <CitationSection
-                delay={0.15}
-                icon={FileQuestion}
-                items={sentenceData.potentialClaims}
-                renderItem={(item, idx) => (
-                  <div
-                    className="border-b p-3 pt-3 text-neutral-900 first:pt-0 last:border-b-0 last:pb-0"
-                    key={idx}
-                  >
-                    {item.claim.claimText}
-                  </div>
-                )}
-                title="Potential Claims"
-              />
-
-              <CitationSection
                 delay={0.2}
                 icon={ClipboardCheck}
                 items={sentenceData.validatedClaims}
@@ -175,7 +128,7 @@ export const Citation = ({
                     {item.claim_text || item.claimText}
                   </div>
                 )}
-                title="Validated Claims"
+                title="Extracted Claims"
               />
 
               <CitationSection

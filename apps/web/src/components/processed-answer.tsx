@@ -77,7 +77,7 @@ export const ProcessedAnswer = ({
   if (sentenceEntries.length === 0)
     return (
       <p className="py-4 text-neutral-500">
-        No processed answer available yet.
+        No claims available yet.
       </p>
     );
 

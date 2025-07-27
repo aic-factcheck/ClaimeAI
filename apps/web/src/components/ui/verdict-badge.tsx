@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { AlertCircle, Check, Info, X } from "lucide-react";
+import { AlertCircle, Check, CircleSlash, Info, X } from "lucide-react";
 import { Badge, type BadgeProps } from "@/components/ui/badge";
 import type { Verdict } from "@/lib/event-schema";
 import { cn } from "@/lib/utils";
@@ -26,13 +26,13 @@ const getBadgeVariant = (result: string): BadgeProps["variant"] => {
 const getIcon = (result: string) => {
   switch (result) {
     case "Supported":
-      return <Check className="mr-1.5 h-3.5 w-3.5 flex-shrink-0" />;
+      return <Check className="mr-1 size-3.5 mt-px flex-shrink-0" />;
     case "Refuted":
-      return <X className="mr-1.5 h-3.5 w-3.5 flex-shrink-0" />;
+      return <CircleSlash className="mr-1 size-3.5 mt-px flex-shrink-0" />;
     case "Insufficient Information":
-      return <Info className="mr-1.5 h-3.5 w-3.5 flex-shrink-0" />;
+      return <Info className="mr-1 size-3.5 mt-px flex-shrink-0" />;
     case "Conflicting Evidence":
-      return <AlertCircle className="mr-1.5 h-3.5 w-3.5 flex-shrink-0" />;
+      return <AlertCircle className="mr-1 size-3.5 mt-px flex-shrink-0" />;
     default:
       return null;
   }
@@ -40,7 +40,7 @@ const getIcon = (result: string) => {
 
 export const VerdictBadge = ({ verdict }: VerdictBadgeProps) => (
   <Badge
-    className={cn("flex w-fit items-center rounded-sm px-2 py-0.5 text-[11px]")}
+    className={cn("flex w-fit items-center justify-center rounded-xl pl-1 pr-2 py-0.5 text-[11px]")}
     variant={getBadgeVariant(verdict.result)}
   >
     {getIcon(verdict.result)}

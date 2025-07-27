@@ -259,7 +259,9 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
           get().addRawServerEvent(parsedServerEvent);
 
           const processedItems = processAgentSSEEvent(eventData);
-          processedItems.forEach((item) => get().handleProcessedItem(item));
+          for (const item of processedItems) {
+            get().handleProcessedItem(item);
+          }
         } catch (error) {
           console.error("Failed to process event data:", error);
         }
@@ -272,9 +274,8 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
         switch (type) {
           case "ContextualSentenceAdded":
             state.addContextualSentence(data);
-            if (!state.submittedAnswer && data.id === 0) {
-              set({ submittedAnswer: data.text, isLoading: true });
-            }
+            if (!state.submittedAnswer && data.id === 0)
+              set({ isLoading: true });
             break;
           case "SelectedContentAdded":
             state.addSelectedContent(data);
@@ -298,7 +299,9 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
             state.addClaimVerdict(data);
             break;
           case "ExtractedClaimsProvided":
-            data.claims.forEach((claim) => state.addValidatedClaim(claim));
+            for (const claim of data.claims) {
+              state.addValidatedClaim(claim);
+            }
             break;
           case "FactCheckReportGenerated":
             state.setFactCheckReport(data);

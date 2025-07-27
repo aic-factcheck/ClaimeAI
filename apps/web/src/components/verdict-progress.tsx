@@ -15,201 +15,133 @@ interface VerdictProgressProps {
   isLoading: boolean;
 }
 
-interface VerdictDistribution {
-  Supported: number;
-  Refuted: number;
-  // "Insufficient Information": number;
-  "Conflicting Evidence": number;
-}
+type VerdictType = "Supported" | "Refuted";
 
-interface VerdictConfig {
-  bgClass: string;
-  shortLabel: string;
-  description: string;
-}
+const VERDICT_CONFIG = {
+  Supported: {
+    bgClass: "bg-emerald-500",
+    label: "Supported",
+    description: "Claims verified as correct",
+  },
+  Refuted: {
+    bgClass: "bg-red-500",
+    label: "Refuted",
+    description: "Claims verified as incorrect",
+  },
+} as const;
 
 export const VerdictProgress = ({
   verdicts,
   isLoading,
 }: VerdictProgressProps) => {
-  // Calculate verdict distribution
-  const distribution = useMemo(() => {
-    const stats: VerdictDistribution = {
-      Supported: 0,
-      Refuted: 0,
-      // "Insufficient Information": 0,
-      "Conflicting Evidence": 0,
-    };
-
-    if (verdicts.length === 0) return stats;
+  const stats = useMemo(() => {
+    const counts: Record<VerdictType, number> = { Supported: 0, Refuted: 0 };
 
     for (const verdict of verdicts) {
-      if (verdict.result in stats) {
-        stats[verdict.result as keyof VerdictDistribution]++;
+      if (verdict.result === "Supported" || verdict.result === "Refuted") {
+        counts[verdict.result]++;
       }
     }
 
-    return stats;
+    return {
+      counts,
+      total: verdicts.length,
+      percentages: {
+        Supported: verdicts.length
+          ? (counts.Supported / verdicts.length) * 100
+          : 0,
+        Refuted: verdicts.length ? (counts.Refuted / verdicts.length) * 100 : 0,
+      },
+    };
   }, [verdicts]);
 
-  // Calculate percentages for the progress bar
-  const percentages = useMemo(() => {
-    if (verdicts.length === 0) {
-      return {
-        Supported: 0,
-        Refuted: 0,
-        // "Insufficient Information": 0,
-        "Conflicting Evidence": 0,
-      };
-    }
-
-    return {
-      Supported: (distribution.Supported / verdicts.length) * 100,
-      Refuted: (distribution.Refuted / verdicts.length) * 100,
-      // "Insufficient Information":
-      // (distribution["Insufficient Information"] / verdicts.length) * 100,
-      "Conflicting Evidence":
-        (distribution["Conflicting Evidence"] / verdicts.length) * 100,
-    };
-  }, [distribution, verdicts]);
-
-  if (verdicts.length === 0) return null;
-
-  // Config for verdict types
-  const verdictConfig: Record<keyof VerdictDistribution, VerdictConfig> = {
-    Supported: {
-      bgClass: "bg-emerald-500",
-      shortLabel: "Supported",
-      description: "Claims verified as correct",
-    },
-    Refuted: {
-      bgClass: "bg-red-500",
-      shortLabel: "Refuted",
-      description: "Claims verified as incorrect",
-    },
-    // "Insufficient Information": {
-    //   bgClass: "bg-amber-500",
-    //   shortLabel: "Insufficient",
-    //   description: "Claims that cannot be verified",
-    // },
-    "Conflicting Evidence": {
-      bgClass: "bg-purple-500",
-      shortLabel: "Conflicting",
-      description: "Claims with mixed evidence",
-    },
-  };
+  if (stats.total === 0) return null;
 
   return (
     <TooltipProvider>
       <motion.div
-        animate={{ opacity: 1 }}
         initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{ duration: 0.4 }}
       >
         <div className="flex items-center justify-between">
           <h3 className="my-2.5 mt-6 font-medium text-neutral-900 text-sm">
-            Verification Results
+            Analysis
           </h3>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 mt-auto pb-3">
             <span className="text-neutral-500 text-xs tracking-wide">
-              {verdicts.length} claim{verdicts.length !== 1 ? "s" : ""} verified
+              {stats.total} claim{stats.total !== 1 ? "s" : ""} verified
             </span>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="cursor-help">
-                  <InfoIcon
-                    aria-hidden="true"
-                    className="h-3.5 w-3.5 text-neutral-400 transition-colors hover:text-neutral-500"
-                  />
+                  <InfoIcon className="h-3.5 w-3.5 text-neutral-400 transition-colors hover:text-neutral-500" />
                 </div>
               </TooltipTrigger>
               <TooltipContent
-                className="border-0 bg-black px-3 py-1.5 text-white text-xs"
                 side="top"
+                className="border-0 bg-black px-3 py-1.5 text-white text-xs"
               >
-                Distribution of verification results
+                Distribution of claim analysis results
               </TooltipContent>
             </Tooltip>
           </div>
         </div>
 
         <div className="relative h-2 w-full overflow-hidden rounded-full bg-neutral-100">
-          {/* Fluid progress bar */}
           <motion.div
-            animate={{ width: "100%" }}
-            className="absolute inset-0 flex"
             initial={{ width: 0 }}
+            animate={{ width: "100%" }}
             transition={{ duration: 0.5, ease: "easeOut" }}
+            className="absolute inset-0 flex"
           >
-            {/* Supported section */}
-            {percentages.Supported > 0 && (
-              <motion.div
+            {stats.percentages.Supported > 0 && (
+              <div
                 className="h-full bg-emerald-500"
-                style={{ width: `${percentages.Supported}%` }}
+                style={{ width: `${stats.percentages.Supported}%` }}
               />
             )}
-
-            {/* Refuted section */}
-            {percentages.Refuted > 0 && (
-              <motion.div
+            {stats.percentages.Refuted > 0 && (
+              <div
                 className="h-full bg-red-500"
-                style={{ width: `${percentages.Refuted}%` }}
-              />
-            )}
-
-            {/* Insufficient Information section */}
-            {/* {percentages["Insufficient Information"] > 0 && (
-              <motion.div
-                className="h-full bg-amber-500"
-                style={{ width: `${percentages["Insufficient Information"]}%` }}
-              />
-            )} */}
-
-            {/* Conflicting Evidence section */}
-            {percentages["Conflicting Evidence"] > 0 && (
-              <motion.div
-                className="h-full bg-purple-500"
-                style={{ width: `${percentages["Conflicting Evidence"]}%` }}
+                style={{ width: `${stats.percentages.Refuted}%` }}
               />
             )}
           </motion.div>
 
-          {/* Loading effect */}
           {isLoading && (
             <motion.div
-              animate={{
-                x: ["-100%", "200%"],
-              }}
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-400/30 to-transparent"
+              animate={{ x: ["-100%", "200%"] }}
               transition={{
                 duration: 1.0,
                 repeat: Number.POSITIVE_INFINITY,
                 ease: "linear",
               }}
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-400/30 to-transparent"
             />
           )}
         </div>
 
-        {/* Legend */}
         <motion.div
-          animate={{ opacity: 1 }}
-          className="mt-2.5 flex items-center justify-between px-0.5"
           initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.2 }}
+          className="mt-2.5 flex items-center justify-between px-0.5"
         >
-          {Object.entries(verdictConfig).map(([verdict, config]) => {
-            const key = verdict as keyof VerdictDistribution;
-            const count = distribution[key];
-            const percent = (count / verdicts.length) * 100;
-            const formattedPercent =
-              percent > 0 ? `${Math.round(percent)}%` : "0%";
+          {(
+            Object.entries(VERDICT_CONFIG) as [
+              VerdictType,
+              (typeof VERDICT_CONFIG)[VerdictType]
+            ][]
+          ).map(([type, config]) => {
+            const count = stats.counts[type];
+            const percentage = Math.round(stats.percentages[type]);
 
             return (
-              <Tooltip key={verdict}>
+              <Tooltip key={type}>
                 <TooltipTrigger asChild>
                   <div className="flex cursor-default items-center gap-1.5">
                     <div
-                      aria-hidden="true"
                       className={cn(
                         "h-2 w-2 rounded-full",
                         count > 0 ? config.bgClass : "bg-neutral-300"
@@ -221,16 +153,14 @@ export const VerdictProgress = ({
                         count === 0 && "text-neutral-400"
                       )}
                     >
-                      <span className="font-medium">{config.shortLabel}</span>
-                      <span className="ml-1 tabular-nums">
-                        {formattedPercent}
-                      </span>
+                      <span className="font-medium">{config.label}</span>
+                      <span className="ml-1 tabular-nums">{percentage}%</span>
                     </div>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent
-                  className="border-0 bg-black px-2.5 py-1.5 text-white text-xs"
                   side="bottom"
+                  className="border-0 bg-black px-2.5 py-1.5 text-white text-xs"
                 >
                   {config.description} · {count} claims
                 </TooltipContent>

@@ -1,18 +1,22 @@
-// Import schema-defined types
-import type {
-  Evidence as SchemaEvidence,
-  FactCheckReport as SchemaFactCheckReport,
-  Verdict as SchemaVerdict,
-} from "../lib/event-schema";
-
-/**
- * Event Types
- */
 export type EventType = "metadata" | "updates" | string;
 
 export interface AgentEvent<T extends EventType, D> {
   event: T;
   data: D;
+}
+
+export interface CheckUser {
+  id: string;
+  email: string;
+  image: string | null;
+}
+
+export interface CheckMetadata {
+  user: CheckUser;
+  text: string;
+  title: string | null;
+  isPublic: boolean;
+  createdAt: string;
 }
 
 export interface MetadataEventData {
@@ -29,75 +33,47 @@ export type AgentUpdatesEvent = AgentEvent<string, AgentUpdatesDataContent>;
 
 export type AgentSSEStreamEvent = AgentMetadataEvent | AgentUpdatesEvent;
 
-export type Evidence = SchemaEvidence;
-export type Verdict = SchemaVerdict;
-export type FactCheckReport = SchemaFactCheckReport;
+// Check service types
 
-/**
- * Frontend UI Types
- */
-export interface UIOriginalSentence {
-  id: number;
+export interface InitializeSessionParams {
+  content: string;
+  checkId: string;
+  userId: string;
+}
+
+export interface ExecuteAgentParams {
+  streamId: string;
+  content: string;
+  metadata: CheckMetadata;
+}
+
+export interface ClaimSource {
+  url: string;
+  title: string;
+}
+
+export type ClaimVerdict = "Supported" | "Refuted";
+
+export type ClaimStatus = "pending" | "verified";
+
+export interface ClaimData {
   text: string;
+  status: ClaimStatus;
+  result?: ClaimVerdict;
+  reasoning?: string;
+  sources?: ClaimSource[];
 }
 
-export interface UISelectedSentence {
-  id: number;
-  processedText: string;
-  originalSentenceText: string;
+export interface SanitizedEvent {
+  event: string;
+  data: unknown;
 }
 
-export interface UIDisambiguatedSentence {
-  id: number;
-  disambiguatedText: string;
-  originalSentenceText: string;
+export interface ClaimsEventData {
+  claims: [string, ClaimData[]][];
 }
 
-export interface UIClaim {
-  claimText: string;
+export interface ErrorEventData {
+  message: string;
+  run_id: string;
 }
-
-export interface UIValidatedClaim {
-  claimText: string;
-  originalIndex: number;
-  isValid: boolean;
-  sourceDisambiguatedSentence?: string;
-  originalSentence?: string;
-}
-
-export type UIEvidence = Evidence;
-
-export type UIVerdict = Verdict;
-
-export interface UIFactCheckReport {
-  answer: string;
-  claims_verified: number;
-  verified_claims: Verdict[];
-  summary: string;
-  timestamp: Date; // Parsed for easier use
-}
-
-/**
- * Processor Event Types
- */
-export type ProcessedAgentUpdateData =
-  | { type: "AgentRunMetadata"; data: { runId: string } }
-  | { type: "ContextualSentenceAdded"; data: UIOriginalSentence }
-  | { type: "SelectedContentAdded"; data: UISelectedSentence }
-  | { type: "DisambiguatedContentAdded"; data: UIDisambiguatedSentence }
-  | {
-      type: "PotentialClaimAdded";
-      data: {
-        originalSentenceId: number;
-        originalSentenceText: string;
-        claim: UIClaim;
-        sourceDisambiguatedSentenceText: string;
-      };
-    }
-  | { type: "ValidatedClaimAdded"; data: UIValidatedClaim }
-  | { type: "ExtractedClaimsProvided"; data: { claims: UIValidatedClaim[] } }
-  | { type: "SearchQueryGenerated"; data: { query: string } }
-  | { type: "EvidenceRetrieved"; data: { evidence: UIEvidence[] } }
-  | { type: "ClaimVerificationResult"; data: UIVerdict }
-  | { type: "AllVerificationResultsProvided"; data: { verdicts: UIVerdict[] } }
-  | { type: "FactCheckReportGenerated"; data: UIFactCheckReport };

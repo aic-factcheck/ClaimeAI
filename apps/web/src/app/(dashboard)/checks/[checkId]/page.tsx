@@ -2,23 +2,16 @@
 
 import { useParams } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { CheckHeader } from "@/components/check-header";
 import { FactChecker } from "@/components/fact-checker";
-import { useFactCheckerResults, useSSEConnection } from "@/lib/store";
+import { useFactCheckerStore } from "@/lib/store";
 
 const CheckPage = () => {
   const { checkId } = useParams();
-  const { connectToStream } = useSSEConnection();
+  const connectToStream = useFactCheckerStore((state) => state.connectToStream);
   const connectionInitiated = useRef(false);
-  const {
-    submittedAnswer,
-    isLoading,
-    contextualSentences,
-    selectedContents,
-    disambiguatedContents,
-    potentialClaims,
-    validatedClaims,
-    claimVerdicts,
-  } = useFactCheckerResults();
+  const { isLoading, claims } = useFactCheckerStore();
+  const { metadata } = useFactCheckerStore();
 
   useEffect(() => {
     if (checkId && !connectionInitiated.current) {
@@ -28,27 +21,14 @@ const CheckPage = () => {
   }, [checkId, connectToStream]);
 
   return (
-    <div className="container mx-auto max-w-6xl p-8">
-      <div className="mb-6">
-        <h1 className="mb-2 font-bold text-2xl text-neutral-900">
-          Claime Results
-        </h1>
-        <p className="text-neutral-600 text-sm">
-          {submittedAnswer ?? (
-            <div className="h-4 w-lg animate-pulse rounded-md bg-neutral-200" />
-          )}
-        </p>
-      </div>
-
-      <FactChecker
-        claimVerdicts={claimVerdicts}
-        contextualSentences={contextualSentences}
-        disambiguatedContents={disambiguatedContents}
+    <div className="container mx-auto max-w-6xl space-y-8 p-8">
+      <CheckHeader
+        checkId={checkId as string}
+        claims={claims}
         isLoading={isLoading}
-        potentialClaims={potentialClaims}
-        selectedContents={selectedContents}
-        validatedClaims={validatedClaims}
+        metadata={metadata}
       />
+      <FactChecker claims={claims} isLoading={isLoading} />
     </div>
   );
 };

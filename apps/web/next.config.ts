@@ -6,7 +6,11 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "www.google.com",
-        pathname: "/**",
+        pathname: "/s2/favicons",
+      },
+      {
+        protocol: "https",
+        hostname: "**",
       },
     ],
   },

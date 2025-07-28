@@ -60,8 +60,8 @@ export const ProgressBar = memo(({ stages, isLoading }: ProgressBarProps) => {
                   isCurrent && isLoading
                     ? "border border-neutral-200 bg-white text-neutral-900 shadow-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
                     : isCompleted
-                    ? "border border-neutral-200 bg-white text-neutral-900 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
-                    : "border border-neutral-100 bg-neutral-50 text-neutral-400 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-500"
+                      ? "border border-neutral-200 bg-white text-neutral-900 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+                      : "border border-neutral-100 bg-neutral-50 text-neutral-400 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-500"
                 )}
                 variants={itemVariants}
               >
@@ -85,7 +85,7 @@ export const ProgressBar = memo(({ stages, isLoading }: ProgressBarProps) => {
                 </span>
                 <span
                   className={cn(
-                    "whitespace-nowrap font-medium px-0.5",
+                    "whitespace-nowrap px-0.5 font-medium",
                     isCompleted || (isCurrent && isLoading)
                       ? "text-neutral-900 dark:text-neutral-100"
                       : "text-neutral-400 dark:text-neutral-500"
@@ -98,12 +98,12 @@ export const ProgressBar = memo(({ stages, isLoading }: ProgressBarProps) => {
                     <motion.div
                       animate={{ opacity: 1, scale: 1 }}
                       className={cn(
-                        "flex items-center justify-center pr-1 pl-1.5 font-medium h-6 text-[10px] border-l",
+                        "flex h-6 items-center justify-center border-l pr-1 pl-1.5 font-medium text-[10px]",
                         isCurrent && isLoading
                           ? "dark:bg-neutral-100 dark:text-neutral-900"
                           : isCompleted
-                          ? "dark:bg-neutral-100 dark:text-neutral-900"
-                          : "text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300"
+                            ? "dark:bg-neutral-100 dark:text-neutral-900"
+                            : "text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300"
                       )}
                       exit={{ opacity: 0, scale: 0.5 }}
                       initial={{ opacity: 0, scale: 0.5 }}

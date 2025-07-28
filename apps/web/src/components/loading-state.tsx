@@ -10,7 +10,7 @@ export const LoadingState = ({ message }: LoadingStateProps) => (
     <motion.div
       animate={{ rotate: 360 }}
       className={cn(
-        "mb-3 h-6 w-6 rounded-full border-2 border-blue-100 border-t-blue-600"
+        "mb-2.5 size-6 rounded-full border-2 border-blue-100 border-t-blue-600"
       )}
       transition={{
         duration: 1,
@@ -40,7 +40,7 @@ export const ProcessingIndicator = ({ message }: { message: string }) => (
   >
     <motion.div
       animate={{ rotate: 360 }}
-      className="h-3 w-3 rounded-full border-[1.5px] border-blue-100 border-t-blue-500"
+      className="size-3 rounded-full border-[1.5px] border-blue-100 border-t-blue-500"
       transition={{
         duration: 1.2,
         repeat: Number.POSITIVE_INFINITY,

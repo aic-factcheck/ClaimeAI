@@ -27,6 +27,7 @@ type AppType = typeof routes;
 
 const GET = handle(app);
 const POST = handle(app);
+const PATCH = handle(app);
 
-export { GET, POST };
+export { GET, POST, PATCH };
 export type { AppType };

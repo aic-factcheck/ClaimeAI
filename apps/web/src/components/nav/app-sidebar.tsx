@@ -94,7 +94,7 @@ const CheckGroup = ({ checkGroup, currentPath }: CheckGroupProps) => (
     <SidebarGroupLabel>{checkGroup.label}</SidebarGroupLabel>
     <SidebarGroupContent>
       <SidebarMenu>
-        {[checkGroup.checks[0]].map((check) => {
+        {checkGroup.checks.map((check) => {
           const displayTitle = getCheckDisplayTitle(check);
           const isLoadingTitle = !check.title && check.status === "pending";
           const isActive = currentPath === `/checks/${check.slug}`;
@@ -125,9 +125,7 @@ const CheckGroup = ({ checkGroup, currentPath }: CheckGroupProps) => (
 
 interface NavigationItemsProps {
   currentPath: string;
-  iconReferences: Array<
-    React.RefObject<HomeIconHandle | PlusIconHandle | null>
-  >;
+  iconReferences: React.RefObject<HomeIconHandle | PlusIconHandle | null>[];
   onIconAnimationStart: (index: number) => void;
   onIconAnimationStop: (index: number) => void;
 }
@@ -172,7 +170,7 @@ const NavigationItems = ({
 };
 
 const LearnMoreSection = () => (
-  <SidebarGroup className="sticky bottom-0 z-10 bg-neutral-50 py-0 mt-auto">
+  <SidebarGroup className="sticky bottom-0 z-10 mt-auto bg-neutral-50 py-0">
     <SidebarGroupLabel>Learn More</SidebarGroupLabel>
     <SidebarGroupContent>
       <SidebarMenu>

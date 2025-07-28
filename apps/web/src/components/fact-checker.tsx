@@ -2,111 +2,95 @@
 
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
-import type { Verdict } from "@/lib/event-schema";
-import type {
-  ContextualSentence,
-  DisambiguatedContentData,
-  PotentialClaimData,
-  SelectedContentData,
-} from "@/lib/store";
-import type { UIValidatedClaim } from "@/types";
+import type { Claim } from "@/lib/store";
 
 import { LoadingState } from "./loading-state";
 import { ProcessedAnswer } from "./processed-answer";
-import { ProgressBar } from "./progress-bar";
 import { SourcePills } from "./source-pills";
-import { createDerivativesMap } from "./utils";
 import { VerdictProgress } from "./verdict-progress";
 import { VerdictSummary } from "./verdict-summary";
 
 interface FactCheckerProps {
-  contextualSentences: ContextualSentence[];
-  selectedContents: SelectedContentData[];
-  disambiguatedContents: DisambiguatedContentData[];
-  potentialClaims: PotentialClaimData[];
-  validatedClaims: UIValidatedClaim[];
-  claimVerdicts: Verdict[];
+  claims: Map<string, Claim[]>;
   isLoading: boolean;
 }
 
-export const FactChecker = ({
-  contextualSentences,
-  selectedContents,
-  disambiguatedContents,
-  potentialClaims,
-  validatedClaims,
-  claimVerdicts,
-  isLoading,
-}: FactCheckerProps) => {
+export const FactChecker = ({ claims, isLoading }: FactCheckerProps) => {
   const [expandedCitation, setExpandedCitation] = useState<number | null>(null);
 
-  // Create a map from original sentences to their derivative data
-  const derivativesMap = useMemo(
-    () =>
-      createDerivativesMap(
-        contextualSentences,
-        selectedContents,
-        disambiguatedContents,
-        potentialClaims,
-        validatedClaims,
-        claimVerdicts
-      ),
-    [
-      contextualSentences,
-      selectedContents,
-      disambiguatedContents,
-      potentialClaims,
-      validatedClaims,
-      claimVerdicts,
-    ]
-  );
+  const { verifiedClaims, hasSentences, hasAnyClaims, hasVerifiedClaims } =
+    useMemo(() => {
+      const allClaims = Array.from(claims.values()).flat();
+      const verifiedClaims = allClaims.filter(
+        (claim) => claim.status === "verified"
+      );
 
-  // Prepare progress stages data
-  const progressStages = [
-    { name: "Contextual", count: contextualSentences.length },
-    { name: "Selected", count: selectedContents.length },
-    { name: "Disambiguated", count: disambiguatedContents.length },
-    { name: "Claims", count: potentialClaims.length },
-    { name: "Validated", count: validatedClaims.length },
-    { name: "Verdicts", count: claimVerdicts.length },
-  ];
+      return {
+        allClaims,
+        verifiedClaims,
+        hasSentences: claims.size > 0,
+        hasAnyClaims: allClaims.length > 0,
+        hasVerifiedClaims: verifiedClaims.length > 0,
+      };
+    }, [claims]);
 
-  // Convert the map to an array for rendering
-  const sentenceEntries = useMemo(
-    () => Array.from(derivativesMap.entries()),
-    [derivativesMap]
-  );
+  const showInitialLoading = isLoading && !hasSentences;
+  const showProcessingIndicator =
+    isLoading && hasSentences && !(hasAnyClaims && hasVerifiedClaims);
+
+  if (showInitialLoading) {
+    return <LoadingState message="Analyzing content..." />;
+  }
 
   return (
     <motion.div
       animate={{ opacity: 1, y: 0 }}
-      className="w-full"
+      className="w-full space-y-6"
       initial={{ opacity: 0, y: 10 }}
       transition={{ duration: 0.3 }}
     >
-      <ProgressBar isLoading={isLoading} stages={progressStages} />
-
-      {contextualSentences.length === 0 ? (
-        <LoadingState message="Initializing verification..." />
-      ) : (
-        <div>
-          {claimVerdicts.length > 0 && (
-            <>
-              <SourcePills verdicts={claimVerdicts} />
-              <VerdictProgress isLoading={isLoading} verdicts={claimVerdicts} />
-            </>
-          )}
-          <h3 className="my-2.5 mt-6 font-medium text-neutral-900 text-sm">
-            Claims
-          </h3>
-          <ProcessedAnswer
-            expandedCitation={expandedCitation}
-            sentenceEntries={sentenceEntries}
-            setExpandedCitation={setExpandedCitation}
-          />
-        </div>
+      {hasVerifiedClaims && (
+        <motion.div
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+          initial={{ opacity: 0, y: 5 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
+          <SourcePills verdicts={verifiedClaims} />
+          <VerdictProgress isLoading={isLoading} verdicts={verifiedClaims} />
+        </motion.div>
       )}
-      <VerdictSummary isLoading={isLoading} verdicts={claimVerdicts} />
+
+      <div className="space-y-2.5">
+        <div className="flex items-center justify-between">
+          <h3 className="font-medium text-neutral-900 text-sm">Claims</h3>
+          {showProcessingIndicator && (
+            <div className="flex items-center gap-2">
+              <div className="h-1 w-1 animate-pulse rounded-full bg-blue-500" />
+              <div
+                className="h-1 w-1 animate-pulse rounded-full bg-blue-500"
+                style={{ animationDelay: "0.2s" }}
+              />
+              <div
+                className="h-1 w-1 animate-pulse rounded-full bg-blue-500"
+                style={{ animationDelay: "0.4s" }}
+              />
+              <span className="text-neutral-500 text-xs">
+                {hasAnyClaims ? "Verifying claims..." : "Extracting claims..."}
+              </span>
+            </div>
+          )}
+        </div>
+        <ProcessedAnswer
+          claims={claims}
+          expandedCitation={expandedCitation}
+          setExpandedCitation={setExpandedCitation}
+        />
+      </div>
+
+      {hasVerifiedClaims && (
+        <VerdictSummary isLoading={isLoading} verdicts={verifiedClaims} />
+      )}
     </motion.div>
   );
 };

@@ -8,12 +8,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpIcon, type ArrowUpIconHandle } from "@/components/ui/icons";
 import { useOptimisticCheckCreation } from "@/hooks/use-checks";
 import { MAX_INPUT_LIMIT } from "@/lib/constants";
-import { useFactCheckerInput } from "@/lib/store";
+import { useFactCheckerStore } from "@/lib/store";
 import { cn, generateCheckId } from "@/lib/utils";
 
 const useInputManagement = () => {
-  const { answer, setAnswer, isLoading, startVerification } =
-    useFactCheckerInput();
+  const { text, setText, isLoading, startVerification } = useFactCheckerStore();
   const { addOptimisticCheck, generateTitle } = useOptimisticCheckCreation();
   const [hasReachedLimit, setHasReachedLimit] = useState(false);
   const router = useRouter();
@@ -24,14 +23,14 @@ const useInputManagement = () => {
     if (encodedAnswer) {
       try {
         const decodedAnswer = decodeURIComponent(encodedAnswer);
-        setAnswer(decodedAnswer);
+        setText(decodedAnswer);
       } catch {
-        setAnswer("(Error decoding answer)");
+        setText("(Error decoding answer)");
       }
     }
-  }, [setAnswer]);
+  }, [setText]);
 
-  const characterCount = answer.length;
+  const characterCount = text.length;
   const isOverLimit = characterCount >= MAX_INPUT_LIMIT;
   const isNearLimit = characterCount > MAX_INPUT_LIMIT * 0.8 && !isOverLimit;
 
@@ -39,23 +38,23 @@ const useInputManagement = () => {
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
       const inputText = event.target.value;
       if (inputText.length > MAX_INPUT_LIMIT) {
-        setAnswer(inputText.slice(0, MAX_INPUT_LIMIT));
+        setText(inputText.slice(0, MAX_INPUT_LIMIT));
         setHasReachedLimit(true);
         setTimeout(() => setHasReachedLimit(false), 500);
       } else {
-        setAnswer(inputText);
+        setText(inputText);
       }
     },
-    [setAnswer]
+    [setText]
   );
 
   const handleSubmission = useCallback(async () => {
-    if (!isLoading && answer && !isOverLimit) {
+    if (!isLoading && text && !isOverLimit) {
       try {
-        const checkId = generateCheckId(answer);
-        addOptimisticCheck(checkId, answer);
-        await startVerification(answer, checkId);
-        generateTitle({ content: answer, checkId });
+        const checkId = generateCheckId(text);
+        addOptimisticCheck(checkId, text);
+        await startVerification(text, checkId);
+        generateTitle({ content: text, checkId });
         router.push(`/checks/${checkId}?new=true`);
       } catch (error) {
         console.error("Failed to start verification:", error);
@@ -63,7 +62,7 @@ const useInputManagement = () => {
     }
   }, [
     isLoading,
-    answer,
+    text,
     isOverLimit,
     addOptimisticCheck,
     startVerification,
@@ -81,7 +80,7 @@ const useInputManagement = () => {
   );
 
   return {
-    answer,
+    answer: text,
     isLoading,
     characterCount,
     isOverLimit,

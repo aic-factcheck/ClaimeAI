@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { extractClerkId } from "../utils";
 import { db } from ".";
-import { checks, texts } from "./schema";
+import { checks, texts, users } from "./schema";
 
 const generateContentHash = (content: string): string => {
   return createHash("sha256").update(content.trim()).digest("hex");
@@ -36,6 +36,17 @@ export const findOrCreateText = async (content: string) => {
     .returning();
 
   return newText;
+};
+
+export const getUserById = async (userId: string) => {
+  const clerkId = extractClerkId(userId);
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, clerkId))
+    .limit(1);
+
+  return user;
 };
 
 type CreateCheckParams = {

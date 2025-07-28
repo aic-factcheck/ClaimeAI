@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  boolean,
   index,
   jsonb,
   pgTable,
@@ -27,6 +28,7 @@ export const checks = pgTable(
       .references(() => texts.id),
     result: jsonb("result"),
     status: varchar("status", { length: 20 }).notNull().default("pending"),
+    isPublic: boolean("is_public").notNull().default(false),
     completedAt: timestamp("completed_at"),
     ...timestamps,
   },
@@ -34,9 +36,7 @@ export const checks = pgTable(
     index("checks_user_id_idx").on(table.userId),
     index("checks_slug_idx").on(table.slug),
     index("checks_text_id_idx").on(table.textId),
-    index("checks_status_idx")
-      .on(table.status)
-      .where(sql`status = 'pending'`),
+    index("checks_status_idx").on(table.status).where(sql`status = 'pending'`),
     index("checks_created_at_idx").on(table.createdAt),
   ]
 );

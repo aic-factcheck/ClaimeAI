@@ -1,50 +1,103 @@
 import { motion } from "framer-motion";
-import { ChevronDown, Link as LinkIcon, PlusCircle } from "lucide-react";
-import Image from "next/image";
+import { ChevronDown, Link as LinkIcon, MoreHorizontal } from "lucide-react";
 import { memo, useState } from "react";
+import { Favicon } from "@/components/ui/favicon";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { VerdictBadge } from "@/components/ui/verdict-badge";
-import type { Verdict } from "@/lib/event-schema";
-import { cn, extractDomain } from "@/lib/utils";
+import type { Claim } from "@/lib/store";
+import { extractDomain } from "@/lib/utils";
+import type { ClaimSource } from "@/types";
 
 interface VerdictSummaryProps {
-  verdicts: Verdict[];
+  verdicts: Claim[];
   isLoading: boolean;
 }
 
 const MAX_VISIBLE_SOURCES = 3;
 const INITIAL_CARDS_TO_SHOW = 3;
 
-const SourceFavicon = ({ url }: { url: string }) => {
-  const domain = extractDomain(url);
-  const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=16`;
-
-  return (
-    <div className="relative h-3.5 w-3.5 flex-shrink-0 overflow-hidden rounded-[2px]">
-      <Image
-        alt={`${domain} favicon`}
-        className="h-full w-full object-cover"
-        height={14}
-        onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-          const parent = e.currentTarget.parentNode as HTMLElement | null;
-          if (parent) {
-            parent.innerHTML = `
-              <div class="w-full h-full flex items-center justify-center bg-neutral-200 text-[8px] font-medium text-neutral-700">
-                ${domain.charAt(0).toUpperCase()}
-              </div>
-            `;
-          }
-        }}
-        src={faviconUrl}
-        width={14}
-      />
-    </div>
-  );
+type SourceLinkProps = {
+  source: ClaimSource;
 };
+
+const SourceLink = ({ source }: SourceLinkProps) => (
+  <a
+    aria-label={`View source: ${source.title || source.url}`}
+    className="flex items-center rounded-sm border border-neutral-200 p-1 hover:border-neutral-300 hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    href={source.url}
+    rel="noopener noreferrer"
+    target="_blank"
+    title={source.title || source.url}
+  >
+    <Favicon url={source.url} />
+  </a>
+);
+
+type AdditionalSourcesPopoverProps = {
+  sources: ClaimSource[];
+};
+
+const AdditionalSourcesPopover = ({
+  sources,
+}: AdditionalSourcesPopoverProps) => (
+  <Popover>
+    <PopoverTrigger asChild>
+      <button
+        aria-label={`Show ${sources.length} more sources`}
+        className="flex h-6 w-6 items-center justify-center rounded-sm border border-neutral-200 bg-neutral-50 text-neutral-500 hover:border-neutral-300 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        type="button"
+      >
+        <MoreHorizontal className="h-3 w-3" />
+      </button>
+    </PopoverTrigger>
+    <PopoverContent align="end" className="w-auto max-w-xs p-2" side="top">
+      <div className="space-y-1.5">
+        <p className="font-medium text-neutral-600 text-xs">
+          Additional Sources
+        </p>
+        {sources.map((source) => (
+          <a
+            className="flex items-center gap-2 rounded-md p-1.5 text-neutral-700 text-xs hover:bg-neutral-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            href={source.url}
+            key={source.url}
+            rel="noopener noreferrer"
+            target="_blank"
+            title={source.title || source.url}
+          >
+            <Favicon url={source.url} />
+            <span className="truncate">
+              {source.title || extractDomain(source.url)}
+            </span>
+            <LinkIcon className="ml-auto h-3 w-3 flex-shrink-0 text-neutral-400" />
+          </a>
+        ))}
+      </div>
+    </PopoverContent>
+  </Popover>
+);
+
+type ToggleButtonProps = {
+  show: boolean;
+  onClick: () => void;
+  remainingCount: number;
+};
+
+const ToggleButton = ({ show, onClick, remainingCount }: ToggleButtonProps) => (
+  <div className="flex justify-start">
+    <button
+      className="inline-flex items-center gap-1.5 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-neutral-600 text-xs hover:border-neutral-300 hover:bg-neutral-100"
+      onClick={onClick}
+      type="button"
+    >
+      <span>{show ? "Show less" : `Show ${remainingCount} more`}</span>
+      <ChevronDown className={`h-3 w-3 ${show ? "rotate-180" : ""}`} />
+    </button>
+  </div>
+);
 
 export const VerdictSummary = memo(function VerdictSummary({
   verdicts,
@@ -57,150 +110,68 @@ export const VerdictSummary = memo(function VerdictSummary({
   const visibleVerdicts = showAllCards
     ? verdicts
     : verdicts.slice(0, INITIAL_CARDS_TO_SHOW);
-  const remainingCardsCount = verdicts.length - INITIAL_CARDS_TO_SHOW;
-  const shouldShowMoreButton =
-    !showAllCards && verdicts.length > INITIAL_CARDS_TO_SHOW;
+
+  const remainingCount = verdicts.length - INITIAL_CARDS_TO_SHOW;
+  const hasMoreCards = verdicts.length > INITIAL_CARDS_TO_SHOW;
 
   return (
-    <motion.div
-      animate={{ opacity: 1, y: 0 }}
-      className="mt-6"
-      initial={{ opacity: 0, y: 10 }}
-      transition={{ duration: 0.2 }}
-    >
-      <div className="mb-2.5">
-        <div className="flex items-center font-medium text-neutral-900 text-sm">
-          Results
-          {isLoading && (
-            <motion.span
-              animate={{ opacity: 1, x: 0 }}
-              className="ml-2 font-normal text-neutral-500 text-xs"
-              initial={{ opacity: 0, x: -5 }}
-            >
-              Processing...
-            </motion.span>
-          )}
-        </div>
-      </div>
-      <div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {visibleVerdicts.map((verdict, idx) => {
-            const visibleSources = verdict.sources.slice(
-              0,
-              MAX_VISIBLE_SOURCES
-            );
-            const hiddenSources = verdict.sources.slice(MAX_VISIBLE_SOURCES);
-            const remainingSourcesCount = hiddenSources.length;
-
-            return (
-              <motion.div
-                animate={{ opacity: 1, y: 0 }}
-                className={cn(
-                  "rounded-lg border border-neutral-200 border-dashed bg-white p-3 shadow-xs transition-all dark:border-neutral-800 dark:bg-neutral-900/90"
-                )}
-                initial={{ opacity: 0, y: 5 }}
-                key={`verdict-${verdict.claim_text.slice(0, 20)}-${idx}`}
-                transition={{ duration: 0.2, delay: idx * 0.05 }}
-              >
-                <div className="mb-2 flex items-start justify-between gap-2">
-                  <VerdictBadge verdict={verdict} />
-                  {verdict.sources && verdict.sources.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      {visibleSources.map((source, sourceIdx) => (
-                        <a
-                          aria-label={`View source: ${
-                            source.title || source.url
-                          } (opens in new tab)`}
-                          className="flex items-center gap-1 rounded-sm border border-neutral-300 p-1 transition-all hover:border-neutral-400 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                          href={source.url}
-                          key={`${source.url}-${sourceIdx}-visible`}
-                          rel="noopener noreferrer"
-                          target="_blank"
-                          title={source.title || source.url}
-                        >
-                          <SourceFavicon url={source.url} />
-                        </a>
-                      ))}
-                      {remainingSourcesCount > 0 && (
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <button
-                              aria-label={`Show ${remainingSourcesCount} more sources`}
-                              className="flex h-6 w-6 items-center justify-center rounded-sm border border-neutral-300 bg-neutral-100 text-neutral-500 transition-all hover:border-neutral-400 hover:bg-neutral-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                              type="button"
-                            >
-                              <PlusCircle className="h-3.5 w-3.5" />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent
-                            align="end"
-                            className="w-auto max-w-xs p-2"
-                            side="top"
-                          >
-                            <div className="space-y-1.5">
-                              <p className="font-medium text-neutral-600 text-xs">
-                                Additional Sources
-                              </p>
-                              {hiddenSources.map((source, sourceIdx) => (
-                                <a
-                                  aria-label={`View source: ${
-                                    source.title || source.url
-                                  } (opens in new tab)`}
-                                  className="flex items-center gap-2 rounded-md p-1.5 text-neutral-700 text-xs transition-colors hover:bg-neutral-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                  href={source.url}
-                                  key={`${source.url}-${sourceIdx}-hidden`}
-                                  rel="noopener noreferrer"
-                                  target="_blank"
-                                  title={source.title || source.url}
-                                >
-                                  <SourceFavicon url={source.url} />
-                                  <span className="truncate">
-                                    {source.title || extractDomain(source.url)}
-                                  </span>
-                                  <LinkIcon className="ml-auto h-3 w-3 flex-shrink-0 text-neutral-400" />
-                                </a>
-                              ))}
-                            </div>
-                          </PopoverContent>
-                        </Popover>
-                      )}
-                    </div>
-                  )}
-                </div>
-                <p className="mb-1.5 font-medium text-neutral-900 text-sm">
-                  {verdict.claim_text}
-                </p>
-                {verdict.reasoning && (
-                  <p className="text-neutral-600 text-xs leading-relaxed">
-                    {verdict.reasoning}
-                  </p>
-                )}
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {shouldShowMoreButton && (
-          <motion.div
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-3 flex justify-start"
-            initial={{ opacity: 0, y: 10 }}
-            transition={{ duration: 0.2, delay: 0.1 }}
-          >
-            <button
-              className="group inline-flex items-center gap-1.5 rounded-md border border-neutral-200 bg-neutral-50/60 px-3 py-1.5 font-medium text-neutral-500 text-xs transition-all hover:border-neutral-300 hover:bg-neutral-100/60 hover:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 active:scale-[0.98]"
-              onClick={() => setShowAllCards(true)}
-              type="button"
-            >
-              <span>Show more</span>
-              <span className="rounded-sm bg-neutral-200/70 px-1.5 py-0.5 font-medium text-[10px] text-neutral-400 group-hover:bg-neutral-200/90 group-hover:text-neutral-500">
-                {remainingCardsCount}
-              </span>
-              <ChevronDown className="h-3 w-3 transition-transform group-hover:translate-y-px" />
-            </button>
-          </motion.div>
+    <div className="space-y-2.5">
+      <div className="flex items-center gap-2">
+        <h3 className="font-medium text-neutral-900 text-sm">Results</h3>
+        {isLoading && (
+          <span className="text-neutral-500 text-xs">Processing...</span>
         )}
       </div>
-    </motion.div>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {visibleVerdicts.map((verdict, idx) => {
+          const sources = verdict.sources || [];
+          const visibleSources = sources.slice(0, MAX_VISIBLE_SOURCES);
+          const hiddenSources = sources.slice(MAX_VISIBLE_SOURCES);
+
+          return (
+            <motion.div
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-lg border border-neutral-200 bg-white p-3"
+              initial={{ opacity: 0, y: 5 }}
+              key={`${verdict.text.slice(0, 20)}-${idx}`}
+              transition={{ duration: 0.2, delay: idx * 0.05 }}
+            >
+              <div className="mb-2 flex items-start justify-between gap-2">
+                <VerdictBadge verdict={verdict} />
+                {sources.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1">
+                    {visibleSources.map((source) => (
+                      <SourceLink key={source.url} source={source} />
+                    ))}
+                    {hiddenSources.length > 0 && (
+                      <AdditionalSourcesPopover sources={hiddenSources} />
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <p className="mb-2 font-medium text-neutral-900 text-sm">
+                {verdict.text}
+              </p>
+
+              {verdict.reasoning && (
+                <p className="text-neutral-600 text-xs leading-relaxed">
+                  {verdict.reasoning}
+                </p>
+              )}
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {hasMoreCards && (
+        <ToggleButton
+          onClick={() => setShowAllCards(!showAllCards)}
+          remainingCount={remainingCount}
+          show={showAllCards}
+        />
+      )}
+    </div>
   );
 });

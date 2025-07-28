@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CheckListItem } from "@/lib/check-utils";
 import { client } from "@/lib/rpc";
+import { useFactCheckerStore } from "@/lib/store";
 
 const QUERY_KEY = ["checks"] as const;
 const STALE_TIME = 1000 * 60 * 5;

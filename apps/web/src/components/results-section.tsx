@@ -1,20 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useFactCheckerResults } from "@/lib/store";
+import { useFactCheckerStore } from "@/lib/store";
 import { FactChecker } from "./fact-checker";
 
 export const ResultsSection = () => {
-  const {
-    submittedAnswer,
-    contextualSentences,
-    selectedContents,
-    disambiguatedContents,
-    potentialClaims,
-    validatedClaims,
-    claimVerdicts,
-    isLoading,
-  } = useFactCheckerResults();
+  const { isLoading, claims } = useFactCheckerStore();
 
   return (
     <motion.section
@@ -26,18 +17,10 @@ export const ResultsSection = () => {
       initial={{ opacity: 0 }}
       transition={{ duration: 0.4, delay: 0.2 }}
     >
-      {submittedAnswer && (
+      {claims.size > 0 && (
         <article className="flex w-full flex-grow flex-col">
           <h2 className="sr-only">Fact Check Results</h2>
-          <FactChecker
-            claimVerdicts={claimVerdicts}
-            contextualSentences={contextualSentences}
-            disambiguatedContents={disambiguatedContents}
-            isLoading={isLoading}
-            potentialClaims={potentialClaims}
-            selectedContents={selectedContents}
-            validatedClaims={validatedClaims}
-          />
+          <FactChecker claims={claims} isLoading={isLoading} />
         </article>
       )}
     </motion.section>

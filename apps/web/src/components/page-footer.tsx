@@ -2,16 +2,17 @@
 
 import { motion } from "framer-motion";
 import { ExternalLink, Github } from "lucide-react";
+import Image from "next/image";
 
 export const PageFooter = () => {
   return (
     <motion.footer
       animate={{ opacity: 1 }}
-      className="w-full border-x border-t bg-white px-6 py-8"
+      className="mt-auto w-full border-t bg-white p-4"
       initial={{ opacity: 0 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-6xl">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <motion.section
             animate={{ opacity: 1, y: 0 }}
@@ -176,16 +177,13 @@ export const PageFooter = () => {
 
         <motion.div
           animate={{ opacity: 1 }}
-          className="mt-8 flex flex-col items-center justify-between border-neutral-100 border-t pt-6 sm:flex-row"
+          className="mt-4 flex flex-col items-center justify-between border-neutral-100 border-t pt-3 sm:flex-row"
           initial={{ opacity: 0 }}
           transition={{ duration: 0.4, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="flex items-center gap-2">
-            <div
-              aria-hidden="true"
-              className="h-5 w-5 rounded-full border-4 border-black border-dashed"
-            />
-            <p className="font-semibold text-neutral-600 text-xs">ClaimeAI</p>
+          <div className="flex items-center gap-0.5">
+            <Image alt="ClaimeAI" height={20} src="/logo.svg" width={20} />
+            <p className="font-semibold text-neutral-600 text-sm">ClaimeAI</p>
           </div>
           <p className="mt-3 text-neutral-400 text-xs sm:mt-0">
             © {new Date().getFullYear()} ClaimeAI. All rights reserved.

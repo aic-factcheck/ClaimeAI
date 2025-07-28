@@ -2,10 +2,12 @@ import { openai } from "@ai-sdk/openai";
 import { generateText } from "ai";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+
 import { db } from "@/lib/db";
 import {
   createCheck,
   findOrCreateText,
+  getUserById,
   updateCheckResult,
   updateCheckStatus,
 } from "@/lib/db/operations";
@@ -18,22 +20,96 @@ import {
   failStream,
   getEvents,
 } from "@/lib/redis";
-
-interface InitializeSessionParams {
-  content: string;
-  checkId: string;
-  userId: string;
-}
-
-interface ExecuteAgentParams {
-  streamId: string;
-  content: string;
-}
+import type { Claim } from "@/lib/store";
+import type {
+  CheckMetadata,
+  ClaimData,
+  ClaimsEventData,
+  ErrorEventData,
+  ExecuteAgentParams,
+  InitializeSessionParams,
+  SanitizedEvent,
+} from "@/types";
 
 const agentEventSchema = z.object({
   event: z.string(),
   data: z.unknown(),
 });
+
+const sanitizeEventData = (
+  event: string,
+  // biome-ignore lint/suspicious/noExplicitAny: Event data from agent has dynamic structure
+  data: any
+): SanitizedEvent[] => {
+  const events: SanitizedEvent[] = [];
+
+  if (!data || typeof data !== "object") return events;
+
+  if (
+    event.startsWith("updates|extract_claims:") &&
+    data.sentence_splitter?.contextual_sentences
+  ) {
+    const claimsMap = new Map<string, ClaimData[]>();
+
+    for (const sentence of data.sentence_splitter.contextual_sentences) {
+      claimsMap.set(sentence.original_sentence, []);
+    }
+
+    events.push({
+      event: "sentences",
+      data: { claims: Array.from(claimsMap.entries()) },
+    });
+  }
+
+  if (event === "updates" && data.extract_claims?.extracted_claims) {
+    const claimsMap = new Map<string, ClaimData[]>();
+
+    for (const claim of data.extract_claims.extracted_claims) {
+      const sentence = claim.original_sentence;
+      const existingClaims = claimsMap.get(sentence) || [];
+
+      claimsMap.set(sentence, [
+        ...existingClaims,
+        { text: claim.claim_text, status: "pending" },
+      ]);
+    }
+
+    events.push({
+      event: "claims",
+      data: { claims: Array.from(claimsMap.entries()) },
+    });
+  }
+
+  if (event === "updates" && data.generate_report_node?.final_report) {
+    const claimsMap = new Map<string, ClaimData[]>();
+
+    for (const claim of data.generate_report_node.final_report
+      .verified_claims) {
+      const sentence = claim.original_sentence;
+      const existingClaims = claimsMap.get(sentence) || [];
+
+      claimsMap.set(sentence, [
+        ...existingClaims,
+        {
+          status: "verified",
+          text: claim.claim_text,
+          result: claim.result as "Supported" | "Refuted",
+          reasoning: claim.reasoning,
+          sources: claim.sources || [],
+        },
+      ]);
+    }
+
+    if (claimsMap.size > 0) {
+      events.push({
+        event: "verdicts",
+        data: { claims: Array.from(claimsMap.entries()) },
+      });
+    }
+  }
+
+  return events;
+};
 
 const processAgentEvent = async (
   streamId: string,
@@ -41,27 +117,39 @@ const processAgentEvent = async (
 ): Promise<void> => {
   const parseResult = agentEventSchema.safeParse(rawEvent);
 
-  if (parseResult.success) {
-    const { event, data } = parseResult.data;
-    await addEvent(streamId, event, data);
+  if (!parseResult.success) {
+    console.error("Invalid agent event structure:", parseResult.error);
+    const errorData: ErrorEventData = {
+      message: "Server received malformed event data",
+      run_id: "validation-error",
+    };
+    await addEvent(streamId, "error", errorData);
     return;
   }
 
-  console.error("Invalid agent event structure:", parseResult.error);
-  await addEvent(streamId, "error", {
-    message: "Server received malformed event data",
-    run_id: "validation-error",
-  });
+  const sanitizedEvents = sanitizeEventData(
+    parseResult.data.event,
+    parseResult.data.data
+  );
+  for (const sanitizedEvent of sanitizedEvents) {
+    await addEvent(streamId, sanitizedEvent.event, sanitizedEvent.data);
+  }
 };
 
 const persistAgentResults = async (streamId: string): Promise<void> => {
   try {
     const agentEvents = await getEvents(streamId);
-    await updateCheckResult(streamId, agentEvents);
+    const result = agentEvents.find((event) => event.event === "verdicts");
+
+    if (!result?.data) {
+      throw new Error("No verdicts found in agent events");
+    }
+
+    await updateCheckResult(streamId, (result.data as ClaimsEventData).claims);
     console.log(`Successfully persisted results for check ${streamId}`);
   } catch (error) {
     console.error("Failed to persist agent results:", error);
-    await updateCheckStatus(streamId, "completed");
+    await updateCheckStatus(streamId, "failed");
   }
 };
 
@@ -72,10 +160,11 @@ const handleProcessingError = async (
   const errorMessage = error instanceof Error ? error.message : "Unknown error";
   console.error("Agent processing failed:", error);
 
-  await addEvent(streamId, "error", {
+  const errorData: ErrorEventData = {
     message: errorMessage,
     run_id: "server-error",
-  });
+  };
+  await addEvent(streamId, "error", errorData);
 
   await failStream(streamId, errorMessage);
   await updateCheckStatus(streamId, "failed");
@@ -150,18 +239,40 @@ export const initializeFactCheckSession = async ({
   checkId,
   userId,
 }: InitializeSessionParams) => {
-  const text = await findOrCreateText(content);
+  const [text, user] = await Promise.all([
+    findOrCreateText(content),
+    getUserById(userId),
+  ]);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
   const check = await createCheck({
     checkId,
     userId,
     textId: text.id,
   });
-  return { text, check };
+
+  const metadata: CheckMetadata = {
+    user: {
+      id: user.id,
+      email: user.email,
+      image: user.imageUrl,
+    },
+    isPublic: check.isPublic,
+    text: content,
+    title: check.title,
+    createdAt: check.createdAt.toISOString(),
+  };
+
+  return { text, check, metadata };
 };
 
 export const executeFactCheckingAgent = async ({
   streamId,
   content,
+  metadata,
 }: ExecuteAgentParams): Promise<void> => {
   try {
     await createStream(streamId);
@@ -169,14 +280,10 @@ export const executeFactCheckingAgent = async ({
       message: "Connected to SSE",
       streamId,
     });
-
+    await addEvent(streamId, "metadata", metadata);
     await executeAgentWorkflow(streamId, content);
     await completeStream(streamId);
-
-    await Promise.all([
-      persistAgentResults(streamId),
-      generateCheckTitle(streamId, content),
-    ]);
+    await persistAgentResults(streamId);
   } catch (error) {
     await handleProcessingError(streamId, error);
   }

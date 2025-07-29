@@ -7,6 +7,11 @@ import logging
 from typing import List
 
 from pydantic import BaseModel, Field
+from utils import (
+    call_llm_with_structured_output,
+    get_llm,
+    truncate_evidence_for_token_limit,
+)
 
 from claim_verifier.prompts import (
     EVIDENCE_EVALUATION_HUMAN_PROMPT,
@@ -18,11 +23,6 @@ from claim_verifier.schemas import (
     Evidence,
     Verdict,
     VerificationResult,
-)
-from utils import (
-    get_llm,
-    call_llm_with_structured_output,
-    truncate_evidence_for_token_limit,
 )
 
 logger = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ class EvidenceEvaluationOutput(BaseModel):
         description="Clear, concise reasoning for the verdict (1-2 sentences). Explain what specific evidence led to this conclusion, mentioning the reliability of sources and any limitations in the evidence. Avoid speculation and base reasoning strictly on the provided evidence."
     )
     influential_source_indices: List[int] = Field(
-        description="1-based indices of the evidence sources that were consulted in reaching this verdict. For 'Supported' and 'Refuted' verdicts, include sources that directly support the decision. For 'Insufficient Information' and 'Conflicting Evidence' verdicts, include all relevant sources that were considered, even if they were inadequate or contradictory. This ensures transparency in the fact-checking process.",
+        description="1-based indices of the evidence sources that were most important in reaching this verdict. These sources will be marked for prominent display in the user interface while all sources remain visible. For 'Supported' and 'Refuted' verdicts, include sources that directly support the decision. For 'Insufficient Information' and 'Conflicting Evidence' verdicts, include the most relevant sources that were considered. Select 2-4 of the most critical sources.",
         default_factory=list,
     )
 
@@ -114,17 +114,29 @@ async def evaluate_evidence_node(state: ClaimVerifierState) -> dict:
             result = VerificationResult(response.verdict)
         except ValueError:
             logger.warning(
-                f"Invalid verdict '{response.verdict}' from LLM. "
-                f"Defaulting to Insufficient Information."
+                f"Invalid verdict '{response.verdict}', defaulting to REFUTED"
             )
             result = VerificationResult.REFUTED
 
-        sources = []
-        for idx in response.influential_source_indices:
-            if 1 <= idx <= len(truncated_evidence):
-                sources.append(truncated_evidence[idx - 1])
-            else:
-                logger.warning(f"Invalid source index {idx} referenced in verdict")
+        influential_urls = (
+            {
+                truncated_evidence[idx - 1].url
+                for idx in response.influential_source_indices
+                if 1 <= idx <= len(truncated_evidence)
+            }
+            if response.influential_source_indices
+            else set()
+        )
+
+        sources = [
+            Evidence(
+                url=source.url,
+                text=source.text,
+                title=source.title,
+                is_influential=source.url in influential_urls,
+            )
+            for source in {source.url: source for source in evidence_snippets}.values()
+        ]
 
         verdict = Verdict(
             claim_text=claim.claim_text,
@@ -136,10 +148,12 @@ async def evaluate_evidence_node(state: ClaimVerifierState) -> dict:
             sources=sources,
         )
 
+    # Log final result
+    influential_count = sum(source.is_influential for source in verdict.sources)
     logger.info(
-        f"Final verdict for claim '{claim.claim_text}': {verdict.result}. "
-        f"Reasoning: {verdict.reasoning} "
-        f"Based on {len(verdict.sources)} influential sources."
+        f"Verdict '{verdict.result}' for '{claim.claim_text}': {verdict.reasoning} "
+        f"({len(verdict.sources)} sources, {influential_count} influential)"
     )
 
     return {"verdict": verdict}
+ 

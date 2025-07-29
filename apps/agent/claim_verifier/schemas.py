@@ -26,6 +26,9 @@ class Evidence(BaseModel):
     title: Optional[str] = Field(
         default=None, description="The title of the source page"
     )
+    is_influential: bool = Field(
+        default=False, description="Whether this source was marked as influential by the LLM during evaluation"
+    )
 
 
 class Verdict(BaseModel):

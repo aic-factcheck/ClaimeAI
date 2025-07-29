@@ -50,6 +50,7 @@ export interface ExecuteAgentParams {
 export interface ClaimSource {
   url: string;
   title: string;
+  is_influential?: boolean;
 }
 
 export type ClaimVerdict = "Supported" | "Refuted";

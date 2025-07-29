@@ -20,7 +20,6 @@ import {
   failStream,
   getEvents,
 } from "@/lib/redis";
-import type { Claim } from "@/lib/store";
 import type {
   CheckMetadata,
   ClaimData,
@@ -177,11 +176,16 @@ const executeAgentWorkflow = async (
   const thread = await client.threads.create();
   const runStream = client.runs.stream(thread.thread_id, "fact_checker", {
     input: { answer: content },
-    streamSubgraphs: true,
     streamMode: ["updates"],
   });
 
   for await (const event of runStream) {
+    const error = event.event === "error" ? event.data : null;
+    if (error) {
+      console.error("Agent processing failed:", error);
+      await handleProcessingError(streamId, error);
+      return;
+    }
     await processAgentEvent(streamId, event);
   }
 };

@@ -26,6 +26,7 @@ import {
 import { AboutDialog } from "./about-dialog";
 import { HowItWorksDialog } from "./how-it-works-dialog";
 import { AppSidebarFooter } from "./sidebar-footer";
+import Image from "next/image";
 
 const NAVIGATION_ITEMS = [
   {
@@ -235,11 +236,14 @@ export const AppSidebar = () => {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild size="lg">
+            <SidebarMenuButton asChild size="lg" className="gap-1 pl-0">
               <Link href="/">
-                <div
-                  aria-hidden="true"
-                  className="size-6 rounded-full border-5 border-black border-dashed"
+                <Image
+                  alt="ClaimeAI"
+                  className="size-10"
+                  height={40}
+                  src="/logo.svg"
+                  width={40}
                 />
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">ClaimeAI</span>

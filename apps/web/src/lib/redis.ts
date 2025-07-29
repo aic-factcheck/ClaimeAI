@@ -48,30 +48,21 @@ export const addEvent = async (
   const channelKey = buildChannelKey(streamId);
   const streamEvent = createStreamEvent(eventType, eventData);
 
-  if (eventType === "verdicts") {
-    console.log(`[DEBUG] ADDING VERDICTS EVENT to Redis for ${streamId}:`, eventData);
-  }
-
   await redis.lpush(eventsKey, JSON.stringify(streamEvent));
   await Promise.all([
     redis.ltrim(eventsKey, 0, 999),
     redis.expire(eventsKey, STREAM_EXPIRY_SECONDS),
-    redis.publish(channelKey, JSON.stringify(streamEvent)),
   ]);
 
-  if (eventType === "verdicts") {
-    console.log(`[DEBUG] VERDICTS EVENT successfully stored in Redis for ${streamId}`);
-  }
+  redis.publish(channelKey, JSON.stringify(streamEvent));
 };
 
 export const getEvents = async (streamId: string): Promise<StreamEvent[]> => {
   const eventsKey = buildEventsKey(streamId);
 
   try {
-    console.log(`[DEBUG] getEvents - fetching from Redis key: ${eventsKey} for ${streamId}`);
     const rawEvents = await redis.lrange(eventsKey, 0, -1);
-    console.log(`[DEBUG] getEvents - retrieved ${rawEvents.length} raw events for ${streamId}`);
-    
+
     const parsedEvents = rawEvents.reverse().map((eventData: unknown) => {
       if (typeof eventData === "string") {
         return JSON.parse(eventData) as StreamEvent;
@@ -85,13 +76,7 @@ export const getEvents = async (streamId: string): Promise<StreamEvent[]> => {
         id: event.id ?? generateEventId(),
       } satisfies StreamEvent;
     });
-    
-    const eventTypes = parsedEvents.map(e => e.event);
-    console.log(`[DEBUG] getEvents - parsed event types for ${streamId}:`, eventTypes);
-    
-    const hasVerdicts = parsedEvents.some(e => e.event === "verdicts");
-    console.log(`[DEBUG] getEvents - contains verdicts for ${streamId}:`, hasVerdicts);
-    
+
     return parsedEvents;
   } catch (error) {
     console.error(`[DEBUG] Failed to fetch events for ${streamId}:`, error);
@@ -137,9 +122,7 @@ export const streamExists = async (streamId: string): Promise<boolean> => {
 };
 
 export const completeStream = async (streamId: string): Promise<void> => {
-  console.log(`[DEBUG] completeStream called for ${streamId}`);
   await addEvent(streamId, "complete", { completed: true });
-  console.log(`[DEBUG] completeStream finished for ${streamId}`);
 };
 
 export const failStream = async (

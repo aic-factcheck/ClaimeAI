@@ -265,8 +265,8 @@ export const agentRoute = new Hono()
           error instanceof Error && error.message.includes("not found")
             ? 404
             : error instanceof Error && error.message.includes("Unauthorized")
-              ? 403
-              : 500;
+            ? 403
+            : 500;
         return ctx.json(
           {
             error:
@@ -357,8 +357,8 @@ export const agentRoute = new Hono()
           error instanceof Error && error.message.includes("not found")
             ? 404
             : error instanceof Error && error.message.includes("Unauthorized")
-              ? 403
-              : 500;
+            ? 403
+            : 500;
         return context.json(
           {
             error:

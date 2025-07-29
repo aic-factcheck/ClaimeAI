@@ -80,14 +80,6 @@ const sanitizeEventData = (
   }
 
   if (event === "updates" && data.generate_report_node?.final_report) {
-    console.log(
-      "[DEBUG] sanitizeEventData - Found generate_report_node with final_report"
-    );
-    console.log(
-      "[DEBUG] sanitizeEventData - verified_claims count:",
-      data.generate_report_node.final_report.verified_claims?.length || 0
-    );
-
     const claimsMap = new Map<string, ClaimData[]>();
 
     for (const claim of data.generate_report_node.final_report
@@ -107,18 +99,11 @@ const sanitizeEventData = (
       ]);
     }
 
-    console.log("[DEBUG] sanitizeEventData - claimsMap size:", claimsMap.size);
-
     if (claimsMap.size > 0) {
-      console.log("[DEBUG] sanitizeEventData - GENERATING VERDICTS EVENT");
       events.push({
         event: "verdicts",
         data: { claims: Array.from(claimsMap.entries()) },
       });
-    } else {
-      console.log(
-        "[DEBUG] sanitizeEventData - NO VERDICTS EVENT generated (claimsMap is empty)"
-      );
     }
   }
 
@@ -129,8 +114,6 @@ const processAgentEvent = async (
   streamId: string,
   rawEvent: unknown
 ): Promise<void> => {
-  console.log(`[DEBUG] processAgentEvent for ${streamId}`);
-
   const parseResult = agentEventSchema.safeParse(rawEvent);
 
   if (!parseResult.success) {
@@ -146,70 +129,28 @@ const processAgentEvent = async (
     return;
   }
 
-  console.log(
-    `[DEBUG] Processing event type: ${parseResult.data.event} for ${streamId}`
-  );
-
   const sanitizedEvents = sanitizeEventData(
     parseResult.data.event,
     parseResult.data.data
   );
 
-  console.log(
-    `[DEBUG] Generated ${sanitizedEvents.length} sanitized events for ${streamId}`
-  );
-
   for (const sanitizedEvent of sanitizedEvents) {
-    console.log(
-      `[DEBUG] Adding sanitized event: ${sanitizedEvent.event} for ${streamId}`
-    );
     await addEvent(streamId, sanitizedEvent.event, sanitizedEvent.data);
-
-    if (sanitizedEvent.event === "verdicts") {
-      console.log(
-        `[DEBUG] VERDICTS EVENT ADDED to Redis for ${streamId}`,
-        sanitizedEvent.data
-      );
-    }
   }
 };
 
 const persistAgentResults = async (streamId: string): Promise<void> => {
-  console.log(`[DEBUG] persistAgentResults START for ${streamId}`);
-
   try {
-    console.log(`[DEBUG] Getting events from Redis for ${streamId}`);
     const agentEvents = await getEvents(streamId);
-
-    console.log(
-      `[DEBUG] Retrieved ${agentEvents.length} events for ${streamId}`
-    );
-    console.log(
-      "[DEBUG] Event types found:",
-      agentEvents.map((e) => e.event)
-    );
 
     const result = agentEvents.find((event) => event.event === "verdicts");
 
     if (!result?.data) {
-      console.error(
-        `[DEBUG] NO VERDICTS FOUND for ${streamId}! Available events:`,
-        agentEvents.map((e) => ({ event: e.event, hasData: !!e.data }))
-      );
       throw new Error("No verdicts found in agent events");
     }
 
-    console.log(`[DEBUG] Found verdicts event for ${streamId}:`, result.data);
-
-    console.log(`[DEBUG] Updating check result in database for ${streamId}`);
     await updateCheckResult(streamId, (result.data as ClaimsEventData).claims);
-
-    console.log(`[DEBUG] Successfully persisted results for check ${streamId}`);
   } catch (error) {
-    console.error(
-      `[DEBUG] Failed to persist agent results for ${streamId}:`,
-      error
-    );
     await updateCheckStatus(streamId, "failed");
   }
 };
@@ -219,20 +160,16 @@ const handleProcessingError = async (
   error: unknown
 ): Promise<void> => {
   const errorMessage = error instanceof Error ? error.message : "Unknown error";
-  console.error(`[DEBUG] handleProcessingError called for ${streamId}:`, error);
 
   const errorData: ErrorEventData = {
     message: errorMessage,
     run_id: "server-error",
   };
 
-  console.log(`[DEBUG] Adding error event for ${streamId}`);
   await addEvent(streamId, "error", errorData);
 
-  console.log(`[DEBUG] Failing stream for ${streamId}`);
   await failStream(streamId, errorMessage);
 
-  console.log(`[DEBUG] Updating check status to failed for ${streamId}`);
   await updateCheckStatus(streamId, "failed");
 };
 
@@ -240,13 +177,8 @@ const executeAgentWorkflow = async (
   streamId: string,
   content: string
 ): Promise<void> => {
-  console.log(`[DEBUG] executeAgentWorkflow START - streamId: ${streamId}`);
-
-  console.log(`[DEBUG] Creating thread for ${streamId}`);
   const thread = await client.threads.create();
-  console.log(`[DEBUG] Thread created: ${thread.thread_id} for ${streamId}`);
 
-  console.log(`[DEBUG] Starting stream for ${streamId}`);
   const runStream = client.runs.stream(thread.thread_id, "fact_checker", {
     input: { answer: content },
     streamMode: ["updates"],
@@ -255,24 +187,9 @@ const executeAgentWorkflow = async (
   let eventCount = 0;
   for await (const event of runStream) {
     eventCount++;
-    console.log(
-      `[DEBUG] Processing event #${eventCount} for ${streamId}:`,
-      event.event
-    );
-
-    // const error = event.event === "error" ? event.data : null;
-    // if (error) {
-    //   console.error("Agent processing failed:", error);
-    //   await handleProcessingError(streamId, error);
-    //   return;
-    // }
-    console.info({ event });
     await processAgentEvent(streamId, event);
+    // if (eventCount === 4) break;
   }
-
-  console.log(
-    `[DEBUG] executeAgentWorkflow COMPLETED - processed ${eventCount} events for ${streamId}`
-  );
 };
 
 export const generateCheckTitle = async (
@@ -363,37 +280,22 @@ export const executeFactCheckingAgent = async ({
   content,
   metadata,
 }: ExecuteAgentParams): Promise<void> => {
-  console.log(`[DEBUG] executeFactCheckingAgent START - streamId: ${streamId}`);
   try {
-    console.log(`[DEBUG] Creating stream for ${streamId}`);
     await createStream(streamId);
 
-    console.log(`[DEBUG] Adding connected event for ${streamId}`);
     await addEvent(streamId, "connected", {
       message: "Connected to SSE",
       streamId,
     });
 
-    console.log(`[DEBUG] Adding metadata event for ${streamId}`);
     await addEvent(streamId, "metadata", metadata);
 
-    console.log(`[DEBUG] Starting agent workflow for ${streamId}`);
     await executeAgentWorkflow(streamId, content);
 
-    console.log(`[DEBUG] Completing stream for ${streamId}`);
     await completeStream(streamId);
 
-    console.log(`[DEBUG] Starting to persist agent results for ${streamId}`);
     await persistAgentResults(streamId);
-
-    console.log(
-      `[DEBUG] executeFactCheckingAgent COMPLETED successfully for ${streamId}`
-    );
   } catch (error) {
-    console.error(
-      `[DEBUG] executeFactCheckingAgent FAILED for ${streamId}:`,
-      error
-    );
     await handleProcessingError(streamId, error);
   }
 };

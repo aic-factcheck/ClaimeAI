@@ -184,11 +184,8 @@ const executeAgentWorkflow = async (
     streamMode: ["updates"],
   });
 
-  let eventCount = 0;
   for await (const event of runStream) {
-    eventCount++;
     await processAgentEvent(streamId, event);
-    // if (eventCount === 4) break;
   }
 };
 

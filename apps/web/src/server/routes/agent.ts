@@ -15,6 +15,7 @@ import {
   generateCheckTitle,
   initializeFactCheckSession,
 } from "@/server/services/check";
+import { after } from "next/server";
 
 const factCheckRequestSchema = z.object({
   content: z.string().trim().min(1).max(MAX_INPUT_LIMIT),
@@ -231,8 +232,14 @@ export const agentRoute = new Hono()
         userId: auth.userId,
       });
 
-      executeFactCheckingAgent({ streamId: checkId, content, metadata }).catch(
-        (error) => console.error("Background agent processing failed:", error)
+      after(
+        executeFactCheckingAgent({
+          streamId: checkId,
+          content,
+          metadata,
+        }).catch((error) =>
+          console.error("Background agent processing failed:", error)
+        )
       );
 
       return context.json({ checkId });

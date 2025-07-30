@@ -7,6 +7,8 @@ interface ProcessedAnswerProps {
   claims: Map<string, Claim[]>;
   expandedCitation: number | null;
   setExpandedCitation: (id: number | null) => void;
+  hasNoClaims?: boolean;
+  isLoading?: boolean;
 }
 
 const getVerdictBorderColor = (claims: Claim[]): string => {
@@ -28,9 +30,25 @@ export const ProcessedAnswer = ({
   claims,
   expandedCitation,
   setExpandedCitation,
+  hasNoClaims = false,
+  isLoading = false,
 }: ProcessedAnswerProps) => {
   if (claims.size === 0) {
-    return <p className="py-4 text-neutral-500">No claims available yet.</p>;
+    if (hasNoClaims) {
+      return (
+        <div className="py-8 text-center">
+          <p className="text-neutral-500 text-sm">No factual claims found to verify.</p>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="py-8 text-center">
+        <p className="text-neutral-500 text-sm">
+          {isLoading ? "Analyzing content..." : "No claims available."}
+        </p>
+      </div>
+    );
   }
 
   return (

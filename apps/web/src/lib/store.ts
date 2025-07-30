@@ -17,6 +17,7 @@ interface FactCheckerState {
   claims: Map<string, Claim[]>;
   metadata: CheckMetadata | null;
   currentCheckId: string | null;
+  hasNoClaims: boolean;
 }
 
 interface FactCheckerActions {
@@ -42,6 +43,7 @@ const initialState: FactCheckerState = {
   rawServerEvents: [],
   claims: new Map(),
   metadata: null,
+  hasNoClaims: false,
 };
 
 const createErrorEvent = (
@@ -95,7 +97,7 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
       ...initialState,
 
       resetState: () =>
-        set({ ...initialState, claims: new Map(), metadata: null }),
+        set({ ...initialState, claims: new Map(), metadata: null, hasNoClaims: false }),
       setIsLoading: (isLoading) => set({ isLoading }),
       setCurrentCheckId: (checkId) => set({ currentCheckId: checkId }),
       setText: (text) => set({ text }),
@@ -131,6 +133,8 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
           get().addRawServerEvent(event);
 
           if (event.event === "metadata") set({ metadata: event.data });
+
+          if (event.event === "no-claims") set({ hasNoClaims: true });
 
           const claimsEvents = ["sentences", "claims", "verdicts"];
           if (claimsEvents.includes(event.event)) {
@@ -204,7 +208,7 @@ export const useFactCheckerStore = create<FactCheckerStore>()(
 
                   processEventData(JSON.stringify(eventData));
 
-                  if (["complete", "error", "verdicts"].includes(eventType)) {
+                  if (["complete", "error", "verdicts", "no-claims"].includes(eventType)) {
                     setIsLoading(false);
                   }
                 } catch (error) {

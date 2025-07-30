@@ -162,7 +162,11 @@ const PublicCheckPage = () => {
           </div>
 
           <div className="p-4">
-            <FactChecker claims={claims} isLoading={false} />
+            <FactChecker
+              claims={claims}
+              isLoading={false}
+              hasNoClaims={claims.size === 0}
+            />
           </div>
         </div>
 

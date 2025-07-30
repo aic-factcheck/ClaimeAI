@@ -89,7 +89,7 @@ export const updateCheckResult = async (
 
 export const updateCheckStatus = async (
   checkId: string,
-  status: "completed" | "failed"
+  status: "completed" | "failed" | "no_claims"
 ): Promise<void> => {
   await db
     .update(checks)

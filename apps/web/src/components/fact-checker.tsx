@@ -13,9 +13,14 @@ import { VerdictSummary } from "./verdict-summary";
 interface FactCheckerProps {
   claims: Map<string, Claim[]>;
   isLoading: boolean;
+  hasNoClaims?: boolean;
 }
 
-export const FactChecker = ({ claims, isLoading }: FactCheckerProps) => {
+export const FactChecker = ({
+  claims,
+  isLoading,
+  hasNoClaims,
+}: FactCheckerProps) => {
   const [expandedCitation, setExpandedCitation] = useState<number | null>(null);
 
   const { verifiedClaims, hasSentences, hasAnyClaims, hasVerifiedClaims } =
@@ -85,6 +90,8 @@ export const FactChecker = ({ claims, isLoading }: FactCheckerProps) => {
           claims={claims}
           expandedCitation={expandedCitation}
           setExpandedCitation={setExpandedCitation}
+          hasNoClaims={hasNoClaims}
+          isLoading={isLoading}
         />
       </div>
 

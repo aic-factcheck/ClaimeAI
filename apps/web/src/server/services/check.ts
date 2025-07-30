@@ -146,11 +146,18 @@ const persistAgentResults = async (streamId: string): Promise<void> => {
     const result = agentEvents.find((event) => event.event === "verdicts");
 
     if (!result?.data) {
-      throw new Error("No verdicts found in agent events");
+      await addEvent(streamId, "no-claims", {
+        message: "No factual claims found in the provided text",
+      });
+      await updateCheckResult(streamId, []);
+      await updateCheckStatus(streamId, "no_claims");
+      return;
     }
 
     await updateCheckResult(streamId, (result.data as ClaimsEventData).claims);
+    await updateCheckStatus(streamId, "completed");
   } catch (error) {
+    console.error("Failed to persist agent results:", error);
     await updateCheckStatus(streamId, "failed");
   }
 };
@@ -185,6 +192,14 @@ const executeAgentWorkflow = async (
   });
 
   for await (const event of runStream) {
+    if (event.event === "error") {
+      const errorData: ErrorEventData = {
+        message: event.data.message || "Agent workflow error",
+        run_id: "agent-error",
+      };
+      await addEvent(streamId, "error", errorData);
+      throw new Error(`Agent workflow failed: ${JSON.stringify(event.data)}`);
+    }
     await processAgentEvent(streamId, event);
   }
 };

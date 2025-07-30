@@ -10,7 +10,7 @@ const CheckPage = () => {
   const { checkId } = useParams();
   const connectToStream = useFactCheckerStore((state) => state.connectToStream);
   const connectionInitiated = useRef(false);
-  const { isLoading, claims } = useFactCheckerStore();
+  const { isLoading, claims, hasNoClaims } = useFactCheckerStore();
   const { metadata } = useFactCheckerStore();
 
   useEffect(() => {
@@ -28,7 +28,11 @@ const CheckPage = () => {
         isLoading={isLoading}
         metadata={metadata}
       />
-      <FactChecker claims={claims} isLoading={isLoading} />
+      <FactChecker
+        claims={claims}
+        isLoading={isLoading}
+        hasNoClaims={hasNoClaims}
+      />
     </div>
   );
 };

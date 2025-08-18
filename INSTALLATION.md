@@ -65,7 +65,7 @@ pnpm setup:dev
 pnpm dev
 ```
 
-That's it! Your claime-ai should now be running at [http://localhost:4000](http://localhost:4000) 🚀
+That's it! Your claime-ai should now be running at [http://localhost:4749](http://localhost:4749) 🚀
 
 ### API Keys
 
@@ -109,4 +109,4 @@ This will:
 2. Install the Python packages needed for the claime-ai component
 3. Start both the frontend web interface and backend services
 
-You can then access the application in your browser at http://localhost:4000
+You can then access the application in your browser at http://localhost:4749

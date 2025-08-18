@@ -149,7 +149,7 @@ function addFloatingButtonToMessage(assistantMessageDiv) {
     // No need to check if (assistantText) here because we return early if it's empty
     const encodedAssistantText = encodeURIComponent(assistantText); // Already trimmed by getElementText
     const encodedUserText = encodeURIComponent(userText); // Already trimmed by getElementText or default value
-    const redirectUrl = `http://localhost:4000/?q=${encodedUserText}&a=${encodedAssistantText}`;
+    const redirectUrl = `http://localhost:4749/?q=${encodedUserText}&a=${encodedAssistantText}`;
     window.open(redirectUrl, "_blank");
   };
 

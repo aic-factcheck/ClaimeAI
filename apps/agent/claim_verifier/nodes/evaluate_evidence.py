@@ -89,7 +89,7 @@ async def evaluate_evidence_node(state: ClaimVerifierState) -> dict:
         ),
     ]
 
-    llm = get_llm(model_name="openai:gpt-4.1")
+    llm = get_llm(model_name="openai:gpt-5")
 
     response = await call_llm_with_structured_output(
         llm=llm,

@@ -33,8 +33,8 @@ def get_llm(
 
     return init_chat_model(
         model=model_name,
-        api_key=settings.openai_api_key,
-        temperature=temperature if model_name.startswith("openai:gpt") else None,
+        api_key=settings.openai_api_key#,
+        #temperature=temperature if model_name.startswith("openai:gpt") else None,
     )
 
 

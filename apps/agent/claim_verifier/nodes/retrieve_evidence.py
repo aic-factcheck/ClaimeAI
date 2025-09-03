@@ -1,13 +1,15 @@
-"""Retrieve evidence node - fetches evidence for claims using Exa AI Search.
+"""Retrieve evidence node - fetches evidence for claims using Exa AI, Tavily, or Serper (Google) Search.
 
-Uses search queries to retrieve relevant evidence snippets from the web using neural search.
+Uses search queries to retrieve relevant evidence snippets from the web using neural or keyword search.
 """
 
 import logging
+import asyncio
 from typing import Any, Dict, List
 
 from langchain_exa import ExaSearchRetriever
 from langchain_tavily import TavilySearch
+from langchain_community.utilities import GoogleSerperAPIWrapper
 
 from claim_verifier.config import EVIDENCE_RETRIEVAL_CONFIG
 from claim_verifier.schemas import ClaimVerifierState, Evidence
@@ -23,16 +25,13 @@ class SearchProviders:
     @staticmethod
     async def exa(query: str) -> List[Evidence]:
         logger.info(f"Searching with Exa: '{query}'")
-
         try:
             retriever = ExaSearchRetriever(
                 k=RESULTS_PER_QUERY,
                 text_contents_options={"max_characters": 2000},
                 type="neural",
             )
-
             results = await retriever.ainvoke(query)
-
             evidence = [
                 Evidence(
                     url=doc.metadata.get("url", ""),
@@ -41,10 +40,8 @@ class SearchProviders:
                 )
                 for doc in results
             ]
-
             logger.info(f"Retrieved {len(evidence)} evidence items")
             return evidence
-
         except Exception as e:
             logger.error(f"Exa search failed for '{query}': {e}")
             return []
@@ -52,22 +49,57 @@ class SearchProviders:
     @staticmethod
     async def tavily(query: str) -> List[Evidence]:
         logger.info(f"Searching with Tavily: '{query}'")
-
         try:
             search = TavilySearch(
                 max_results=RESULTS_PER_QUERY,
                 topic="general",
                 include_raw_content="markdown",
             )
-
             results = await search.ainvoke(query)
             evidence = SearchProviders._parse_tavily_results(results)
+            logger.info(f"Retrieved {len(evidence)} evidence items")
+            return evidence
+        except Exception as e:
+            logger.error(f"Tavily search failed for '{query}': {e}")
+            return []
+
+    @staticmethod
+    async def serper(query: str) -> List[Evidence]:
+        logger.info(f"Searching with Serper: '{query}'")
+        try:
+            wrapper = GoogleSerperAPIWrapper()
+            raw = await wrapper.aresults(query)
+            if not isinstance(raw, dict):
+                # Fallback: treat as plain text
+                return [Evidence(url="", text=str(raw), title="Serper Search Result")]
+
+            organic = raw.get("organic", []) or []
+            evidence: List[Evidence] = []
+            for item in organic[:RESULTS_PER_QUERY]:
+                if not isinstance(item, dict):
+                    continue
+                evidence.append(
+                    Evidence(
+                        url=item.get("link", "") or item.get("url", ""),
+                        title=item.get("title", ""),
+                        text=(item.get("snippet") or item.get("content") or "")[:2000],
+                    )
+                )
+
+            # If nothing parsed, try summary field
+            if not evidence and (summary := raw.get("answer_box") or raw.get("knowledgeGraph")):
+                evidence.append(
+                    Evidence(
+                        url="",
+                        title="Serper Summary",
+                        text=str(summary)[:2000],
+                    )
+                )
 
             logger.info(f"Retrieved {len(evidence)} evidence items")
             return evidence
-
         except Exception as e:
-            logger.error(f"Tavily search failed for '{query}': {e}")
+            logger.error(f"Serper search failed for '{query}': {e}")
             return []
 
     @staticmethod
@@ -82,7 +114,7 @@ class SearchProviders:
                     )
                     for result in search_results
                     if isinstance(result, dict)
-                ]
+                ][:RESULTS_PER_QUERY]
             case str():
                 return [Evidence(url="", text=results, title="Tavily Search Result")]
             case _:
@@ -93,6 +125,8 @@ async def _search_query(query: str) -> List[Evidence]:
     match SEARCH_PROVIDER.lower():
         case "tavily":
             return await SearchProviders.tavily(query)
+        case "serper":
+            return await SearchProviders.serper(query)
         case _:
             return await SearchProviders.exa(query)
 

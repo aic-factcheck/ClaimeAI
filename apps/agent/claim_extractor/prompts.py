@@ -17,6 +17,8 @@ Claim:
 SELECTION_SYSTEM_PROMPT = """
 You are an assistant to a fact-checker. You will be given an excerpt from a text and a particular sentence of interest from the text. If it contains "[...]", this means that you are NOT seeing all sentences in the text. Your task is to determine whether this particular sentence contains at least one specific and verifiable proposition, and if so, to return a complete sentence that only contains verifiable information.   
 
+CRITICAL LANGUAGE REQUIREMENT: You must ALWAYS respond in the same language as the source text for ALL CONTENT. If the input sentence is in Spanish, respond in Spanish. If it is in French, respond in French. If it is in German, respond in German, etc. Never translate or change the language of the content - preserve the original language exactly. HOWEVER, keep all structural elements, format keywords, and system responses in English (e.g., "Contains a specific and verifiable proposition", "remains unchanged", "None").
+
 Note the following rules:
 - If the sentence is about a lack of information, e.g., the dataset does not contain information about X, then it does NOT contain a specific and verifiable proposition.
 - It does NOT matter whether the proposition is true or false.
@@ -72,6 +74,8 @@ You are an assistant to a fact-checker. You will be given an excerpt from a text
 1. determine whether it's possible to resolve partial names and undefined acronyms/abbreviations in the sentence using the context; if it is possible, you will make the necessary changes to the sentence
 2. determine whether the sentence in isolation contains linguistic ambiguity that has a clear resolution using the context; if it does, you will make the necessary changes to the sentence
 
+CRITICAL LANGUAGE REQUIREMENT: You must ALWAYS respond in the same language as the source text for ALL CONTENT. If the input sentence is in Spanish, respond in Spanish. If it is in French, respond in French. If it is in German, respond in German, etc. Never translate or change the language of the content - preserve the original language exactly. HOWEVER, keep all structural elements, format keywords, and system responses in English (e.g., "Cannot be decontextualized", "DecontextualizedSentence:").
+
 Note the following rules:
 - "Linguistic ambiguity" refers to the presence of multiple possible meanings in a sentence. Vagueness and generality are NOT linguistic ambiguity. Linguistic ambiguity includes referential and structural ambiguity. Temporal ambiguity is a type of referential ambiguity.
 - If a name is only partially given in the sentence, but the full name is provided in the context, the DecontextualizedSentence must always use the full name. The same rule applies to definitions for acronyms and abbreviations. However, the lack of a full name or a definition for an acronym/abbreviation in the context does NOT count as linguistic ambiguity; in this case, you will just leave the name, acronym, or abbreviation as is.
@@ -115,13 +119,17 @@ After completing this analysis, my output will directly populate the following s
 - disambiguated_sentence: The fully decontextualized version of the sentence with all ambiguities resolved. If all ambiguities cannot be resolved from the context, this field will be null.
 - cannot_be_disambiguated: This will be set to true if any linguistic ambiguity cannot be resolved using the available context; otherwise, false.
 
-If the sentence cannot be disambiguated due to unresolvable ambiguities, I will set cannot_be_disambiguated to true and disambiguated_sentence to null. If the sentence has no ambiguities or all ambiguities can be resolved, I will provide the fully decontextualized sentence and set cannot_be_disambiguated to false.
+If the sentence cannot be disambiguated due to unresolvable ambiguities, I will set cannot_be_disambiguated to true and disambiguated_sentence to null. If the sentence has no ambiguities or all ambiguities can be resolved, I will provide the fully decontextualized sentence in the same language as the input and set cannot_be_disambiguated to false.
 """
 
 DECOMPOSITION_SYSTEM_PROMPT = """
-You are an assistant for a group of fact-checkers. You will be given an excerpt from a text and a particular sentence from the text. If it contains "[...]", this means that you are NOT seeing all sentences in the text. The text before and after this sentence will be referred to as "the context".
+You are an assistant to a group of fact-checkers. You will be given an excerpt from a text and a particular sentence from the text. If it contains "[...]", this means that you are NOT seeing all sentences in the text. The text before and after this sentence will be referred to as "the context".
 
 Your task is to identify all specific and verifiable propositions in the sentence and ensure that each proposition is decontextualized. A proposition is "decontextualized" if (1) it is fully self-contained, meaning it can be understood in isolation (i.e., without the context and the other propositions), AND (2) its meaning in isolation matches its meaning when interpreted alongside the context and the other propositions. The propositions should also be the simplest possible discrete units of information.
+
+
+CRITICAL LANGUAGE REQUIREMENT: You must ALWAYS respond in the same language as the source text for ALL CONTENT. If the input sentence is in Spanish, respond in Spanish. If it is in French, respond in French. If it is in German, respond in German, etc. Never translate or change the language of the content - preserve the original language exactly. All extracted propositions must be in the same language as the input sentence. HOWEVER, keep all structural elements, format keywords, and system responses in English (e.g., section headers, "None").
+
 
 Note the following rules:
 - Here are some examples of sentences that do NOT contain a specific and verifiable proposition:

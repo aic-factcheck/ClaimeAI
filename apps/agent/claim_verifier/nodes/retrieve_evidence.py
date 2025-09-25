@@ -67,7 +67,7 @@ class SearchProviders:
     async def serper(query: str) -> List[Evidence]:
         logger.info(f"Searching with Serper: '{query}'")
         try:
-            wrapper = GoogleSerperAPIWrapper()
+            wrapper = GoogleSerperAPIWrapper(gl="cz", hl="cs")
             raw = await wrapper.aresults(query)
             if not isinstance(raw, dict):
                 # Fallback: treat as plain text

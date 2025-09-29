@@ -66,16 +66,16 @@ class ValidatedClaim(BaseModel):
 
     claim_text: str = Field(description="Text of the validated claim")
     is_complete_declarative: bool = Field(
-        description="Whether the claim is a complete declarative sentence"
+        description="Whether the claim is a complete declarative sentence", default=True
     )
     disambiguated_sentence: str = Field(
-        description="The disambiguated sentence the claim was extracted from"
+        description="The disambiguated sentence the claim was extracted from", default=""
     )
     original_sentence: str = Field(
-        description="The original sentence from the answer text"
+        description="The original sentence from the answer text", default=""
     )
     original_index: int = Field(
-        description="Index of the original sentence in the answer text"
+        description="Index of the original sentence in the answer text", default=0
     )
 
 

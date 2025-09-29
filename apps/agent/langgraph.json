@@ -4,6 +4,7 @@
   "graphs": {
     "claim_extractor": "claim_extractor/agent.py:graph",
     "claim_verifier": "claim_verifier/agent.py:graph",
+    "evidence_retriever": "claim_verifier/retriever.py:graph",
     "fact_checker": "fact_checker/agent.py:graph"
   },
   "env": ".env"

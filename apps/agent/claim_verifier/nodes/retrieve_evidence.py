@@ -64,10 +64,10 @@ class SearchProviders:
             return []
 
     @staticmethod
-    async def serper(query: str) -> List[Evidence]:
+    async def serper(query: str, gl: str = "cz", hl: str = "cs") -> List[Evidence]:
         logger.info(f"Searching with Serper: '{query}'")
         try:
-            wrapper = GoogleSerperAPIWrapper(gl="cz", hl="cs")
+            wrapper = GoogleSerperAPIWrapper(gl=gl, hl=hl)
             raw = await wrapper.aresults(query)
             if not isinstance(raw, dict):
                 # Fallback: treat as plain text
@@ -121,24 +121,26 @@ class SearchProviders:
                 return []
 
 
-async def _search_query(query: str) -> List[Evidence]:
+async def _search_query(query: str, gl: str = "cz", hl: str = "cs") -> List[Evidence]:
     match SEARCH_PROVIDER.lower():
         case "tavily":
             return await SearchProviders.tavily(query)
         case "serper":
-            return await SearchProviders.serper(query)
+            return await SearchProviders.serper(query, gl=gl, hl=hl)
         case _:
             return await SearchProviders.exa(query)
 
 
 async def retrieve_evidence_node(
     state: ClaimVerifierState,
+    gl: str = "cz",
+    hl: str = "cs",
 ) -> Dict[str, List[Evidence]]:
     if not state.query:
         logger.warning("No search query to process")
         return {"evidence": []}
 
-    evidence = await _search_query(state.query)
+    evidence = await _search_query(state.query, gl=gl, hl=hl)
     logger.info(f"Retrieved {len(evidence)} total evidence snippets")
 
     return {"evidence": [item.model_dump() for item in evidence]}

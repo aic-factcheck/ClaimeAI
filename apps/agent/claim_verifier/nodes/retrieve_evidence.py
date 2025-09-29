@@ -65,6 +65,7 @@ class SearchProviders:
 
     @staticmethod
     async def serper(query: str, gl: str = "cz", hl: str = "cs") -> List[Evidence]:
+        hl, gl = EVIDENCE_RETRIEVAL_CONFIG.get("hl", hl), EVIDENCE_RETRIEVAL_CONFIG.get("gl", gl)
         logger.info(f"Searching with Serper: '{query}'")
         try:
             wrapper = GoogleSerperAPIWrapper(gl=gl, hl=hl)

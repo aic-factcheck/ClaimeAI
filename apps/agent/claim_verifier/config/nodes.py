@@ -11,6 +11,8 @@ QUERY_GENERATION_CONFIG = {
 EVIDENCE_RETRIEVAL_CONFIG = {
     "results_per_query": 5,  # Number of search results to fetch per query
     "search_provider": "serper",  # Search provider: "exa" or "tavily"
+    "gl": "us",  # Google Serper gl parameter
+    "hl": "en",  # Google Serper hl parameter
 }
 
 EVIDENCE_EVALUATION_CONFIG = {
